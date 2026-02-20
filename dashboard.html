@@ -478,81 +478,40 @@
         <div class="auth-error" id="authError"></div>
         <div class="auth-success" id="authSuccess"></div>
 
-        <div class="auth-tabs">
-            <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
-            <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
-            <button class="auth-tab" onclick="switchAuthTab('reset')">Reset</button>
-        </div>
-
-        <!-- LOGIN -->
-        <div class="auth-form active" id="authLoginForm">
-            <button class="btn btn-oauth" id="authGoogleBtn" onclick="authDoGoogle()" style="width:100%;margin-bottom:0.75rem;">
-                <svg width="18" height="18" viewBox="0 0 18 18" style="flex-shrink:0;">
+        <!-- GOOGLE ONLY -->
+        <div style="margin-bottom:1.5rem;">
+            <button class="btn btn-oauth" id="authGoogleBtn" onclick="authDoGoogle()" style="width:100%;padding:1rem 1.5rem;font-size:1rem;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:0.875rem;border-color:rgba(99,179,237,0.25);transition:all 0.2s;">
+                <svg width="22" height="22" viewBox="0 0 18 18" style="flex-shrink:0;">
                     <path fill="#EA4335" d="M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z"/>
                     <path fill="#4285F4" d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z"/>
                     <path fill="#FBBC05" d="M3.88 10.78A5.54 5.54 0 013.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 000 9c0 1.45.35 2.82.96 4.04l2.92-2.26z"/>
                     <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z"/>
                 </svg>
-                Continue with Google
-            </button>
-            <div class="divider">or use username &amp; password</div>
-            <div class="form-group">
-                <label class="form-label">Username</label>
-                <input type="text" class="form-input" id="loginUsername" placeholder="FarmKing47" autocomplete="username" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,\'\')">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key===\'Enter\')authDoLogin()">
-            </div>
-            <div class="forgot-link"><a onclick="switchAuthTab(\'reset\')">Forgot password?</a></div>
-            <button class="btn btn-primary full-width" id="authLoginBtn" onclick="authDoLogin()">
-                <span id="authLoginTxt">Sign In</span>
-                <div class="spinner" id="authLoginSpinner" style="display:none;width:16px;height:16px;border-width:2px;"></div>
+                <span id="authGoogleTxt">Continue with Google</span>
+                <div class="spinner" id="authGoogleSpinner" style="display:none;width:16px;height:16px;border-width:2px;"></div>
             </button>
         </div>
 
-        <!-- SIGNUP -->
-        <div class="auth-form" id="authSignupForm">
-            <button class="btn btn-oauth" onclick="authDoGoogle()" style="width:100%;margin-bottom:0.75rem;">
-                <svg width="18" height="18" viewBox="0 0 18 18" style="flex-shrink:0;">
-                    <path fill="#EA4335" d="M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z"/>
-                    <path fill="#4285F4" d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z"/>
-                    <path fill="#FBBC05" d="M3.88 10.78A5.54 5.54 0 013.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 000 9c0 1.45.35 2.82.96 4.04l2.92-2.26z"/>
-                    <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z"/>
-                </svg>
-                Sign Up with Google
-            </button>
-            <div class="divider">or create with username &amp; password</div>
-            <div class="form-group">
-                <label class="form-label">Username</label>
-                <input type="text" class="form-input" id="signupUsername" placeholder="FarmKing47" maxlength="30" autocomplete="username" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,\'\')">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input type="password" class="form-input" id="signupPassword" placeholder="••••••••" minlength="6" autocomplete="new-password">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Confirm Password</label>
-                <input type="password" class="form-input" id="signupConfirm" placeholder="••••••••" autocomplete="new-password" onkeydown="if(event.key===\'Enter\')authDoSignup()">
-            </div>
-            <button class="btn btn-primary full-width" id="authSignupBtn" onclick="authDoSignup()">
-                <span id="authSignupTxt">Create Account</span>
-                <div class="spinner" id="authSignupSpinner" style="display:none;width:16px;height:16px;border-width:2px;"></div>
-            </button>
+        <div style="text-align:center;color:var(--text-dim);font-size:0.8rem;line-height:1.6;">
+            Sign in or create your account instantly.<br>No password required.
         </div>
 
-        <!-- RESET -->
-        <div class="auth-form" id="authResetForm">
-            <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1.25rem;">Enter your username or recovery email.</p>
-            <div class="form-group">
-                <label class="form-label">Username or Email</label>
-                <input type="text" class="form-input" id="resetEmail" placeholder="FarmKing47 or you@email.com" onkeydown="if(event.key===\'Enter\')authDoReset()">
-            </div>
-            <button class="btn btn-primary full-width" id="authResetBtn" onclick="authDoReset()">
-                <span id="authResetTxt">Send Reset Link</span>
-                <div class="spinner" id="authResetSpinner" style="display:none;width:16px;height:16px;border-width:2px;"></div>
-            </button>
-        </div>
+        <!-- Hidden stubs so rest of JS doesn't break -->
+        <input type="hidden" id="loginUsername">
+        <input type="hidden" id="loginPassword">
+        <input type="hidden" id="signupUsername">
+        <input type="hidden" id="signupPassword">
+        <input type="hidden" id="signupConfirm">
+        <input type="hidden" id="resetEmail">
+        <span id="authLoginTxt" style="display:none"></span>
+        <span id="authLoginSpinner" style="display:none"></span>
+        <span id="authSignupTxt" style="display:none"></span>
+        <span id="authSignupSpinner" style="display:none"></span>
+        <span id="authResetTxt" style="display:none"></span>
+        <span id="authResetSpinner" style="display:none"></span>
+        <button id="authLoginBtn" style="display:none"></button>
+        <button id="authSignupBtn" style="display:none"></button>
+        <button id="authResetBtn" style="display:none"></button>
     </div>
 </div>
 
@@ -1770,7 +1729,7 @@ async function ensureProfile(session) {
                 email: session.user.email || null,
                 username: uname,
                 role: 'user',
-                approved: false,
+                approved: true,
                 account_goal: 20
             }).select().single();
             currentProfile = data;
@@ -1852,9 +1811,10 @@ function showPendingScreen() {
             <div style="font-weight:600;margin-bottom:0.5rem;">Hi ${currentProfile?.username || currentUser?.email || 'Trader'}!</div>
             <div style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;">Your account has been created successfully.<br>An admin will approve your access shortly.</div>
         </div>
-        <div style="background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);border-radius:var(--radius-sm);padding:0.875rem;color:var(--warning);font-size:0.85rem;text-align:center;margin-bottom:1.5rem;">
+        <div style="background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);border-radius:var(--radius-sm);padding:0.875rem;color:var(--warning);font-size:0.85rem;text-align:center;margin-bottom:1rem;">
             ⚠️ Access restricted until approved by <strong>8xhorizon.invest@gmail.com</strong>
         </div>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;" onclick="window.location.reload()">🔄 Refresh (Check Approval Status)</button>
         <button class="btn btn-secondary" style="width:100%;" onclick="sbClient.auth.signOut()">Sign Out</button>
         `;
     }
@@ -2210,6 +2170,12 @@ async function handlePasswordReset(e) {
 
 async function handleGoogleAuth() {
     clearAuthMessages();
+    const btn = document.getElementById('authGoogleBtn');
+    const txt = document.getElementById('authGoogleTxt');
+    const spin = document.getElementById('authGoogleSpinner');
+    if (btn) btn.disabled = true;
+    if (txt) txt.textContent = 'Redirecting…';
+    if (spin) spin.style.display = '';
     try {
         const { error } = await sbClient.auth.signInWithOAuth({
             provider: 'google',
@@ -2217,8 +2183,16 @@ async function handleGoogleAuth() {
                 redirectTo: window.location.href.split('?')[0].split('#')[0]
             }
         });
-        if (error) showAuthError('Google sign-in failed: ' + error.message);
+        if (error) {
+            if (btn) btn.disabled = false;
+            if (txt) txt.textContent = 'Continue with Google';
+            if (spin) spin.style.display = 'none';
+            showAuthError('Google sign-in failed: ' + error.message);
+        }
     } catch(e) {
+        if (btn) btn.disabled = false;
+        if (txt) txt.textContent = 'Continue with Google';
+        if (spin) spin.style.display = 'none';
         showAuthError('Google sign-in error: ' + e.message);
     }
 }

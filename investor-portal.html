@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prop Farm Pro — Investor Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0e1a; --bg-card: #0f1629; --bg-elevated: #1a2035; --bg-hover: #1e2844;
+            --border: rgba(99,179,237,0.12); --border-glow: rgba(99,179,237,0.3);
+            --text: #e8f0ff; --text-muted: #7a8bb5; --text-dim: #3d4f78;
+            --accent: #3b7ef8; --accent-glow: rgba(59,126,248,0.25);
+            --success: #22d3a0; --danger: #f05c6a;
+            --purple: #9b6ffa; --cyan: #06d6d6; --gold: #ffd166;
+            --radius: 14px; --radius-sm: 8px;
+        }
+        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+        /* NOT LOGGED IN SCREEN */
+        .not-authed { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem; }
+        .not-authed.hidden { display: none; }
+        .not-authed-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem; width: 420px; max-width: 95vw; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+        .not-authed-box .em { font-size: 3rem; display: block; margin-bottom: 1rem; }
+        .not-authed-box h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(135deg, #e8f0ff 0%, #7ab4ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .not-authed-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.75rem; }
+        .btn-back { padding: 0.875rem 1.5rem; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--accent); color: white; width: 100%; box-shadow: 0 0 20px var(--accent-glow); text-decoration: none; }
+        .btn-back:hover { background: #5a95ff; transform: translateY(-1px); }
+
+        /* LOADING */
+        .loading-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9998; flex-direction: column; gap: 1rem; color: var(--text-muted); }
+        .loading-screen.hidden { display: none; }
+        .spinner { width: 36px; height: 36px; border: 3px solid rgba(59,126,248,0.3); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes shimmer { 0%,100%{transform:translateX(-100%)} 50%{transform:translateX(100%)} }
+
+        /* TOPBAR */
+        .topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+        .topbar-logo { display: flex; align-items: center; gap: 0.75rem; }
+        .topbar-logo h2 { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #e8f0ff, #7ab4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .topbar-right { display: flex; align-items: center; gap: 1rem; }
+        .user-chip { display: flex; align-items: center; gap: 0.625rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.875rem; }
+        .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--purple)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; overflow: hidden; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .badge-investor { background: rgba(155,111,250,0.15); color: var(--purple); border: 1px solid rgba(155,111,250,0.3); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .logout-btn { padding: 0.5rem 1rem; background: none; border: 1px solid var(--border); color: var(--text-muted); font-family: inherit; font-size: 0.85rem; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; }
+        .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+        /* PORTAL */
+        .portal { display: none; min-height: 100vh; flex-direction: column; }
+        .portal.show { display: flex; }
+        .container { padding: 2rem; max-width: 900px; margin: 0 auto; width: 100%; }
+
+        /* CARDS */
+        .metric-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; transition: all 0.2s; }
+        .metric-card:hover { border-color: var(--border-glow); transform: translateY(-2px); }
+        .metric-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+        .metric-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+        .metric-icon { font-size: 1.25rem; }
+        .metric-value { font-size: 2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+        .metric-sub { font-size: 0.8rem; color: var(--text-muted); }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+        .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+        .card-title { font-size: 1rem; font-weight: 700; }
+        .card-sub { color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 0.75rem 1.25rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); background: var(--bg-elevated); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 0.875rem 1.25rem; border-bottom: 1px solid rgba(99,179,237,0.06); font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--bg-hover); }
+
+        .not-registered { text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-top: 2rem; }
+        .alert { padding: 1rem 1.25rem; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 500; margin-bottom: 1.5rem; display: none; }
+        .alert.show { display: block; }
+        .alert-success { background: rgba(34,211,160,0.2); border: 1px solid rgba(34,211,160,0.3); color: var(--success); }
+        .alert-error { background: rgba(240,92,106,0.2); border: 1px solid rgba(240,92,106,0.3); color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<!-- NOT LOGGED IN -->
+<div class="not-authed hidden" id="notAuthed">
+    <div class="not-authed-box">
+        <span class="em">🌾</span>
+        <h1>Session Expired</h1>
+        <p>Please sign in through the main dashboard to access your investor portal.</p>
+        <a href="dashboard.html" class="btn-back">← Go to Dashboard</a>
+    </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+    <div class="spinner"></div>
+    <span>Loading your investor account...</span>
+</div>
+
+<!-- PORTAL -->
+<div class="portal" id="portal">
+    <div class="topbar">
+        <div class="topbar-logo">
+            <span style="font-size:1.5rem;filter:drop-shadow(0 0 8px rgba(59,126,248,0.5));">🌾</span>
+            <h2>Prop Farm Pro — Investor Portal</h2>
+        </div>
+        <div class="topbar-right">
+            <div class="user-chip">
+                <div class="user-avatar" id="userAvatar">—</div>
+                <span id="userName" style="font-size:0.875rem;font-weight:600;"></span>
+                <span class="badge-investor">💼 Investor</span>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="alert" id="alertBox"></div>
+
+        <!-- Not registered -->
+        <div class="not-registered" id="notRegistered" style="display:none;">
+            <div style="font-size:3rem;margin-bottom:1rem;">💼</div>
+            <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;">Not Yet Registered</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;max-width:380px;margin:0 auto;">You haven't been added to the investor portal yet. Contact your account manager to get registered.</p>
+        </div>
+
+        <!-- Investor content -->
+        <div id="investorContent" style="display:none;">
+
+            <!-- Goal banner -->
+            <div id="ipGoalBanner" style="background:linear-gradient(135deg,rgba(59,126,248,0.1),rgba(155,111,250,0.07));border:1px solid rgba(59,126,248,0.2);border-radius:var(--radius);padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+                <span style="font-size:2.25rem;flex-shrink:0;" id="ipBannerEmoji">🎯</span>
+                <div style="flex:1;min-width:200px;">
+                    <div style="font-size:1.05rem;font-weight:700;margin-bottom:0.2rem;" id="ipBannerTitle">Progress to Your $800 Target</div>
+                    <div style="color:var(--text-muted);font-size:0.85rem;" id="ipBannerSub">Your account grows as the master account hits profit milestones</div>
+                </div>
+                <div style="flex:2;min-width:220px;">
+                    <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;"><span>Your Value</span><span style="color:var(--gold)">Target: $800</span></div>
+                    <div style="height:10px;background:var(--bg-elevated);border-radius:5px;overflow:hidden;"><div id="ipGoalFill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:5px;transition:width 1.5s ease;"></div></div>
+                    <div style="text-align:right;font-size:0.75rem;color:var(--text-muted);margin-top:0.35rem;" id="ipGoalPct">0% to $800 goal</div>
+                </div>
+            </div>
+
+            <!-- Big display value card -->
+            <div style="background:var(--bg-card);border:1px solid rgba(59,126,248,0.25);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(59,126,248,0.06);">
+                <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--purple),var(--cyan));"></div>
+                <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:180px;">
+                        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.5rem;">Your Account Value</div>
+                        <div id="ipDisplayValue" style="font-family:'JetBrains Mono',monospace;font-size:clamp(2.2rem,5vw,4rem);font-weight:700;letter-spacing:-0.03em;line-height:1;color:var(--text);margin-bottom:0.5rem;">$—</div>
+                        <div style="color:var(--text-muted);font-size:0.875rem;">Entry: <strong id="ipEntryDisplay">—</strong> &nbsp;·&nbsp; Profit Share: <strong id="ipProfitShare">—</strong></div>
+                    </div>
+                    <div style="flex:2;min-width:240px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.625rem;"><span>Journey to Payout</span><span style="font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700;">$800 Goal</span></div>
+                        <div style="height:14px;background:var(--bg-elevated);border-radius:7px;overflow:hidden;border:1px solid var(--border);"><div id="ipJourneyFill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:7px;transition:width 2s cubic-bezier(0.4,0,0.2,1);"></div></div>
+                        <div id="ipMilestoneRow" style="display:flex;gap:1rem;margin-top:0.875rem;flex-wrap:wrap;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat cards -->
+            <div class="metrics-grid">
+                <div class="metric-card"><div class="metric-header"><span class="metric-label">📍 Entry Point</span><span class="metric-icon">💵</span></div><div class="metric-value" id="ipStatEntry">$—</div><div class="metric-sub">Your starting investment</div></div>
+                <div class="metric-card"><div class="metric-header"><span class="metric-label">💰 Profit Allocated</span><span class="metric-icon">📈</span></div><div class="metric-value" id="ipStatProfit" style="color:var(--success)">$—</div><div class="metric-sub">Scaled from master profit</div></div>
+                <div class="metric-card"><div class="metric-header"><span class="metric-label">🎯 Target Value</span><span class="metric-icon">🏆</span></div><div class="metric-value" style="color:var(--gold)">$800</div><div class="metric-sub">At $4,600 master profit</div></div>
+                <div class="metric-card"><div class="metric-header"><span class="metric-label">📊 Multiplier</span><span class="metric-icon">✖️</span></div><div class="metric-value" id="ipStatMult" style="color:var(--purple)">—</div><div class="metric-sub">Personal scaling factor</div></div>
+            </div>
+
+            <!-- Milestone table — investor values only, no master account numbers -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">📋 Milestone Log</div><div class="card-sub">Key profit checkpoints — your values only</div></div>
+                <div style="overflow-x:auto;"><table>
+                    <thead><tr><th>Status</th><th>Your Value</th><th>Gain from Entry</th><th>Note</th></tr></thead>
+                    <tbody id="ipMilestoneBody"></tbody>
+                </table></div>
+            </div>
+
+        </div><!-- /investorContent -->
+    </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://gmhmtdgultwlleskvpao.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtaG10ZGd1bHR3bGxlc2t2cGFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MzgyOTIsImV4cCI6MjA4NzExNDI5Mn0.D6MyCDPvW05CiVm6DOa0YX1z-lwmTRWDC9a8-gg9gA0';
+const IP_GOAL_PROFIT = 4600, IP_PAYOUT_TARGET = 800;
+
+let sb = null, currentUser = null, currentProfile = null;
+let ipMasterProfit = 0, ipInvestors = [];
+
+function initSB() {
+    try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); return true; }
+    catch(e) { console.error(e); return false; }
+}
+
+const fmt = n => '$' + parseFloat(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const ipMult = entry => (IP_PAYOUT_TARGET - entry) / IP_GOAL_PROFIT;
+const ipDV   = (entry, mp) => entry + mp * ipMult(entry);
+
+async function handleLogout() {
+    await sb.auth.signOut();
+    // Redirect back to main dashboard after sign out
+    window.location.href = 'dashboard.html';
+}
+
+async function loadState() {
+    try {
+        const { data } = await sb.from('investor_portal_config').select('value').eq('id','master_state').single();
+        if (data) ipMasterProfit = parseFloat(data.value?.profit || 0);
+    } catch(_) { ipMasterProfit = parseFloat(localStorage.getItem('pfp_master_profit') || '0'); }
+
+    try {
+        const { data } = await sb.from('investor_portal_investors').select('*').order('created_at',{ascending:true});
+        if (data) { ipInvestors = data; return; }
+    } catch(_) {}
+    try { ipInvestors = JSON.parse(localStorage.getItem('pfp_investors') || '[]'); } catch(_) { ipInvestors = []; }
+}
+
+function renderView(entry) {
+    const mult       = ipMult(entry);
+    const dv         = ipDV(entry, ipMasterProfit);
+    const profitShare = ipMasterProfit * mult;
+    const journeyPct = Math.min((dv - entry) / (IP_PAYOUT_TARGET - entry) * 100, 100);
+    const goalPct    = Math.min(dv / IP_PAYOUT_TARGET * 100, 100);
+    const atGoal     = dv >= IP_PAYOUT_TARGET;
+
+    if (atGoal) {
+        document.getElementById('ipBannerEmoji').textContent = '🎉';
+        document.getElementById('ipBannerTitle').textContent = 'Goal Reached! Congratulations!';
+        document.getElementById('ipBannerSub').textContent   = 'Your account has hit the $800 payout target.';
+        document.getElementById('ipGoalBanner').style.background   = 'linear-gradient(135deg,rgba(255,209,102,0.15),rgba(34,211,160,0.08))';
+        document.getElementById('ipGoalBanner').style.borderColor  = 'rgba(255,209,102,0.4)';
+    }
+
+    setTimeout(() => {
+        document.getElementById('ipGoalFill').style.width    = goalPct.toFixed(1) + '%';
+        document.getElementById('ipJourneyFill').style.width = Math.max(journeyPct, 0).toFixed(1) + '%';
+    }, 200);
+
+    document.getElementById('ipGoalPct').textContent       = goalPct.toFixed(1) + '% to $800 goal';
+    document.getElementById('ipDisplayValue').textContent  = fmt(dv);
+    document.getElementById('ipDisplayValue').style.color  = atGoal ? 'var(--gold)' : 'var(--text)';
+    document.getElementById('ipEntryDisplay').textContent  = fmt(entry);
+    document.getElementById('ipProfitShare').textContent   = fmt(profitShare);
+    document.getElementById('ipStatEntry').textContent     = fmt(entry);
+    document.getElementById('ipStatProfit').textContent    = fmt(profitShare);
+    document.getElementById('ipStatMult').textContent      = mult.toFixed(4) + 'x';
+
+    // Milestone badges
+    const badges = [{l:'🌱 Start',p:0},{l:'📈 25%',p:25},{l:'🌿 Halfway',p:50},{l:'🔥 75%',p:75},{l:'🏆 Goal',p:100}];
+    document.getElementById('ipMilestoneRow').innerHTML = badges.map(m => {
+        const reached = journeyPct >= m.p;
+        return `<span style="font-size:0.78rem;color:${reached?'var(--success)':'var(--text-dim)'};font-weight:600;">${m.l} ${reached?'✓':''}</span>`;
+    }).join('');
+
+    // Milestone table — NO master profit numbers shown to investor
+    const mdata = [
+        {mp:0,note:'Starting position'},{mp:500,note:'Early growth'},{mp:1000,note:'Building momentum'},
+        {mp:1500,note:'33% milestone'},{mp:2000,note:'Halfway checkpoint'},{mp:2500,note:'Strong progress'},
+        {mp:3000,note:'65% milestone'},{mp:3500,note:'Approaching final stretch'},{mp:4000,note:'87% milestone'},
+        {mp:4600,note:'🏆 Payout triggered!'}
+    ];
+    const maxReached = Math.max(...mdata.filter(x => x.mp <= ipMasterProfit).map(x => x.mp), 0);
+    document.getElementById('ipMilestoneBody').innerHTML = mdata.map(m => {
+        const yourVal = ipDV(entry, m.mp);
+        const gain    = yourVal - entry;
+        const done    = ipMasterProfit >= m.mp;
+        const isCur   = m.mp === maxReached;
+        return `<tr>
+            <td>${done ? (isCur ? '<span style="color:var(--accent);font-weight:700;">▶ Current</span>' : '<span style="color:var(--success);">✓ Reached</span>') : '<span style="color:var(--text-dim);">⏳ Upcoming</span>'}</td>
+            <td style="font-family:'JetBrains Mono',monospace;color:${yourVal>=IP_PAYOUT_TARGET?'var(--gold)':'var(--text)'};">${fmt(yourVal)}</td>
+            <td style="font-family:'JetBrains Mono',monospace;color:${gain>=0?'var(--success)':'var(--danger)'};">+${fmt(gain)}</td>
+            <td style="color:var(--text-muted);font-size:0.82rem;">${m.note}</td>
+        </tr>`;
+    }).join('');
+}
+
+async function showPortal() {
+    await loadState();
+
+    const myEmail  = currentUser?.email || currentProfile?.email || '';
+    const myRecord = ipInvestors.find(i => i.email && i.email.toLowerCase() === myEmail.toLowerCase());
+
+    document.getElementById('loadingScreen').classList.add('hidden');
+    document.getElementById('portal').classList.add('show');
+
+    // Set user chip
+    const name = currentProfile?.username || currentProfile?.display_name || currentUser?.user_metadata?.full_name?.split(' ')[0] || currentUser?.email?.split('@')[0] || 'Investor';
+    const av = document.getElementById('userAvatar');
+    const photoUrl = currentUser?.user_metadata?.avatar_url;
+    if (photoUrl) {
+        av.innerHTML = `<img src="${photoUrl}" alt="${name}">`;
+    } else {
+        av.textContent = name.substring(0, 2).toUpperCase();
+    }
+    document.getElementById('userName').textContent = name;
+
+    if (!myRecord) {
+        document.getElementById('notRegistered').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('investorContent').style.display = 'block';
+    renderView(parseFloat(myRecord.entry_point) || 115);
+}
+
+async function init() {
+    if (!initSB()) return;
+
+    // Check for existing session — no login form needed
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) {
+            currentUser = session.user;
+            try {
+                const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+                if (data) currentProfile = data;
+            } catch(_) {}
+            await showPortal();
+            return;
+        }
+    } catch(e) { console.error(e); }
+
+    // No active session — tell them to go sign in through dashboard
+    document.getElementById('loadingScreen').classList.add('hidden');
+    document.getElementById('notAuthed').classList.remove('hidden');
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

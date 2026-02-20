@@ -1399,7 +1399,7 @@
                         </div>
                     </div>
                     <div class="table-wrap">
-                        <table><thead><tr><th>Email</th><th>Role</th><th>Trades</th><th>Total P&L</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="adminUsersBody"></tbody></table>
+                        <table><thead><tr><th>User</th><th>Status</th><th>Role</th><th>Trades</th><th>P&L</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="adminUsersBody"></tbody></table>
                     </div>
                 </div>
 
@@ -1731,76 +1731,105 @@ function initSupabase() {
     catch (e) { console.error('Supabase init error:', e); return false; }
 }
 
+async function ensureProfile(session) {
+    await loadProfile();
+    if (!currentProfile) {
+        const pending = window._pendingUsername;
+        const googleName = (session.user.user_metadata?.full_name || session.user.user_metadata?.name || '').split(' ')[0].replace(/[^a-zA-Z0-9_]/g,'');
+        const uname = pending || googleName || session.user.email?.split('@')[0]?.replace(/[^a-zA-Z0-9_]/g,'') || 'Trader';
+        try {
+            const { data } = await sbClient.from('profiles').upsert({
+                id: currentUser.id,
+                email: session.user.email || null,
+                username: uname,
+                role: 'user',
+                approved: false,
+                account_goal: 20
+            }).select().single();
+            currentProfile = data;
+        } catch(e) { console.error('Profile create error:', e); }
+        window._pendingUsername = null;
+    }
+}
+
 async function checkSession() {
     if (!initSupabase()) return;
 
-    // Check for public journal view
+    // Public journal view
     const params = new URLSearchParams(window.location.search);
     const journalUserId = params.get('journal');
     if (journalUserId) { loadPublicJournal(journalUserId); return; }
 
-    // onAuthStateChange handles Google OAuth redirects and sign-in/sign-out events
-    // We use a flag so getSession() and onAuthStateChange don't both call showDashboard
     let sessionHandled = false;
 
+    // Listen for auth changes (sign in / sign out / token refresh)
     sbClient.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session && !sessionHandled) {
             sessionHandled = true;
             currentUser = session.user;
-            await loadProfile();
-            // Create profile row for brand new users (Google OAuth first login)
-            if (!currentProfile) {
-                const pending = window._pendingUsername;
-                const googleName = (session.user.user_metadata?.full_name || session.user.user_metadata?.name || '').split(' ')[0].replace(/[^a-zA-Z0-9_]/g,'');
-                const uname = pending || googleName || session.user.email?.split('@')[0]?.replace(/[^a-zA-Z0-9_]/g,'') || 'Trader';
-                try {
-                    const { data } = await sbClient.from('profiles').upsert({
-                        id: currentUser.id,
-                        email: session.user.email || null,
-                        username: uname,
-                        role: 'user',
-                        account_goal: 20
-                    }).select().single();
-                    currentProfile = data;
-                } catch(e) { console.error('Profile create error:', e); }
-                window._pendingUsername = null;
-            }
-            showDashboard();
-        }
-        else if (event === 'SIGNED_OUT') {
+            await ensureProfile(session);
+            routeUser();
+        } else if (event === 'SIGNED_OUT') {
             sessionHandled = false;
             currentUser = null;
             currentProfile = null;
             hideDashboard();
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+            // Keep session alive on refresh — do nothing extra
         }
     });
 
-    // Wait for onAuthStateChange to fire first (handles post-login redirect)
-    await new Promise(r => setTimeout(r, 1000));
-    if (sessionHandled) return;
+    // Immediately check existing session (handles page refresh)
+    try {
+        const { data: { session } } = await sbClient.auth.getSession();
+        if (session && !sessionHandled) {
+            sessionHandled = true;
+            currentUser = session.user;
+            await ensureProfile(session);
+            routeUser();
+            return;
+        }
+    } catch(e) { console.error('Session check error:', e); }
 
-    // Fallback: poll getSession() up to 8 times
-    let session = null;
-    for (let i = 0; i < 8; i++) {
-        try {
-            const { data } = await sbClient.auth.getSession();
-            if (data.session) { session = data.session; break; }
-        } catch(e) { console.error('Session check error:', e); }
-        if (sessionHandled) return;
-        if (i < 7) await new Promise(r => setTimeout(r, 500));
-    }
-
-    if (sessionHandled) return;
-
-    if (session) {
-        sessionHandled = true;
-        currentUser = session.user;
-        await loadProfile();
-        showDashboard();
-    } else {
-        // No session — show built-in login form
+    // No session at all — show login
+    if (!sessionHandled) {
         const as = document.getElementById('authScreen');
         if (as) { as.style.display = ''; as.classList.remove('hidden'); }
+    }
+}
+
+function routeUser() {
+    const isAdmin = currentProfile?.role === 'admin';
+    const isApproved = isAdmin || currentProfile?.approved === true;
+    if (isApproved) {
+        showDashboard();
+    } else {
+        showPendingScreen();
+    }
+}
+
+function showPendingScreen() {
+    const as = document.getElementById('authScreen');
+    if (as) { as.style.display = ''; as.classList.remove('hidden'); }
+    // Replace auth box content with pending message
+    const box = document.querySelector('.auth-box');
+    if (box) {
+        box.innerHTML = `
+        <div class="auth-logo">
+            <span class="logo-icon">⏳</span>
+            <h1>Awaiting Approval</h1>
+            <p>Your account is pending admin approval</p>
+        </div>
+        <div style="text-align:center;padding:1.5rem;background:var(--bg-elevated);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:1.5rem;">
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">🌾</div>
+            <div style="font-weight:600;margin-bottom:0.5rem;">Hi ${currentProfile?.username || currentUser?.email || 'Trader'}!</div>
+            <div style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;">Your account has been created successfully.<br>An admin will approve your access shortly.</div>
+        </div>
+        <div style="background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);border-radius:var(--radius-sm);padding:0.875rem;color:var(--warning);font-size:0.85rem;text-align:center;margin-bottom:1.5rem;">
+            ⚠️ Access restricted until approved by <strong>8xhorizon.invest@gmail.com</strong>
+        </div>
+        <button class="btn btn-secondary" style="width:100%;" onclick="sbClient.auth.signOut()">Sign Out</button>
+        `;
     }
 }
 
@@ -2183,7 +2212,8 @@ function showDashboard() {
     const isFirstShow = !_dashboardShown;
     _dashboardShown = true;
 
-    document.getElementById('authScreen').classList.add('hidden');
+    const as = document.getElementById('authScreen');
+    if (as) { as.classList.add('hidden'); as.style.display = 'none'; }
     document.getElementById('dashboard').classList.add('show');
 
     const displayName = currentProfile?.username
@@ -2208,8 +2238,8 @@ function showDashboard() {
     buildContractEditor();
     loadDashboardData();
 
-    // Only show onboarding on first login ever (no username set) — never on refresh
-    if (isFirstShow && !currentProfile?.username) {
+    // Only show onboarding for new non-admin users who haven't set username
+    if (isFirstShow && !currentProfile?.username && !isAdmin) {
         setTimeout(() => startOnboarding(), 800);
     }
 }
@@ -2449,25 +2479,56 @@ async function loadAdminData() {
 function renderAdminUsers(profiles) {
     const tbody = document.getElementById('adminUsersBody');
     tbody.innerHTML = '';
-    if (!profiles.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">No users found</td></tr>'; return; }
+    if (!profiles.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted);">No users found</td></tr>'; return; }
     profiles.forEach(profile => {
         const userTrades = adminAllTrades.filter(t => t.user_id === profile.id);
         const userPnL = userTrades.reduce((s, t) => s + parseFloat(t.pnl || 0), 0);
+        const isApproved = profile.approved === true || profile.role === 'admin';
+        const isPending = !isApproved;
         const row = tbody.insertRow();
         row.dataset.email = (profile.email || '').toLowerCase();
+        if (isPending) row.style.background = 'rgba(245,166,35,0.05)';
         row.innerHTML = `
-            <td><strong>${profile.email || '—'}</strong></td>
-            <td><span class="badge ${profile.role === 'admin' ? 'badge-admin' : 'badge-active'}">${profile.role || 'user'}</span></td>
+            <td>
+                <strong>${profile.username || profile.email || '—'}</strong>
+                <div style="font-size:0.75rem;color:var(--text-muted);">${profile.email || ''}</div>
+            </td>
+            <td>
+                ${isPending
+                    ? '<span class="badge" style="background:rgba(245,166,35,0.15);color:var(--warning);border:1px solid rgba(245,166,35,0.3);">⏳ Pending</span>'
+                    : '<span class="badge badge-success">✓ Approved</span>'
+                }
+            </td>
+            <td><span class="badge ${profile.role === 'admin' ? 'badge-gold' : 'badge-active'}">${profile.role || 'user'}</span></td>
             <td>${userTrades.length}</td>
             <td style="color:${userPnL >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtCurrency(userPnL)}</td>
             <td>${profile.created_at ? new Date(profile.created_at).toLocaleDateString() : '—'}</td>
             <td><div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+                ${isPending
+                    ? `<button class="btn btn-success" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="approveUser('${profile.id}','${profile.email}')">✓ Approve</button>`
+                    : `<button class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="revokeUser('${profile.id}','${profile.email}')">✕ Revoke</button>`
+                }
                 <button class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="viewUserTrades('${profile.id}','${profile.email}')">👁 Trades</button>
-                <button class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="viewUserDashboardById('${profile.id}','${profile.email}')">📊 Dashboard</button>
-                <button class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="quickToggleRole('${profile.id}','${profile.role || 'user'}','${profile.email}')">${profile.role === 'admin' ? '↓ Demote' : '↑ Promote'}</button>
+                <button class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="viewUserDashboardById('${profile.id}','${profile.email}')">📊 View</button>
+                <button class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="quickToggleRole('${profile.id}','${profile.role || 'user'}','${profile.email}')">${profile.role === 'admin' ? '↓ Demote' : '↑ Admin'}</button>
                 <button class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="adminRemoveUserDataById('${profile.id}','${profile.email}')">🗑</button>
             </div></td>`;
     });
+}
+
+async function approveUser(userId, email) {
+    const { error } = await sbClient.from('profiles').update({ approved: true }).eq('id', userId);
+    if (error) { showAlert('Error approving user: ' + error.message, 'error'); return; }
+    showAlert(`✓ ${email} approved — they can now access the dashboard`, 'success');
+    loadAdminData();
+}
+
+async function revokeUser(userId, email) {
+    if (!confirm(`Revoke access for ${email}?`)) return;
+    const { error } = await sbClient.from('profiles').update({ approved: false }).eq('id', userId);
+    if (error) { showAlert('Error revoking user: ' + error.message, 'error'); return; }
+    showAlert(`Access revoked for ${email}`, 'success');
+    loadAdminData();
 }
 
 function filterAdminUsers() {

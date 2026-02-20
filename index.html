@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>8xHorizon — Investor Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&family=Sora:wght@700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -251,35 +250,20 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:rgba(255,255,255,.01
       <p>Investor Portal</p>
     </div>
     <div class="auth-err" id="authErr"></div>
-    <button class="g-btn google" onclick="signInWithGoogle()">
-      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#EA4335" d="M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z"/><path fill="#4285F4" d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#FBBC05" d="M3.88 10.78A5.54 5.54 0 013.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 000 9c0 1.45.35 2.82.96 4.04l2.92-2.26z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z"/></svg>
-      Continue with Google
+    <div class="fm-grp" style="margin-bottom:1rem;">
+      <label class="fm-lbl" style="display:block;margin-bottom:.4rem;font-size:.8rem;color:var(--text2);">Access Code</label>
+      <input type="password" class="fm-inp" id="passwordInput" placeholder="Enter your access code" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()" style="width:100%;padding:.75rem 1rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f2f7;font-size:1rem;outline:none;font-family:inherit;">
+    </div>
+    <button onclick="handleLogin()" style="width:100%;padding:.8rem;background:var(--amber);color:#000;font-weight:700;font-size:.95rem;border:none;border-radius:10px;cursor:pointer;font-family:inherit;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      Sign In →
     </button>
-    <div style="text-align:center;margin-top:1.1rem;font-size:.75rem;color:var(--text3);line-height:1.6;">
-      New accounts require admin approval<br>before portfolio access is granted.
+    <div style="text-align:center;margin-top:1.1rem;font-size:.75rem;color:var(--text3);">
+      Contact your account manager for access.
     </div>
   </div>
 </div>
 
-<!-- ── SET NAME SCREEN (first login) ── -->
-<div class="pending-screen" id="setNameScreen" style="display:none;">
-  <div class="pending-icon">👋</div>
-  <div class="pending-title">Welcome to 8xHorizon</div>
-  <div class="pending-sub">Before we continue, what should we call you?</div>
-  <div style="margin:1.5rem 0;width:100%;max-width:320px;">
-    <input type="text" id="nameInput" class="fm-inp" placeholder="Your full name" style="width:100%;text-align:center;font-size:1rem;padding:.75rem 1rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f2f7;outline:none;" onkeydown="if(event.key==='Enter')saveName()">
-  </div>
-  <button class="btn primary" style="padding:.7rem 2rem;font-size:.95rem;" onclick="saveName()">Continue →</button>
-</div>
 
-<!-- ── PENDING APPROVAL SCREEN ── -->
-<div class="pending-screen" id="pendingScreen">
-  <div class="pending-icon">⏳</div>
-  <div class="pending-title">Awaiting Access Approval</div>
-  <div class="pending-sub">Your account has been created. An admin needs to review and grant you access before you can view your portfolio dashboard.</div>
-  <div class="pending-email" id="pendingEmail"></div>
-  <button class="pending-logout" onclick="signOut()">← Sign Out</button>
-</div>
 
 <!-- ── EDIT USER MODAL ── -->
 <div class="modal-overlay hidden" id="editUserModal">
@@ -536,8 +520,16 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:rgba(255,255,255,.01
 // ══════════════════════════════════════════════
 //  SUPABASE CONFIG — replace with your project
 // ══════════════════════════════════════════════
-const SUPABASE_URL = 'https://gmhmtdgultwlleskvpao.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtaG10ZGd1bHR3bGxlc2t2cGFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MzgyOTIsImV4cCI6MjA4NzExNDI5Mn0.D6MyCDPvW05CiVm6DOa0YX1z-lwmTRWDC9a8-gg9gA0';
+// ── ACCESS CODES ─────────────────────────────────────────────
+// Admin: full access to Manager Panel + all investor views
+// Investors: each gets their own code, sees only their dashboard
+// TO ADD A NEW INVESTOR: add a new entry below with their code
+const ACCESS_CODES = {
+  'admin2025':   { role: 'admin',    id: 'admin_1',  name: 'Admin',          email: 'admin@8xhorizon.com' },
+  'investor01':  { role: 'investor', id: 'inv_1',    name: 'Investor One',   email: 'investor1@email.com' },
+  'investor02':  { role: 'investor', id: 'inv_2',    name: 'Investor Two',   email: 'investor2@email.com' },
+};
+// ─────────────────────────────────────────────────────────────
 
 // ══════════════════════════════════════════════
 //  LOCAL STORAGE FALLBACK (works without Supabase)
@@ -560,186 +552,69 @@ function saveCfg(v) { LS.set('config', v); }
 // ══════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════
-let sbClient = null;
-let currentUser = null; // { id, email, name, avatar, role }
+let currentUser = null;
 let viewingInvId = null;
 let growthChart = null;
-let _sbReady = false;
 
 // ══════════════════════════════════════════════
-//  INIT SUPABASE (optional)
+//  AUTH FLOWS — password based, no OAuth
 // ══════════════════════════════════════════════
-function initSupabase() {
-  if (SUPABASE_URL.includes('YOUR_PROJECT')) return false;
-  try {
-    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    _sbReady = true;
-    return true;
-  } catch(e) { console.warn('Supabase not configured:', e); return false; }
-}
+function handleLogin() {
+  const code = document.getElementById('passwordInput').value.trim();
+  const user = ACCESS_CODES[code];
 
-// ══════════════════════════════════════════════
-//  AUTH FLOWS
-// ══════════════════════════════════════════════
-async function signInWithGoogle() {
-  if (_sbReady) {
-    const { error } = await sbClient.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: 'https://8xhorizoninvest-ai.github.io/8xhorizon/' }
-    });
-    if (error) showAuthErr(error.message);
+  if (!user) {
+    const el = document.getElementById('authErr');
+    el.textContent = 'Invalid access code. Try again.';
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 4000);
+    document.getElementById('passwordInput').value = '';
     return;
   }
-  // Demo mode: simulate Google login
-  const mockUser = {
-    id: 'demo_' + Date.now(),
-    email: 'demo@investor.com',
-    name: 'Demo User',
-    avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=f5a623&color=000',
-    role: 'pending'
-  };
-  handleNewUser(mockUser);
-}
 
+  // Save session
+  sessionStorage.setItem('8xh_code', code);
 
-
-function buildUserRecord(supaUser) {
-  return {
-    id: supaUser.id,
-    email: supaUser.email,
-    name: supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || supaUser.email?.split('@')[0] || 'Investor',
-    avatar: supaUser.user_metadata?.avatar_url || null,
-    role: 'pending',
-    amount: 115, startDate: today(), strategy: 'base', split: 50, cycle: 1
-  };
-}
-
-function syncUserToLocal(user) {
-  const users = getUsers();
-  const idx = users.findIndex(u => u.id === user.id || u.email === user.email);
-  if (idx >= 0) {
-    // Preserve role and financial settings set by admin
-    const existing = users[idx];
-    users[idx] = { ...user, role: existing.role, amount: existing.amount, startDate: existing.startDate, strategy: existing.strategy, split: existing.split, cycle: existing.cycle };
-  } else {
-    users.push(user);
-  }
-  saveUsers(users);
-  return idx >= 0 ? users[idx] : user;
-}
-
-async function resolveUserSession(supaUser) {
-  let user = null;
-
-  // Always fetch fresh from Supabase DB so role is correct
-  if (_sbReady) {
-    const { data, error } = await sbClient.from('users').select('*').eq('id', supaUser.id).single();
-    if (data && !error) {
-      user = {
-        id: data.id,
-        email: data.email || supaUser.email,
-        name: data.name || supaUser.user_metadata?.full_name || supaUser.email?.split('@')[0],
-        avatar: data.avatar || supaUser.user_metadata?.avatar_url || null,
-        role: data.role || 'pending',
-        amount: data.amount || 115,
-        startDate: data.start_date || today(),
-        strategy: data.strategy || 'base',
-        split: data.split || 50,
-        cycle: data.cycle || 1
-      };
-      syncUserToLocal(user);
-    }
-  }
-
-  // Fallback to localStorage if Supabase fetch failed
-  if (!user) {
-    const localUsers = getUsers();
-    user = localUsers.find(u => u.id === supaUser.id || u.email === supaUser.email);
-    if (!user) {
-      user = buildUserRecord(supaUser);
-      syncUserToLocal(user);
-    } else {
-      user.name = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || user.name;
-      user.avatar = supaUser.user_metadata?.avatar_url || user.avatar;
-      syncUserToLocal(user);
-      user = getUsers().find(u => u.id === supaUser.id);
-    }
-  }
-
-  currentUser = user;
-  enterApp(user);
-}
-
-function handleNewUser(mockUser) {
-  const user = syncUserToLocal(mockUser);
-  currentUser = getUsers().find(u => u.id === mockUser.id || u.email === mockUser.email) || mockUser;
+  // Build full user object merging stored settings
+  currentUser = buildUserFromCode(code, user);
   enterApp(currentUser);
+}
+
+function buildUserFromCode(code, codeUser) {
+  const stored = getUsers().find(u => u.id === codeUser.id);
+  return {
+    id: codeUser.id,
+    email: codeUser.email,
+    name: stored?.name || codeUser.name,
+    avatar: stored?.avatar || null,
+    role: codeUser.role,
+    amount: stored?.amount ?? 115,
+    startDate: stored?.startDate ?? today(),
+    strategy: stored?.strategy ?? 'base',
+    split: stored?.split ?? 50,
+    cycle: stored?.cycle ?? 1,
+    accessCode: code
+  };
+}
+
+function checkSession() {
+  // Restore session from sessionStorage on page load/refresh
+  const code = sessionStorage.getItem('8xh_code');
+  if (code && ACCESS_CODES[code]) {
+    currentUser = buildUserFromCode(code, ACCESS_CODES[code]);
+    enterApp(currentUser);
+  }
 }
 
 function enterApp(user) {
   document.getElementById('authScreen').classList.add('hidden');
-
-  // First time user — no real name set yet
-  const rawName = user.name || '';
-  const looksGenerated = !rawName || rawName === rawName.split('@')[0] || rawName.length < 2;
-  const hasSetName = localStorage.getItem('8xh_name_set_' + user.id);
-  if (!hasSetName && looksGenerated) {
-    _pendingUserForName = user;
-    document.getElementById('nameInput').value = '';
-    document.getElementById('setNameScreen').style.cssText = 'display:flex;flex-direction:column;align-items:center;';
-    return;
-  }
-
-  if (user.role === 'pending') {
-    document.getElementById('pendingScreen').classList.add('show');
-    document.getElementById('pendingEmail').textContent = user.email;
-    return;
-  }
-  showDashboard(user);
-}
-
-let _pendingUserForName = null;
-
-async function saveName() {
-  const name = document.getElementById('nameInput').value.trim();
-  if (!name || name.length < 2) {
-    document.getElementById('nameInput').style.borderColor = 'var(--red)';
-    setTimeout(() => document.getElementById('nameInput').style.borderColor = '', 1500);
-    return;
-  }
-  const user = _pendingUserForName;
-  if (!user) return;
-
-  user.name = name;
-  localStorage.setItem('8xh_name_set_' + user.id, '1');
-
-  // Update in local store
-  const users = getUsers();
-  const idx = users.findIndex(u => u.id === user.id);
-  if (idx >= 0) { users[idx].name = name; saveUsers(users); }
-
-  // Update in Supabase if connected
-  if (_sbReady) {
-    await sbClient.from('users').update({ name }).eq('id', user.id);
-    await sbClient.auth.updateUser({ data: { full_name: name } });
-  }
-
-  document.getElementById('setNameScreen').style.cssText = 'display:none';
-
-  if (user.role === 'pending') {
-    document.getElementById('pendingScreen').classList.add('show');
-    document.getElementById('pendingEmail').textContent = user.email;
-    return;
-  }
   showDashboard(user);
 }
 
 function showDashboard(user) {
   document.getElementById('authScreen').classList.add('hidden');
-  document.getElementById('pendingScreen').classList.remove('show');
   document.getElementById('appWrap').classList.add('show');
 
-  // Sidebar user info
   const initials = (user.name || 'U').substring(0, 2).toUpperCase();
   document.getElementById('sbAvatarTxt').textContent = initials;
   const img = document.getElementById('sbAvatarImg');
@@ -752,42 +627,33 @@ function showDashboard(user) {
     document.querySelectorAll('.admin-only').forEach(el => el.classList.add('visible'));
   }
 
-  // Set default viewing investor
   const allInv = getUsers().filter(u => u.role === 'investor' || u.role === 'admin');
   if (user.role === 'admin' && allInv.length) viewingInvId = allInv[0].id;
   else viewingInvId = user.id;
   document.getElementById('topbarChip').textContent = user.name || user.email;
 
+  // Ensure current user is in local store
+  const users = getUsers();
+  if (!users.find(u => u.id === user.id)) {
+    users.push(user);
+    saveUsers(users);
+  }
+
   loadSettingsInputs();
   goPage('dashboard');
 }
 
-async function signOut() {
-  if (_sbReady) await sbClient.auth.signOut();
+function signOut() {
+  sessionStorage.removeItem('8xh_code');
   currentUser = null;
   viewingInvId = null;
   document.getElementById('appWrap').classList.remove('show');
-  document.getElementById('pendingScreen').classList.remove('show');
   document.getElementById('authScreen').classList.remove('hidden');
   document.getElementById('sbRole').classList.remove('admin');
+  document.getElementById('adminNavSec').classList.remove('visible');
   document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('visible'));
+  document.getElementById('passwordInput').value = '';
   if (growthChart) { growthChart.destroy(); growthChart = null; }
-}
-
-// ══════════════════════════════════════════════
-//  SUPABASE SESSION RESTORE
-// ══════════════════════════════════════════════
-async function checkSession() {
-  initSupabase();
-  if (!_sbReady) return;
-
-  // onAuthStateChange handles EVERYTHING: OAuth redirects, existing sessions, refreshes
-  // Must be set up BEFORE calling getSession()
-  sbClient.auth.onAuthStateChange(async (event, session) => {
-    if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
-      await resolveUserSession(session.user);
-    }
-  });
 }
 
 // ══════════════════════════════════════════════
@@ -1223,9 +1089,7 @@ function showAuthErr(msg) { const el = document.getElementById('authErr'); el.te
 //  STARTUP
 // ══════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  checkSession().catch(console.error);
-
-
+  checkSession();
 });
 </script>
 </body>

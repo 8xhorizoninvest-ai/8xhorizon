@@ -558,79 +558,106 @@
 
 <!-- ONBOARDING OVERLAY -->
 <div class="onboard-overlay hidden" id="onboardOverlay">
-  <div class="onboard-card">
-    <div class="onboard-progress" id="onboardProgress"></div>
+  <div class="onboard-card" id="onboardCard">
 
-    <!-- Step 0: Welcome + Profile setup -->
-    <div class="onboard-step active" id="onboardStep0">
-      <div class="onboard-emoji">🌾</div>
-      <div class="onboard-title">Welcome to Prop Farm Pro!</div>
-      <div class="onboard-sub">Let's set up your trading profile in 2 quick steps.</div>
-      <div class="form-group">
-        <label class="form-label">Username <span style="color:var(--text-muted);font-size:0.8rem;">(shown on your journal)</span></label>
-        <input type="text" class="form-input" id="obUsername" placeholder="FarmKing47" maxlength="30" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'')">
+    <!-- ── TEMPLATE: TRADER ── -->
+    <div id="obTemplate_trader" style="display:none;">
+      <div class="onboard-progress" id="onboardProgress"></div>
+      <div class="onboard-step active" id="onboardStep0">
+        <div class="onboard-emoji">🌾</div>
+        <div class="onboard-title">Welcome to Prop Farm Pro!</div>
+        <div class="onboard-sub">Set up your trader profile — only takes a minute.</div>
+        <div class="form-group">
+          <label class="form-label">Username <span style="color:var(--text-muted);font-size:0.8rem;">(your public trading name)</span></label>
+          <input type="text" class="form-input" id="obUsername" placeholder="FarmKing47" maxlength="30" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,\'\')">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Display Name <span style="color:var(--text-muted);font-size:0.8rem;">(optional)</span></label>
+          <input type="text" class="form-input" id="obDisplayName" placeholder="The Prop King" maxlength="40">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Journal Bio <span style="color:var(--text-muted);font-size:0.8rem;">(optional)</span></label>
+          <input type="text" class="form-input" id="obBio" placeholder="Futures trader farming consistent profits 🌾" maxlength="120">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Firm Name <span style="color:var(--text-muted);font-size:0.8rem;">(optional)</span></label>
+          <input type="text" class="form-input" id="obFirmName" placeholder="e.g. Topstep, Apex, FTMO" maxlength="40">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Social / YouTube Link <span style="color:var(--text-muted);font-size:0.8rem;">(optional)</span></label>
+          <input type="url" class="form-input" id="obSocialLink" placeholder="https://youtube.com/@yourhandle">
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Display Name <span style="color:var(--text-muted);font-size:0.8rem;">(optional)</span></label>
-        <input type="text" class="form-input" id="obDisplayName" placeholder="The Prop King" maxlength="40">
+      <div class="onboard-step" id="onboardStep1">
+        <div class="onboard-emoji">🎯</div>
+        <div class="onboard-title">Set Your Farming Goals</div>
+        <div class="onboard-sub">You can change these anytime in Settings.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">Account Goal (# of PA accounts)</label><input type="number" class="form-input" id="obAccountGoal" value="20" min="1" max="200"></div>
+          <div class="form-group"><label class="form-label">Starting Balance / Account</label><input type="number" class="form-input" id="obStartBal" value="50000" min="1000"></div>
+          <div class="form-group"><label class="form-label">Goal per Account ($)</label><input type="number" class="form-input" id="obGoalAcc" value="4600" min="0"></div>
+          <div class="form-group"><label class="form-label">Payout per Account ($)</label><input type="number" class="form-input" id="obPayoutAcc" value="2000" min="0"></div>
+          <div class="form-group"><label class="form-label">Daily Target Min ($)</label><input type="number" class="form-input" id="obDailyMin" value="250" min="0"></div>
+          <div class="form-group"><label class="form-label">Daily Target Max ($)</label><input type="number" class="form-input" id="obDailyMax" value="300" min="0"></div>
+          <div class="form-group"><label class="form-label">Max Daily Drawdown ($)</label><input type="number" class="form-input" id="obMaxDD" value="2500" min="0"></div>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Journal Bio <span style="color:var(--text-muted);font-size:0.8rem;">(optional)</span></label>
-        <input type="text" class="form-input" id="obBio" placeholder="Futures trader farming consistent profits 🌾" maxlength="120">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Firm Name <span style="color:var(--text-muted);font-size:0.8rem;">(optional)</span></label>
-        <input type="text" class="form-input" id="obFirmName" placeholder="e.g. Topstep, Apex, FTMO" maxlength="40">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Social / YouTube Link <span style="color:var(--text-muted);font-size:0.8rem;">(optional)</span></label>
-        <input type="url" class="form-input" id="obSocialLink" placeholder="https://youtube.com/@yourhandle">
+      <div class="onboard-nav">
+        <button class="btn btn-secondary" id="onboardBackBtn" onclick="onboardBack()" style="display:none;">← Back</button>
+        <button class="btn btn-primary" id="onboardNextBtn" onclick="onboardNext()">Next →</button>
       </div>
     </div>
 
-    <!-- Step 1: Trading goals -->
-    <div class="onboard-step" id="onboardStep1">
-      <div class="onboard-emoji">🎯</div>
-      <div class="onboard-title">Set Your Farming Goals</div>
-      <div class="onboard-sub">You can change these anytime in Settings.</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-        <div class="form-group">
-          <label class="form-label">Account Goal (# of PA accounts)</label>
-          <input type="number" class="form-input" id="obAccountGoal" value="20" min="1" max="200">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Starting Balance / Account</label>
-          <input type="number" class="form-input" id="obStartBal" value="50000" min="1000">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Goal per Account ($)</label>
-          <input type="number" class="form-input" id="obGoalAcc" value="4600" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Payout per Account ($)</label>
-          <input type="number" class="form-input" id="obPayoutAcc" value="2000" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Daily Target Min ($)</label>
-          <input type="number" class="form-input" id="obDailyMin" value="250" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Daily Target Max ($)</label>
-          <input type="number" class="form-input" id="obDailyMax" value="300" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Max Daily Drawdown ($)</label>
-          <input type="number" class="form-input" id="obMaxDD" value="2500" min="0">
-        </div>
+    <!-- ── TEMPLATE: INVESTOR ── -->
+    <div id="obTemplate_investor" style="display:none;">
+      <div class="onboard-emoji">💼</div>
+      <div class="onboard-title">Welcome, Investor!</div>
+      <div class="onboard-sub">You have been granted investor access. Complete your profile to continue.</div>
+      <div style="background:rgba(59,126,248,0.08);border:1px solid rgba(59,126,248,0.2);border-radius:var(--radius-sm);padding:0.875rem;margin:1rem 0 1.5rem;font-size:0.85rem;color:var(--text-muted);">
+        💼 Your investor portal shows your account value, profit share, and milestone progress.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Full Name</label>
+        <input type="text" class="form-input" id="obInvName" placeholder="John Smith" maxlength="60">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Display Alias <span style="color:var(--text-muted);font-size:0.8rem;">(optional)</span></label>
+        <input type="text" class="form-input" id="obInvDisplay" placeholder="e.g. The Farmer" maxlength="40">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact Email <span style="color:var(--text-muted);font-size:0.8rem;">(for payout notifications)</span></label>
+        <input type="email" class="form-input" id="obInvEmail" placeholder="you@email.com">
+      </div>
+      <div class="onboard-nav" style="margin-top:1.5rem;">
+        <button class="btn btn-primary" style="width:100%;" onclick="saveInvestorOnboarding()">💼 Enter Investor Portal →</button>
       </div>
     </div>
 
-    <div class="onboard-nav">
-      <button class="btn btn-secondary" id="onboardBackBtn" onclick="onboardBack()" style="display:none;">← Back</button>
-      <button class="btn btn-primary" id="onboardNextBtn" onclick="onboardNext()">Next →</button>
+    <!-- ── TEMPLATE: JOURNAL VIEWER ── -->
+    <div id="obTemplate_journal" style="display:none;">
+      <div class="onboard-emoji">📖</div>
+      <div class="onboard-title">Welcome, Journal Viewer!</div>
+      <div class="onboard-sub">You have view access to trading journals. Set up your profile.</div>
+      <div style="background:rgba(34,211,160,0.08);border:1px solid rgba(34,211,160,0.2);border-radius:var(--radius-sm);padding:0.875rem;margin:1rem 0 1.5rem;font-size:0.85rem;color:var(--text-muted);">
+        📊 You can browse public trading journals and performance stats.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Name / Username</label>
+        <input type="text" class="form-input" id="obJournalName" placeholder="YourName" maxlength="40">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email <span style="color:var(--text-muted);font-size:0.8rem;">(optional, for updates)</span></label>
+        <input type="email" class="form-input" id="obJournalEmail" placeholder="you@email.com">
+      </div>
+      <div class="onboard-nav" style="margin-top:1.5rem;">
+        <button class="btn btn-primary" style="width:100%;" onclick="saveJournalOnboarding()">📖 View Journals →</button>
+      </div>
     </div>
+
   </div>
 </div>
+
+
 
 <!-- PROFILE MODAL (edit profile from settings) -->
 <div class="modal-overlay hidden" id="profileModal">
@@ -2239,7 +2266,8 @@ function showDashboard() {
     loadDashboardData();
 
     // Only show onboarding for new non-admin users who haven't set username
-    if (isFirstShow && !currentProfile?.username && !isAdmin) {
+    // Show onboarding for first-time users (any role except admin) who haven't completed it
+    if (isFirstShow && !isAdmin && !currentProfile?.onboarded) {
         setTimeout(() => startOnboarding(), 800);
     }
 }
@@ -3125,29 +3153,50 @@ function setTodayDates() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  ONBOARDING
+//  ONBOARDING — 3 templates: trader / investor / journal
 // ═══════════════════════════════════════════════════════
 let _onboardStep = 0;
 const ONBOARD_STEPS = 2;
 
 function startOnboarding() {
-    _onboardStep = 0;
-    // Pre-fill if returning
-    const p = currentProfile;
-    const setV = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
-    setV('obUsername', p?.username || window._pendingUsername || '');
-    setV('obDisplayName', p?.display_name || '');
-    setV('obBio', p?.journal_bio || '');
-    setV('obFirmName', p?.firm_name || '');
-    setV('obSocialLink', p?.google_link || '');
-    setV('obAccountGoal', p?.account_goal || 20);
-    setV('obGoalAcc', p?.goal_per_account || 4600);
-    setV('obPayoutAcc', p?.payout_per_account || 2000);
-    setV('obDailyMin', p?.daily_target_min || 250);
-    setV('obDailyMax', p?.daily_target_max || 300);
-    setV('obMaxDD', p?.max_drawdown || 2500);
-    setV('obStartBal', p?.starting_balance || 50000);
-    renderOnboardStep();
+    const role = currentProfile?.role || 'user';
+    // Hide all templates first
+    ['trader','investor','journal'].forEach(t => {
+        const el = document.getElementById('obTemplate_' + t);
+        if (el) el.style.display = 'none';
+    });
+    // Show correct template based on role
+    const template = role === 'investor' ? 'investor' : role === 'journal' ? 'journal' : 'trader';
+    const tmpl = document.getElementById('obTemplate_' + template);
+    if (tmpl) tmpl.style.display = 'block';
+
+    if (template === 'trader') {
+        _onboardStep = 0;
+        const p = currentProfile;
+        const setV = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+        setV('obUsername', p?.username || window._pendingUsername || '');
+        setV('obDisplayName', p?.display_name || '');
+        setV('obBio', p?.journal_bio || '');
+        setV('obFirmName', p?.firm_name || '');
+        setV('obSocialLink', p?.google_link || '');
+        setV('obAccountGoal', p?.account_goal || 20);
+        setV('obGoalAcc', p?.goal_per_account || 4600);
+        setV('obPayoutAcc', p?.payout_per_account || 2000);
+        setV('obDailyMin', p?.daily_target_min || 250);
+        setV('obDailyMax', p?.daily_target_max || 300);
+        setV('obMaxDD', p?.max_drawdown || 2500);
+        setV('obStartBal', p?.starting_balance || 50000);
+        renderOnboardStep();
+    } else if (template === 'investor') {
+        const p = currentProfile;
+        const setV = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+        setV('obInvName', p?.display_name || '');
+        setV('obInvEmail', currentUser?.email?.includes('@propfarmpro.app') ? '' : (currentUser?.email || ''));
+    } else if (template === 'journal') {
+        const setV = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+        setV('obJournalName', currentProfile?.username || '');
+        setV('obJournalEmail', currentUser?.email?.includes('@propfarmpro.app') ? '' : (currentUser?.email || ''));
+    }
     document.getElementById('onboardOverlay').classList.remove('hidden');
 }
 
@@ -3157,27 +3206,31 @@ function renderOnboardStep() {
         if (s) s.classList.toggle('active', i === _onboardStep);
     }
     const prog = document.getElementById('onboardProgress');
-    prog.innerHTML = '';
-    for (let i = 0; i < ONBOARD_STEPS; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'onboard-dot' + (i === _onboardStep ? ' active' : i < _onboardStep ? ' done' : '');
-        prog.appendChild(dot);
+    if (prog) {
+        prog.innerHTML = '';
+        for (let i = 0; i < ONBOARD_STEPS; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'onboard-dot' + (i === _onboardStep ? ' active' : i < _onboardStep ? ' done' : '');
+            prog.appendChild(dot);
+        }
     }
-    document.getElementById('onboardBackBtn').style.display = _onboardStep > 0 ? 'block' : 'none';
-    document.getElementById('onboardNextBtn').textContent = _onboardStep === ONBOARD_STEPS - 1 ? "🌾 Let's Farm!" : 'Next →';
+    const backBtn = document.getElementById('onboardBackBtn');
+    const nextBtn = document.getElementById('onboardNextBtn');
+    if (backBtn) backBtn.style.display = _onboardStep > 0 ? 'block' : 'none';
+    if (nextBtn) nextBtn.textContent = _onboardStep === ONBOARD_STEPS - 1 ? "🌾 Let's Farm!" : 'Next →';
 }
 
 function onboardBack() { if (_onboardStep > 0) { _onboardStep--; renderOnboardStep(); } }
 
 async function onboardNext() {
     if (_onboardStep === 0) {
-        const uname = document.getElementById('obUsername').value.trim();
+        const uname = document.getElementById('obUsername')?.value.trim();
         if (!uname || uname.length < 3) { showAlert('Please enter a username (at least 3 chars).', 'error'); return; }
     }
     if (_onboardStep === ONBOARD_STEPS - 1) {
         await saveOnboardingData();
         document.getElementById('onboardOverlay').classList.add('hidden');
-        showAlert('🌾 Welcome! Your journal is ready. Happy farming!', 'success');
+        showAlert('🌾 Welcome! Your dashboard is ready. Happy farming!', 'success');
         return;
     }
     _onboardStep++;
@@ -3200,6 +3253,7 @@ async function saveOnboardingData() {
         daily_target_max: parseFloat(g('obDailyMax')) || 300,
         max_drawdown: parseFloat(g('obMaxDD')) || 2500,
         starting_balance: parseFloat(g('obStartBal')) || 50000,
+        onboarded: true,
     };
     try {
         await sbClient.from('profiles').upsert(updates);
@@ -3213,6 +3267,50 @@ async function saveOnboardingData() {
         updateAllViews();
     } catch(e) { showAlert('Could not save: ' + e.message, 'error'); }
 }
+
+async function saveInvestorOnboarding() {
+    const name = document.getElementById('obInvName')?.value.trim();
+    const display = document.getElementById('obInvDisplay')?.value.trim();
+    const email = document.getElementById('obInvEmail')?.value.trim();
+    if (!name) { showAlert('Please enter your name.', 'error'); return; }
+    try {
+        await sbClient.from('profiles').upsert({
+            id: currentUser.id,
+            username: display || name,
+            display_name: name,
+            email: email || currentUser.email || null,
+            onboarded: true,
+        });
+        currentProfile = { ...currentProfile, username: display || name, display_name: name, onboarded: true };
+        document.getElementById('onboardOverlay').classList.add('hidden');
+        document.getElementById('userAvatar').textContent = (display || name).substring(0,2).toUpperCase();
+        document.getElementById('userName').textContent = display || name;
+        showAlert('💼 Welcome to your Investor Portal!', 'success');
+        navigateTo('investor');
+    } catch(e) { showAlert('Could not save: ' + e.message, 'error'); }
+}
+
+async function saveJournalOnboarding() {
+    const name = document.getElementById('obJournalName')?.value.trim();
+    const email = document.getElementById('obJournalEmail')?.value.trim();
+    if (!name) { showAlert('Please enter your name.', 'error'); return; }
+    try {
+        await sbClient.from('profiles').upsert({
+            id: currentUser.id,
+            username: name,
+            email: email || currentUser.email || null,
+            onboarded: true,
+        });
+        currentProfile = { ...currentProfile, username: name, onboarded: true };
+        document.getElementById('onboardOverlay').classList.add('hidden');
+        document.getElementById('userAvatar').textContent = name.substring(0,2).toUpperCase();
+        document.getElementById('userName').textContent = name;
+        showAlert('📖 Welcome! You can now browse trading journals.', 'success');
+        navigateTo('journal');
+    } catch(e) { showAlert('Could not save: ' + e.message, 'error'); }
+}
+
+
 
 // ═══════════════════════════════════════════════════════
 //  PROFILE MODAL

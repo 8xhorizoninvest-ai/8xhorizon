@@ -712,7 +712,19 @@ let currentProfile = null;
 
 function initSB() {
     if (sb) return true;
-    try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); return true; }
+    try {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: {
+                // Tell Supabase to detect the OAuth token from the URL hash
+                detectSessionInUrl: true,
+                persistSession: true,
+                autoRefreshToken: true,
+                // Use the GitHub Pages URL as the site URL
+                flowType: 'implicit'
+            }
+        });
+        return true;
+    }
     catch(e) { console.error('Supabase init failed:', e); return false; }
 }
 
@@ -742,9 +754,11 @@ async function handleGoogleAuth() {
     txt.textContent = 'Redirecting…';
     spin.style.display = 'inline-block';
     try {
+        // Hardcoded to the exact GitHub Pages index.html URL
+        const baseUrl = 'https://8xhorizoninvest-ai.github.io/8xhorizon/index.html';
         const { error } = await sb.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.href.split('?')[0].split('#')[0] }
+            options: { redirectTo: baseUrl }
         });
         if (error) {
             btn.disabled = false; txt.textContent = 'Continue with Google'; spin.style.display = 'none';
@@ -857,10 +871,17 @@ async function checkSession() {
     if (!initSB()) return;
     let handled = false;
 
+    // MUST register listener FIRST before getSession()
+    // This catches the SIGNED_IN event fired when Supabase
+    // parses the #access_token hash on return from Google OAuth
     sb.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session && !handled) {
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session && !handled) {
             handled = true;
             currentUser = session.user;
+            // Clean the URL hash so it doesn't linger
+            if (window.location.hash && window.location.hash.includes('access_token')) {
+                history.replaceState(null, '', window.location.pathname);
+            }
             await ensureProfile(session);
             routeUser();
         } else if (event === 'SIGNED_OUT') {
@@ -871,16 +892,28 @@ async function checkSession() {
         }
     });
 
+    // Small delay to let Supabase parse the hash token first
+    await new Promise(r => setTimeout(r, 100));
+
     try {
         const { data: { session } } = await sb.auth.getSession();
         if (session && !handled) {
             handled = true;
             currentUser = session.user;
+            if (window.location.hash && window.location.hash.includes('access_token')) {
+                history.replaceState(null, '', window.location.pathname);
+            }
             await ensureProfile(session);
             routeUser();
             return;
         }
     } catch(e) { console.error('Session check error:', e); }
+
+    // If still no session after all that, show login
+    if (!handled) {
+        const as = document.getElementById('authScreen');
+        if (as) { as.classList.remove('hidden'); }
+    }
 }
 
 // ═══════════════════════════════════════════════════════

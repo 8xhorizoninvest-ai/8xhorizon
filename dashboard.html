@@ -1710,21 +1710,34 @@ async function checkSession() {
         }
     });
 
-    // Check for existing session on page load / refresh
-    try {
-        const { data: { session } } = await sbClient.auth.getSession();
-        if (session) {
-            sessionHandled = true;
-            currentUser = session.user;
-            await loadProfile();
-            showDashboard();
-        } else {
-            // No session — redirect to login page
-            const path = window.location.pathname.split('/');
+    // Wait for onAuthStateChange to fire first (handles post-login redirect)
+    await new Promise(r => setTimeout(r, 1000));
+    if (sessionHandled) return;
+
+    // Fallback: poll getSession() up to 8 times
+    let session = null;
+    for (let i = 0; i < 8; i++) {
+        try {
+            const { data } = await sbClient.auth.getSession();
+            if (data.session) { session = data.session; break; }
+        } catch(e) { console.error('Session check error:', e); }
+        if (sessionHandled) return;
+        if (i < 7) await new Promise(r => setTimeout(r, 500));
+    }
+
+    if (sessionHandled) return;
+
+    if (session) {
+        sessionHandled = true;
+        currentUser = session.user;
+        await loadProfile();
+        showDashboard();
+    } else {
+        // Truly no session — go to login
+        const path = window.location.pathname.split('/');
         path[path.length - 1] = 'index.html';
-            window.location.href = window.location.origin + path.join('/');
-        }
-    } catch (e) { console.error('Session check error:', e); }
+        window.location.href = window.location.origin + path.join('/');
+    }
 }
 
 async function loadProfile() {

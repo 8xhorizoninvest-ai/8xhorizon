@@ -754,8 +754,8 @@ async function handleGoogleAuth() {
     txt.textContent = 'Redirecting…';
     spin.style.display = 'inline-block';
     try {
-        // Hardcoded to the exact GitHub Pages index.html URL
-        const baseUrl = 'https://8xhorizoninvest-ai.github.io/8xhorizon/index.html';
+        // Always redirect back to wherever this page is hosted — no hash, no query
+        const baseUrl = window.location.origin + window.location.pathname.replace(/\/+$/, '');
         const { error } = await sb.auth.signInWithOAuth({
             provider: 'google',
             options: { redirectTo: baseUrl }
@@ -786,21 +786,61 @@ async function handleLogout() {
 // ═══════════════════════════════════════════════════════
 //  SESSION & PROFILE
 // ═══════════════════════════════════════════════════════
+const ADMIN_EMAIL = '8xhorizon.invest@gmail.com';
+
 async function ensureProfile(session) {
     if (!currentUser) return;
-    const { data, error } = await sb.from('investor_profiles').select('*').eq('id', currentUser.id).single();
-    if (!error && data) { currentProfile = data; return; }
-    // Create profile
-    const name = (session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User');
-    const { data: newP } = await sb.from('investor_profiles').upsert({
+
+    const userEmail = (session.user.email || '').toLowerCase().trim();
+    const isAdminEmail = userEmail === ADMIN_EMAIL.toLowerCase();
+
+    // Always fetch from DB first — never trust stale state
+    const { data: existing } = await sb
+        .from('investor_profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .maybeSingle();
+
+    if (existing) {
+        // If this is the admin email but DB doesn't have admin yet, fix it now
+        if (isAdminEmail && (existing.role !== 'admin' || !existing.approved)) {
+            await sb.from('investor_profiles')
+                .update({ role: 'admin', approved: true })
+                .eq('id', currentUser.id);
+            existing.role = 'admin';
+            existing.approved = true;
+        }
+        currentProfile = existing;
+        return;
+    }
+
+    // No row yet — create it (trigger should have done this, but just in case)
+    const name = session.user.user_metadata?.full_name
+        || session.user.user_metadata?.name
+        || session.user.email?.split('@')[0]
+        || 'User';
+
+    const newRow = {
         id: currentUser.id,
         email: session.user.email || null,
         name: name,
-        role: 'user',
-        approved: false,
+        role: isAdminEmail ? 'admin' : 'user',
+        approved: isAdminEmail ? true : false,
         avatar_url: session.user.user_metadata?.avatar_url || null
-    }).select().single();
-    currentProfile = newP;
+    };
+
+    const { data: created, error: insertErr } = await sb
+        .from('investor_profiles')
+        .upsert(newRow, { onConflict: 'id' })
+        .select()
+        .single();
+
+    if (insertErr) {
+        console.error('Profile insert error:', insertErr.message);
+        currentProfile = newRow; // use local fallback
+    } else {
+        currentProfile = created;
+    }
 }
 
 async function loadProfile() {
@@ -892,8 +932,8 @@ async function checkSession() {
         }
     });
 
-    // Small delay to let Supabase parse the hash token first
-    await new Promise(r => setTimeout(r, 100));
+    // Wait for Supabase to parse the hash — needs enough time on GitHub Pages
+    await new Promise(r => setTimeout(r, 300));
 
     try {
         const { data: { session } } = await sb.auth.getSession();
@@ -909,8 +949,17 @@ async function checkSession() {
         }
     } catch(e) { console.error('Session check error:', e); }
 
-    // If still no session after all that, show login
+    // Last resort: if hash has access_token but session wasn't caught,
+    // force a page reload once to let Supabase re-process it
     if (!handled) {
+        const hash = window.location.hash;
+        if (hash && hash.includes('access_token') && !sessionStorage.getItem('sb_reload_attempted')) {
+            sessionStorage.setItem('sb_reload_attempted', '1');
+            window.location.reload();
+            return;
+        }
+        // Clear the reload flag and show login
+        sessionStorage.removeItem('sb_reload_attempted');
         const as = document.getElementById('authScreen');
         if (as) { as.classList.remove('hidden'); }
     }

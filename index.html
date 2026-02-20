@@ -781,20 +781,13 @@ async function checkSession() {
   initSupabase();
   if (!_sbReady) return;
 
-  // onAuthStateChange fires for BOTH existing sessions AND the OAuth redirect callback
-  // This is the correct way to handle Google OAuth redirect with Supabase
+  // onAuthStateChange handles EVERYTHING: OAuth redirects, existing sessions, refreshes
+  // Must be set up BEFORE calling getSession()
   sbClient.auth.onAuthStateChange(async (event, session) => {
-    console.log('Auth event:', event, session?.user?.email);
-    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+    if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
       await resolveUserSession(session.user);
-    } else if (event === 'SIGNED_OUT') {
-      currentUser = null;
     }
   });
-
-  // Also check for existing session (page refresh, not OAuth redirect)
-  const { data: { session } } = await sbClient.auth.getSession();
-  if (session?.user) await resolveUserSession(session.user);
 }
 
 // ══════════════════════════════════════════════
@@ -1224,36 +1217,13 @@ function showAlert(msg, type) {
 function showAuthErr(msg) { const el = document.getElementById('authErr'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 7000); }
 
 
-// ══════════════════════════════════════════════
-//  SEED DEMO DATA (if empty)
-// ══════════════════════════════════════════════
-function seedDemoIfEmpty() {
-  if (getUsers().length > 0) return;
-  const adminId = 'admin_demo';
-  const inv1 = 'inv_demo_1';
-  const inv2 = 'inv_demo_2';
-  saveUsers([
-    { id: adminId, email: 'admin@8xhorizon.com', name: 'Admin User', avatar: null, role: 'admin', amount: 115, startDate: '2026-01-15', strategy: 'base', split: 50, cycle: 2 },
-    { id: inv1, email: 'marcus@example.com', name: 'Marcus Thompson', avatar: null, role: 'investor', amount: 115, startDate: '2026-01-15', strategy: 'base', split: 50, cycle: 2 },
-    { id: inv2, email: 'sarah@example.com', name: 'Sarah Chen', avatar: null, role: 'investor', amount: 115, startDate: '2026-01-20', strategy: 'conservative', split: 50, cycle: 1 },
-    { id: 'pending_1', email: 'newuser@example.com', name: 'New User', avatar: null, role: 'pending', amount: 115, startDate: today(), strategy: 'base', split: 50, cycle: 1 }
-  ]);
-  const trd = [];
-  const addT = (iid, days, cond, strat, pnl, notes = '') => {
-    const d = new Date(); d.setDate(d.getDate() - days);
-    trd.push({ id: uid(), investorId: iid, date: d.toISOString().split('T')[0], condition: cond, strategy: strat, pnl, pnlBase: strat === 'base' ? pnl : pnl * 3, pnlCons: strat === 'conservative' ? pnl : Math.round(pnl / 3), notes });
-  };
-  [[33,'NY Session','base',285,'Clean breakout'],[32,'No Impact','base',-120,'Stop hit'],[29,'London Session','base',310,'Strong trend'],[28,'High Impact News','base',-95,'News spike'],[27,'NY Session','base',420,'Trend continuation'],[26,'Pre-Market','base',195,'Gap fill'],[25,'NY Session','base',370,''],[22,'London Session','base',-200,'Choppy'],[21,'NY Session','base',480,'Perfect day'],[20,'No Impact','base',260,'Range breakout']].forEach(a => addT(inv1, ...a));
-  [[28,'NY Session','conservative',95,'Good entry'],[27,'No Impact','conservative',-40,'Stopped'],[24,'London Session','conservative',100,'Trend day'],[21,'NY Session','conservative',90,''],[18,'Pre-Market','conservative',80,'Gap fill'],[15,'NY Session','conservative',-50,'News hit']].forEach(a => addT(inv2, ...a));
-  saveTrades(trd);
-}
+
 
 // ══════════════════════════════════════════════
 //  STARTUP
 // ══════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  seedDemoIfEmpty();
-  checkSession().catch(() => {}); // Supabase optional
+  checkSession().catch(console.error);
 
 
 });

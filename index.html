@@ -261,6 +261,17 @@ tr:last-child td{border-bottom:none;}tr:hover td{background:rgba(255,255,255,.01
   </div>
 </div>
 
+<!-- ── SET NAME SCREEN (first login) ── -->
+<div class="pending-screen" id="setNameScreen" style="display:none;">
+  <div class="pending-icon">👋</div>
+  <div class="pending-title">Welcome to 8xHorizon</div>
+  <div class="pending-sub">Before we continue, what should we call you?</div>
+  <div style="margin:1.5rem 0;width:100%;max-width:320px;">
+    <input type="text" id="nameInput" class="fm-inp" placeholder="Your full name" style="width:100%;text-align:center;font-size:1rem;padding:.75rem 1rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#f0f2f7;outline:none;" onkeydown="if(event.key==='Enter')saveName()">
+  </div>
+  <button class="btn primary" style="padding:.7rem 2rem;font-size:.95rem;" onclick="saveName()">Continue →</button>
+</div>
+
 <!-- ── PENDING APPROVAL SCREEN ── -->
 <div class="pending-screen" id="pendingScreen">
   <div class="pending-icon">⏳</div>
@@ -574,7 +585,7 @@ async function signInWithGoogle() {
   if (_sbReady) {
     const { error } = await sbClient.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.href }
+      options: { redirectTo: 'https://8xhorizoninvest-ai.github.io/8xhorizon/' }
     });
     if (error) showAuthErr(error.message);
     return;
@@ -642,6 +653,54 @@ function handleNewUser(mockUser) {
 
 function enterApp(user) {
   document.getElementById('authScreen').classList.add('hidden');
+
+  // First time user — no real name set yet
+  const rawName = user.name || '';
+  const looksGenerated = !rawName || rawName === rawName.split('@')[0] || rawName.length < 2;
+  const hasSetName = localStorage.getItem('8xh_name_set_' + user.id);
+  if (!hasSetName && looksGenerated) {
+    _pendingUserForName = user;
+    document.getElementById('nameInput').value = '';
+    document.getElementById('setNameScreen').style.cssText = 'display:flex;flex-direction:column;align-items:center;';
+    return;
+  }
+
+  if (user.role === 'pending') {
+    document.getElementById('pendingScreen').classList.add('show');
+    document.getElementById('pendingEmail').textContent = user.email;
+    return;
+  }
+  showDashboard(user);
+}
+
+let _pendingUserForName = null;
+
+async function saveName() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name || name.length < 2) {
+    document.getElementById('nameInput').style.borderColor = 'var(--red)';
+    setTimeout(() => document.getElementById('nameInput').style.borderColor = '', 1500);
+    return;
+  }
+  const user = _pendingUserForName;
+  if (!user) return;
+
+  user.name = name;
+  localStorage.setItem('8xh_name_set_' + user.id, '1');
+
+  // Update in local store
+  const users = getUsers();
+  const idx = users.findIndex(u => u.id === user.id);
+  if (idx >= 0) { users[idx].name = name; saveUsers(users); }
+
+  // Update in Supabase if connected
+  if (_sbReady) {
+    await sbClient.from('users').update({ name }).eq('id', user.id);
+    await sbClient.auth.updateUser({ data: { full_name: name } });
+  }
+
+  document.getElementById('setNameScreen').style.cssText = 'display:none';
+
   if (user.role === 'pending') {
     document.getElementById('pendingScreen').classList.add('show');
     document.getElementById('pendingEmail').textContent = user.email;

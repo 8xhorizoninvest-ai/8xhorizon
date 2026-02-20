@@ -346,12 +346,13 @@ async function doLogin() {
         const email = (profile?.email && !profile.email.includes('@propfarmpro.app'))
             ? profile.email
             : (profile?.email || `${username.toLowerCase()}@propfarmpro.app`);
-        const { error } = await sb.auth.signInWithPassword({ email, password });
+        const { data: signInData, error } = await sb.auth.signInWithPassword({ email, password });
         if (error) {
             showError(error.message.includes('Invalid login') ? '❌ Wrong username or password. Try again.' : error.message);
             setLoading('login', false);
+        } else if (signInData?.session) {
+            window.location.replace(getDashboardURL());
         }
-        // On success onAuthStateChange fires → redirect
     } catch(err) {
         showError('Sign in error: ' + err.message);
         setLoading('login', false);
@@ -442,18 +443,18 @@ async function doReset() {
 window.addEventListener('DOMContentLoaded', async () => {
     if (!initSB()) { showError('Failed to initialise. Please refresh.'); return; }
 
-    // Already logged in? Redirect immediately
-    try {
-        const { data: { session } } = await sb.auth.getSession();
-        if (session) { window.location.href = getDashboardURL(); return; }
-    } catch(e) {}
-
-    // Watch for auth state (handles Google OAuth callback)
+    // Watch for auth state FIRST — catches SIGNED_IN event after login
     sb.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session) {
-            window.location.href = getDashboardURL();
+            window.location.replace(getDashboardURL());
         }
     });
+
+    // Also check for existing session (handles page refresh when already logged in)
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) { window.location.replace(getDashboardURL()); return; }
+    } catch(e) {}
 });
 </script>
 </body>

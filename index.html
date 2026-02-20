@@ -629,18 +629,43 @@ function syncUserToLocal(user) {
 }
 
 async function resolveUserSession(supaUser) {
-  const localUsers = getUsers();
-  let user = localUsers.find(u => u.id === supaUser.id || u.email === supaUser.email);
-  if (!user) {
-    user = buildUserRecord(supaUser);
-    syncUserToLocal(user);
-  } else {
-    // Update avatar/name from OAuth
-    user.name = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || user.name;
-    user.avatar = supaUser.user_metadata?.avatar_url || user.avatar;
-    syncUserToLocal(user);
-    user = getUsers().find(u => u.id === supaUser.id);
+  let user = null;
+
+  // Always fetch fresh from Supabase DB so role is correct
+  if (_sbReady) {
+    const { data, error } = await sbClient.from('users').select('*').eq('id', supaUser.id).single();
+    if (data && !error) {
+      user = {
+        id: data.id,
+        email: data.email || supaUser.email,
+        name: data.name || supaUser.user_metadata?.full_name || supaUser.email?.split('@')[0],
+        avatar: data.avatar || supaUser.user_metadata?.avatar_url || null,
+        role: data.role || 'pending',
+        amount: data.amount || 115,
+        startDate: data.start_date || today(),
+        strategy: data.strategy || 'base',
+        split: data.split || 50,
+        cycle: data.cycle || 1
+      };
+      syncUserToLocal(user);
+    }
   }
+
+  // Fallback to localStorage if Supabase fetch failed
+  if (!user) {
+    const localUsers = getUsers();
+    user = localUsers.find(u => u.id === supaUser.id || u.email === supaUser.email);
+    if (!user) {
+      user = buildUserRecord(supaUser);
+      syncUserToLocal(user);
+    } else {
+      user.name = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || user.name;
+      user.avatar = supaUser.user_metadata?.avatar_url || user.avatar;
+      syncUserToLocal(user);
+      user = getUsers().find(u => u.id === supaUser.id);
+    }
+  }
+
   currentUser = user;
   enterApp(user);
 }
@@ -754,18 +779,22 @@ async function signOut() {
 // ══════════════════════════════════════════════
 async function checkSession() {
   initSupabase();
-  if (!_sbReady) return; // Run in local mode
+  if (!_sbReady) return;
 
+  // onAuthStateChange fires for BOTH existing sessions AND the OAuth redirect callback
+  // This is the correct way to handle Google OAuth redirect with Supabase
   sbClient.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
+    console.log('Auth event:', event, session?.user?.email);
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
       await resolveUserSession(session.user);
     } else if (event === 'SIGNED_OUT') {
-      // handled by signOut()
+      currentUser = null;
     }
   });
 
+  // Also check for existing session (page refresh, not OAuth redirect)
   const { data: { session } } = await sbClient.auth.getSession();
-  if (session) await resolveUserSession(session.user);
+  if (session?.user) await resolveUserSession(session.user);
 }
 
 // ══════════════════════════════════════════════

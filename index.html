@@ -1449,56 +1449,49 @@
 
                 <!-- ── ADMIN VIEW ── -->
                 <div id="ipAdminSection" style="display:none;">
-                    <div class="admin-banner" style="background:linear-gradient(135deg,rgba(255,209,102,0.1),rgba(245,166,35,0.06));border-color:rgba(255,209,102,0.25);margin-bottom:1.5rem;">
+                    <div class="admin-banner" style="background:linear-gradient(135deg,rgba(255,209,102,0.1),rgba(245,166,35,0.06));border-color:rgba(255,209,102,0.25);margin-bottom:1.5rem;position:relative;">
                         <span class="admin-banner-icon">💼</span>
                         <div class="admin-banner-text">
                             <strong>Investor Portal — Admin Controls</strong>
-                            <span>Manage investors, approve mode requests, and monitor account health.</span>
+                            <span>Manage investors, approve mode requests, monitor account health.</span>
                         </div>
-                        <!-- Notification bell -->
+                        <!-- Notification Bell -->
                         <div style="margin-left:auto;position:relative;">
-                            <button class="btn btn-secondary" style="padding:0.5rem 0.875rem;font-size:0.85rem;position:relative;" onclick="ipToggleNotifPanel()">
-                                🔔 Requests <span id="ipNotifBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:var(--danger);color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;"></span>
+                            <button class="icon-btn" id="ipBellBtn" onclick="ipToggleNotifPanel()" style="width:auto;padding:0 0.75rem;gap:0.4rem;font-size:0.85rem;">
+                                🔔 <span id="ipBellLabel">Requests</span>
+                                <span id="ipBellBadge" style="display:none;background:var(--danger);color:#fff;border-radius:10px;padding:0 5px;font-size:0.68rem;font-weight:700;line-height:1.6;"></span>
                             </button>
-                        </div>
-                    </div>
-
-                    <!-- Notification Panel (collapsible) -->
-                    <div id="ipNotifPanel" style="display:none;margin-bottom:1.5rem;">
-                        <div class="table-card">
-                            <div class="table-header"><span class="card-title">🔔 Pending Mode Requests</span><span id="ipNotifCount" style="color:var(--text-muted);font-size:0.8rem;">0 pending</span></div>
-                            <div id="ipNotifList" style="padding:0.75rem 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
-                                <div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.875rem;">No pending requests</div>
+                            <!-- Notification dropdown -->
+                            <div id="ipNotifPanel" style="display:none;position:absolute;right:0;top:calc(100% + 8px);width:380px;background:var(--bg-card);border:1px solid var(--border-glow);border-radius:var(--radius);box-shadow:var(--shadow),0 0 40px rgba(0,0,0,0.4);z-index:500;max-height:440px;overflow-y:auto;">
+                                <div style="padding:0.875rem 1.25rem;border-bottom:1px solid var(--border);font-weight:700;font-size:0.875rem;display:flex;justify-content:space-between;align-items:center;">
+                                    <span>🔔 Mode Requests</span>
+                                    <span id="ipNotifCount" style="color:var(--text-muted);font-size:0.78rem;">—</span>
+                                </div>
+                                <div id="ipNotifList"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- PA Health Panel -->
-                    <div class="card" style="margin-bottom:1.5rem;border-color:rgba(59,126,248,0.2);">
-                        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-                            <div><div class="card-title">🏦 PA Health Monitor</div><div class="card-sub">Your real account — hidden from investors</div></div>
-                            <div style="display:flex;gap:0.5rem;align-items:center;">
-                                <span style="font-size:0.78rem;color:var(--text-muted);">PA Balance:</span>
-                                <span id="ipAdminPaBal" style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent);">$50,000</span>
-                            </div>
-                        </div>
-                        <div class="card-body" style="padding:1rem 1.5rem;">
+                    <!-- PA Health Panel — admin-only, real numbers -->
+                    <div class="card" style="margin-bottom:1.5rem;border-color:rgba(59,126,248,0.25);">
+                        <div class="card-header"><div class="card-title">🏦 PA Health Panel</div><div class="card-sub">Real account data — never shown to investors</div></div>
+                        <div class="card-body" style="padding:1.25rem 1.5rem;">
                             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;">
-                                <div style="text-align:center;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
-                                    <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--success);" id="ipAdminPaPnl">$0</div>
-                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">Total P&L</div>
+                                <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);text-align:center;">
+                                    <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">PA Balance</div>
+                                    <div id="ipAdminPaBal" style="font-family:'JetBrains Mono',monospace;font-size:1.35rem;font-weight:700;color:var(--accent);">—</div>
                                 </div>
-                                <div style="text-align:center;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
-                                    <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--purple);" id="ipAdminPaPct">0%</div>
-                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">% to Goal</div>
+                                <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);text-align:center;">
+                                    <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Profit vs Goal</div>
+                                    <div id="ipAdminPaProgress" style="font-family:'JetBrains Mono',monospace;font-size:1.35rem;font-weight:700;color:var(--success);">—</div>
                                 </div>
-                                <div style="text-align:center;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
-                                    <div style="font-size:1.5rem;font-weight:700;" id="ipAdminWarnLevel">🟢</div>
-                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;" id="ipAdminWarnText">All clear</div>
+                                <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);text-align:center;">
+                                    <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Warning Level</div>
+                                    <div id="ipAdminWarnDot" style="font-size:1.5rem;">🟢</div>
                                 </div>
-                                <div style="text-align:center;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
-                                    <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--gold);" id="ipAdminAtRisk">0</div>
-                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">At-Risk Investors</div>
+                                <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);text-align:center;">
+                                    <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">At-Risk Investors</div>
+                                    <div id="ipAdminAtRisk" style="font-family:'JetBrains Mono',monospace;font-size:1.35rem;font-weight:700;color:var(--warning);">—</div>
                                 </div>
                             </div>
                         </div>
@@ -1506,10 +1499,10 @@
 
                     <!-- Overview stats -->
                     <div class="metrics-grid" style="margin-bottom:1.5rem;">
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">Total Investors</span><span class="metric-icon">👥</span></div><div class="metric-value" id="ipInvestorCount" style="color:var(--purple)">0</div><div class="metric-sub">Active investor accounts</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">Total Investors</span><span class="metric-icon">👥</span></div><div class="metric-value" id="ipInvestorCount" style="color:var(--purple)">0</div><div class="metric-sub">Active accounts</div></div>
                         <div class="metric-card"><div class="metric-header"><span class="metric-label">PA Accounts Used</span><span class="metric-icon">🔗</span></div><div class="metric-value" id="ipLinkedCount" style="color:var(--cyan)">0</div><div class="metric-sub">Linked to investors</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">At Payout Goal</span><span class="metric-icon">🏆</span></div><div class="metric-value" id="ipAtGoalCount" style="color:var(--gold)">0</div><div class="metric-sub">Investors at $800</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">Goal Per PA</span><span class="metric-icon">🎯</span></div><div class="metric-value" style="color:var(--success)">$4,600</div><div class="metric-sub">Profit triggers payout</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">At Payout Goal</span><span class="metric-icon">🏆</span></div><div class="metric-value" id="ipAtGoalCount" style="color:var(--gold)">0</div><div class="metric-sub">Investors at target</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">Pending Requests</span><span class="metric-icon">🔔</span></div><div class="metric-value" id="ipPendingCount" style="color:var(--warning)">0</div><div class="metric-sub">Awaiting response</div></div>
                     </div>
 
                     <!-- Investor list table -->
@@ -1519,7 +1512,7 @@
                         </div>
                         <div class="table-wrap">
                             <table>
-                                <thead><tr><th>Name</th><th>Email</th><th>Linked PA</th><th>Mode</th><th>Current Value</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
+                                <thead><tr><th>Name</th><th>Email</th><th>Entry</th><th>Mode</th><th>Current Value</th><th>Progress</th><th>Warning</th><th>Actions</th></tr></thead>
                                 <tbody id="ipInvestorTableBody"></tbody>
                             </table>
                         </div>
@@ -1528,7 +1521,7 @@
                     <!-- Add investor form -->
                     <div class="form-card" style="margin-bottom:1.5rem;">
                         <h3 style="margin-bottom:0.4rem;font-size:1rem;font-weight:700;">➕ Add / Update Investor</h3>
-                        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Search by email or username, pick their PA account, set entry and payout amounts.</p>
+                        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Search by email or username, pick their linked account, set entry / payout / mode.</p>
 
                         <div class="form-grid" style="margin-bottom:1rem;">
                             <div class="form-group" style="margin-bottom:0;">
@@ -1551,9 +1544,9 @@
 
                         <div class="form-grid">
                             <div class="form-group">
-                                <label class="form-label">Link to PA Account</label>
+                                <label class="form-label">Link to Account</label>
                                 <select class="form-select" id="ipLinkAccountSelect" onchange="ipPreviewFormula()">
-                                    <option value="">— Select PA Account —</option>
+                                    <option value="">— Select Account —</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -1580,8 +1573,9 @@
                         <!-- Live formula preview -->
                         <div id="ipFormulaPreview" style="margin-bottom:1rem;padding:0.875rem 1.25rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px solid var(--border);font-size:0.82rem;color:var(--text-muted);display:none;">
                             <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center;">
-                                <span><span style="color:var(--accent);font-weight:600;">Formula:</span> Value = <span id="ipFormulaEntry" style="color:var(--gold);font-family:'JetBrains Mono',monospace;">$115</span> + (PA Profit × <span id="ipFormulaMultiplier" style="color:var(--purple);font-family:'JetBrains Mono',monospace;">0.1489</span>)</span>
-                                <span>PA today: <span id="ipFormulaPaPnl" style="color:var(--success);font-family:'JetBrains Mono',monospace;">—</span> → Your value: <span id="ipFormulaCurrentVal" style="color:var(--gold);font-family:'JetBrains Mono',monospace;">—</span></span>
+                                <span>Multiplier: <span id="ipFormulaMultiplier" style="color:var(--purple);font-family:'JetBrains Mono',monospace;">0.1489</span></span>
+                                <span>Entry: <span id="ipFormulaEntry" style="color:var(--gold);font-family:'JetBrains Mono',monospace;">$115</span></span>
+                                <span>Account P&L: <span id="ipFormulaPaPnl" style="color:var(--success);font-family:'JetBrains Mono',monospace;">—</span> → Investor value: <span id="ipFormulaCurrentVal" style="color:var(--gold);font-family:'JetBrains Mono',monospace;">—</span></span>
                             </div>
                         </div>
 
@@ -1599,142 +1593,142 @@
                         .ip-inv-header::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 60% 80% at 100% 50%, rgba(155,111,250,0.08) 0%, transparent 70%); pointer-events:none; }
                         .ip-value-giant { font-family:'JetBrains Mono',monospace; font-size:clamp(2.5rem,6vw,4.5rem); font-weight:700; letter-spacing:-0.03em; line-height:1; }
                         .ip-trade-row:hover { background:var(--bg-hover); }
-                        .ip-ms-chip { display:inline-flex; align-items:center; gap:0.3rem; padding:0.3rem 0.7rem; border-radius:20px; font-size:0.72rem; font-weight:600; border:1px solid; transition:all 0.2s; }
+                        /* Milestone chips */
+                        .ip-ms-chip { display:inline-flex; align-items:center; gap:0.3rem; padding:0.3rem 0.75rem; border-radius:20px; font-size:0.75rem; font-weight:700; border:1px solid; transition:all 0.2s; font-family:'JetBrains Mono',monospace; }
                         .ip-ms-chip.reached { background:rgba(34,211,160,0.12); color:var(--success); border-color:rgba(34,211,160,0.3); }
-                        .ip-ms-chip.pending { background:rgba(99,179,237,0.05); color:var(--text-dim); border-color:var(--border); }
-                        .ip-ms-chip.current { background:rgba(59,126,248,0.15); color:var(--accent); border-color:rgba(59,126,248,0.4); animation:pulse-chip 2s ease infinite; }
+                        .ip-ms-chip.pending { background:rgba(99,179,237,0.04); color:var(--text-dim); border-color:rgba(99,179,237,0.08); opacity:0.6; }
+                        .ip-ms-chip.current { background:rgba(59,126,248,0.18); color:var(--accent); border-color:rgba(59,126,248,0.45); animation:pulse-chip 2s ease infinite; box-shadow:0 0 12px rgba(59,126,248,0.25); }
                         .ip-ms-chip.goal { background:rgba(255,209,102,0.15); color:var(--gold); border-color:rgba(255,209,102,0.4); }
-                        @keyframes pulse-chip { 0%,100%{opacity:1} 50%{opacity:0.7} }
-                        .ip-mode-badge { display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.875rem; border-radius:20px; font-size:0.78rem; font-weight:700; border:1px solid; }
+                        @keyframes pulse-chip { 0%,100%{box-shadow:0 0 8px rgba(59,126,248,0.25)} 50%{box-shadow:0 0 20px rgba(59,126,248,0.55)} }
+                        /* Mode badge */
+                        .ip-mode-badge { display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.75rem; border-radius:12px; font-size:0.75rem; font-weight:700; border:1px solid; }
                         .ip-mode-badge.conservative { background:rgba(34,211,160,0.1); color:var(--success); border-color:rgba(34,211,160,0.3); }
-                        .ip-mode-badge.base { background:rgba(155,111,250,0.1); color:var(--purple); border-color:rgba(155,111,250,0.3); }
+                        .ip-mode-badge.base { background:rgba(155,111,250,0.12); color:var(--purple); border-color:rgba(155,111,250,0.35); }
                         .ip-mode-badge.pending { background:rgba(245,166,35,0.1); color:var(--warning); border-color:rgba(245,166,35,0.3); }
-                        .ip-warn-banner { border-radius:var(--radius-sm); padding:0.875rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.875rem; flex-wrap:wrap; }
-                        .ip-warn-banner.level1 { background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.3); color:var(--warning); }
-                        .ip-warn-banner.level2 { background:rgba(240,92,106,0.08); border:1px solid rgba(240,92,106,0.3); color:#ff9f43; }
-                        .ip-warn-banner.level3 { background:rgba(240,92,106,0.12); border:1px solid rgba(240,92,106,0.4); color:var(--danger); }
-                        .ip-monitor-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--danger); animation:pulse-dot 1.2s ease infinite; }
-                        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
-                        /* Mode Request Modal */
-                        .ip-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9000; display:flex; align-items:center; justify-content:center; padding:1rem; }
-                        .ip-modal { background:var(--bg-card); border:1px solid var(--border-glow); border-radius:20px; padding:2rem; width:100%; max-width:440px; box-shadow:var(--shadow),0 0 60px rgba(59,126,248,0.1); animation:slideDown 0.25s ease; }
-                        .ip-modal h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.4rem; }
-                        .ip-mode-option { padding:1rem; border:2px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; margin-bottom:0.75rem; }
-                        .ip-mode-option:hover { border-color:var(--accent); background:rgba(59,126,248,0.05); }
-                        .ip-mode-option.selected { border-color:var(--accent); background:rgba(59,126,248,0.1); }
-                        .ip-mode-option.selected-base { border-color:var(--purple); background:rgba(155,111,250,0.1); }
+                        /* Warning banners */
+                        .ip-warn { border-radius:var(--radius-sm); padding:0.875rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:flex-start; gap:0.875rem; flex-wrap:wrap; }
+                        .ip-warn.l1 { background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.3); color:#e8b84b; }
+                        .ip-warn.l2 { background:rgba(240,130,60,0.1); border:1px solid rgba(240,130,60,0.35); color:#f0873c; }
+                        .ip-warn.l3 { background:rgba(240,92,106,0.1); border:1px solid rgba(240,92,106,0.4); color:var(--danger); }
+                        .ip-warn-icon { font-size:1.3rem; flex-shrink:0; margin-top:0.1rem; }
+                        .ip-warn-body { flex:1; min-width:200px; }
+                        .ip-warn-body strong { display:block; margin-bottom:0.2rem; }
+                        .ip-warn-body span { font-size:0.85rem; opacity:0.85; }
+                        /* Pulsing monitor dot */
+                        .ip-monitor-badge { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.8rem; font-weight:700; }
+                        .ip-pulse-dot { width:9px; height:9px; border-radius:50%; background:var(--danger); animation:dot-pulse 1.2s ease infinite; }
+                        @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
+                        /* Stats row */
+                        .ip-stats-row { display:grid; grid-template-columns:repeat(5,1fr); gap:0.875rem; margin-bottom:1.5rem; }
+                        @media(max-width:900px){ .ip-stats-row { grid-template-columns:repeat(3,1fr); } }
+                        @media(max-width:600px){ .ip-stats-row { grid-template-columns:repeat(2,1fr); } }
+                        .ip-stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.875rem 1rem; text-align:center; }
+                        .ip-stat-val { font-family:'JetBrains Mono',monospace; font-size:1.1rem; font-weight:700; margin-bottom:0.25rem; }
+                        .ip-stat-lbl { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); }
+                        /* Mode request modal */
+                        #ipModeModal { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9000; display:flex; align-items:center; justify-content:center; padding:1rem; }
+                        .ip-modal-card { background:var(--bg-card); border:1px solid var(--border-glow); border-radius:20px; padding:2rem; width:100%; max-width:420px; box-shadow:var(--shadow),0 0 60px rgba(59,126,248,0.12); animation:slideDown 0.25s ease; }
+                        .ip-mode-opt { padding:1rem 1.25rem; border:2px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.875rem; }
+                        .ip-mode-opt:hover { border-color:var(--border-glow); background:var(--bg-elevated); }
+                        .ip-mode-opt.selected-cons { border-color:var(--success); background:rgba(34,211,160,0.07); }
+                        .ip-mode-opt.selected-base { border-color:var(--purple); background:rgba(155,111,250,0.07); }
+                        .ip-mode-opt-icon { font-size:1.5rem; flex-shrink:0; }
+                        .ip-mode-opt-title { font-weight:700; font-size:0.9rem; }
+                        .ip-mode-opt-sub { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
                     </style>
 
-                    <!-- Warning banners (shown/hidden by JS) -->
-                    <div id="ipWarnL1" class="ip-warn-banner level1" style="display:none;">
-                        <span style="font-size:1.2rem;">📉</span>
-                        <div style="flex:1;">
-                            <strong>Your account is in a drawdown period.</strong> Markets can be unpredictable. Consider requesting Conservative mode to reduce exposure while things recover.
+                    <!-- Warning banners — shown/hidden by JS based on account balance level -->
+                    <div id="ipWarnL1" class="ip-warn l1" style="display:none;">
+                        <div class="ip-warn-icon">📉</div>
+                        <div class="ip-warn-body">
+                            <strong>Your account is in a drawdown period.</strong>
+                            <span>Markets can be unpredictable. Consider requesting Conservative mode to reduce exposure while they recover.</span>
                         </div>
-                        <button class="btn" style="background:rgba(245,166,35,0.2);color:var(--warning);border:1px solid rgba(245,166,35,0.4);padding:0.4rem 0.875rem;font-size:0.8rem;white-space:nowrap;" onclick="ipOpenModeModal('conservative')">Request Conservative Mode</button>
+                        <button class="btn" style="background:rgba(245,166,35,0.15);color:#e8b84b;border:1px solid rgba(245,166,35,0.4);padding:0.4rem 0.875rem;font-size:0.8rem;flex-shrink:0;" onclick="ipOpenModeModal('conservative')">Request Conservative Mode</button>
                     </div>
-                    <div id="ipWarnL2" class="ip-warn-banner level2" style="display:none;">
-                        <span style="font-size:1.2rem;">⚠️</span>
-                        <div style="flex:1;">
-                            <strong>Your account balance is running low.</strong> Switching to Conservative mode is recommended. Your account manager has been alerted.
+                    <div id="ipWarnL2" class="ip-warn l2" style="display:none;">
+                        <div class="ip-warn-icon">⚠️</div>
+                        <div class="ip-warn-body">
+                            <strong>Your account balance is running low.</strong>
+                            <span>Switching to Conservative mode is recommended. Your account manager has been alerted.</span>
                         </div>
-                        <button class="btn" style="background:rgba(240,92,106,0.15);color:#ff9f43;border:1px solid rgba(240,92,106,0.35);padding:0.4rem 0.875rem;font-size:0.8rem;white-space:nowrap;" onclick="ipOpenModeModal('conservative')">Send Request Now</button>
+                        <button class="btn" style="background:rgba(240,130,60,0.15);color:#f0873c;border:1px solid rgba(240,130,60,0.4);padding:0.4rem 0.875rem;font-size:0.8rem;flex-shrink:0;" onclick="ipOpenModeModal('conservative')">Send Request Now</button>
                     </div>
-                    <div id="ipWarnL3" class="ip-warn-banner level3" style="display:none;">
-                        <span style="font-size:1.2rem;"><span class="ip-monitor-dot"></span></span>
-                        <div style="flex:1;">
-                            <strong>Your account manager is actively monitoring your account.</strong> No action is needed from you right now. We'll be in touch.
+                    <div id="ipWarnL3" class="ip-warn l3" style="display:none;">
+                        <div class="ip-warn-icon">🔴</div>
+                        <div class="ip-warn-body">
+                            <strong>Your account manager is actively monitoring your account.</strong>
+                            <span>No action is needed from you right now. We'll be in touch shortly.</span>
                         </div>
-                        <span style="font-size:0.78rem;font-weight:600;white-space:nowrap;">Monitoring Active 🔴</span>
+                        <div class="ip-monitor-badge"><span class="ip-pulse-dot"></span> Monitoring Active</div>
                     </div>
 
-                    <!-- Big value header -->
+                    <!-- Hero card -->
                     <div class="ip-inv-header" id="ipInvHeader">
                         <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
                             <div>
                                 <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.4rem;">YOUR ACCOUNT VALUE</div>
                                 <div class="ip-value-giant" id="ipDisplayValue">$—</div>
-                                <div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-                                    <span id="ipCycleGain" style="font-size:0.9rem;font-weight:600;color:var(--success);">+0.0%</span>
-                                    <span style="color:var(--text-dim);font-size:0.8rem;">this cycle</span>
+                                <div style="margin-top:0.75rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                                    <span id="ipCycleGainBadge" style="font-size:1rem;font-weight:700;color:var(--success);">+0.00%</span>
+                                    <span style="font-size:0.78rem;color:var(--text-muted);">this cycle</span>
                                     <span id="ipModeBadge" class="ip-mode-badge conservative">🛡 Conservative</span>
-                                    <button id="ipModeReqBtn" class="btn btn-secondary" style="padding:0.25rem 0.7rem;font-size:0.75rem;border-radius:12px;" onclick="ipOpenModeModal()">Request Mode Change</button>
+                                    <button id="ipModeReqBtn" class="btn btn-secondary" style="padding:0.3rem 0.75rem;font-size:0.78rem;" onclick="ipOpenModeModal()">Request Mode Change</button>
+                                    <span id="ipPendingBadge" style="display:none;" class="ip-mode-badge pending">⏳ Request Pending</span>
                                 </div>
                             </div>
                             <div style="text-align:right;flex-shrink:0;">
                                 <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.2rem;">ENTRY</div>
-                                <div id="ipEntryDisplay" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;">—</div>
-                                <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-top:0.5rem;margin-bottom:0.2rem;">PAYOUT TARGET</div>
+                                <div id="ipEntryDisplay" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--text);">—</div>
+                                <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-top:0.75rem;margin-bottom:0.2rem;">PAYOUT TARGET</div>
                                 <div id="ipPayoutDisplay" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--gold);">—</div>
                             </div>
                         </div>
-                        <!-- Journey progress -->
+                        <!-- Progress to Payout bar -->
                         <div>
                             <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;">
-                                <span id="ipInvProgLeft">Your value: $0</span>
-                                <span id="ipInvProgRight" style="color:var(--gold);">Payout: $—</span>
+                                <span id="ipInvProgLeft">Your value: —</span>
+                                <span style="color:var(--gold);">Progress to Payout</span>
                             </div>
                             <div style="height:14px;background:rgba(0,0,0,0.35);border-radius:7px;overflow:hidden;position:relative;">
                                 <div id="ipInvProgFill" style="height:100%;width:0%;border-radius:7px;transition:width 2s cubic-bezier(0.4,0,0.2,1);background:linear-gradient(90deg,var(--accent),var(--purple));position:relative;">
                                     <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shimmer 2.5s ease infinite;"></div>
                                 </div>
                             </div>
-                            <div id="ipInvProgPct" style="text-align:right;font-size:0.75rem;color:var(--text-muted);margin-top:0.35rem;">0% to payout</div>
+                            <div style="display:flex;justify-content:space-between;margin-top:0.35rem;">
+                                <span id="ipInvProgLeft2" style="font-size:0.72rem;color:var(--text-muted);">$—</span>
+                                <span id="ipInvProgPct" style="font-size:0.75rem;color:var(--text-muted);">0% to payout</span>
+                                <span id="ipInvProgRight" style="font-size:0.72rem;color:var(--gold);">$—</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Stat cards (investor-safe — no raw PA numbers) -->
-                    <div class="metrics-grid" style="margin-bottom:1.5rem;">
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📍 Your Entry</span><span class="metric-icon">💵</span></div><div class="metric-value" id="ipStatEntry">$—</div><div class="metric-sub">Your starting amount</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📈 Your Gain</span><span class="metric-icon">✅</span></div><div class="metric-value" id="ipStatProfit" style="color:var(--success)">$—</div><div class="metric-sub">Profit earned so far</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">🏆 Payout Target</span><span class="metric-icon">🎯</span></div><div class="metric-value" id="ipStatPayout" style="color:var(--gold)">$—</div><div class="metric-sub" id="ipStatPayoutSub">Your target payout</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📊 Cycle Gain %</span><span class="metric-icon">💹</span></div><div class="metric-value" id="ipStatPct" style="color:var(--accent)">0%</div><div class="metric-sub">Performance this cycle</div></div>
+                    <!-- Stats Row — all scaled, no PA numbers -->
+                    <div class="ip-stats-row">
+                        <div class="ip-stat-card"><div class="ip-stat-val" id="ipStatBest" style="color:var(--success);">—</div><div class="ip-stat-lbl">Best Trade</div></div>
+                        <div class="ip-stat-card"><div class="ip-stat-val" id="ipStatWorst" style="color:var(--danger);">—</div><div class="ip-stat-lbl">Worst Trade</div></div>
+                        <div class="ip-stat-card"><div class="ip-stat-val" id="ipStatSessions">—</div><div class="ip-stat-lbl">Total Sessions</div></div>
+                        <div class="ip-stat-card"><div class="ip-stat-val" id="ipStatWinRate" style="color:var(--accent);">—</div><div class="ip-stat-lbl">Win Rate</div></div>
+                        <div class="ip-stat-card"><div class="ip-stat-val" id="ipStatCycleGain" style="color:var(--success);">—</div><div class="ip-stat-lbl">Cycle Gain</div></div>
                     </div>
 
-                    <!-- Milestone chips -->
+                    <!-- Milestone chips — 11 dollar values only, no percentages -->
                     <div class="card" style="margin-bottom:1.5rem;">
-                        <div class="card-header"><div class="card-title">🚀 Your Journey</div><div class="card-sub">Progress checkpoints to your $<span id="ipMsPayoutLabel">800</span> payout</div></div>
+                        <div class="card-header"><div class="card-title">🚀 Your Journey</div><div class="card-sub">Your progress checkpoints</div></div>
                         <div class="card-body" style="padding:1.25rem 1.5rem;">
                             <div id="ipMilestoneChips" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
                         </div>
                     </div>
 
-                    <!-- Equity chart + stats side by side -->
-                    <div style="display:grid;grid-template-columns:1.8fr 1fr;gap:1.25rem;margin-bottom:1.5rem;">
-                        <div class="card">
-                            <div class="card-header"><div class="card-title">📈 Account Equity Curve</div><div class="card-sub">Your account value over time</div></div>
-                            <div class="card-body" style="padding:1rem 1.25rem;">
-                                <div style="position:relative;height:220px;"><canvas id="ipEquityChart"></canvas></div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-header"><div class="card-title">📊 Session Stats</div></div>
-                            <div class="card-body" style="padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
-                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-                                    <span style="font-size:0.8rem;color:var(--text-muted);">Total Sessions</span>
-                                    <span id="ipStatTotal" style="font-family:'JetBrains Mono',monospace;font-weight:700;">0</span>
-                                </div>
-                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-                                    <span style="font-size:0.8rem;color:var(--text-muted);">Win Rate</span>
-                                    <span id="ipStatWinRate" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">0%</span>
-                                </div>
-                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-                                    <span style="font-size:0.8rem;color:var(--text-muted);">Best Session</span>
-                                    <span id="ipStatBest" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">$0</span>
-                                </div>
-                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-                                    <span style="font-size:0.8rem;color:var(--text-muted);">Worst Session</span>
-                                    <span id="ipStatWorst" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--danger);">$0</span>
-                                </div>
-                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;">
-                                    <span style="font-size:0.8rem;color:var(--text-muted);">Your Mode</span>
-                                    <span id="ipStatMode" style="font-weight:700;font-size:0.82rem;">—</span>
-                                </div>
-                            </div>
+                    <!-- Equity chart — ONE gold line + grey benchmark. NO PA balance line. -->
+                    <div class="card" style="margin-bottom:1.5rem;">
+                        <div class="card-header"><div class="card-title">📈 Account Equity Curve</div><div class="card-sub">Your account value over time</div></div>
+                        <div class="card-body" style="padding:1rem 1.25rem;">
+                            <div style="position:relative;height:220px;"><canvas id="ipEquityChart"></canvas></div>
                         </div>
                     </div>
 
-                    <!-- Trade log — investor facing, fully scaled, no raw PA numbers -->
+                    <!-- Trade log — investor-safe columns only -->
                     <div class="table-card" style="margin-bottom:1.5rem;">
                         <div class="table-header">
                             <span class="card-title">📋 Session History</span>
@@ -1742,13 +1736,13 @@
                         </div>
                         <div class="table-wrap" style="max-height:380px;overflow-y:auto;">
                             <table>
-                                <thead><tr><th>#</th><th>Date</th><th>Condition</th><th>Mode</th><th>Gain / Loss</th><th>Your Balance</th><th>Cycle</th></tr></thead>
+                                <thead><tr><th>#</th><th>Date</th><th>Condition</th><th>Risk Level</th><th>Gain / Loss</th><th>Balance After</th></tr></thead>
                                 <tbody id="ipTradeBody"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- Milestone breakdown table -->
+                    <!-- Milestone breakdown — no PA columns -->
                     <div class="table-card">
                         <div class="table-header">
                             <span class="card-title">📊 Milestone Breakdown</span>
@@ -1775,24 +1769,27 @@
             </div><!-- /investorPortalPage -->
 
             <!-- ── MODE REQUEST MODAL ── -->
-            <div id="ipModeModalOverlay" class="ip-modal-overlay" style="display:none;" onclick="if(event.target===this)ipCloseModeModal()">
-                <div class="ip-modal">
-                    <h3>🔄 Request Mode Change</h3>
-                    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Select your preferred trading mode. Your account manager will review and respond shortly.</p>
-                    <div id="ipModeOptCons" class="ip-mode-option" onclick="ipSelectModeOpt('conservative')">
-                        <div style="font-weight:700;margin-bottom:0.25rem;">🛡 Conservative</div>
-                        <div style="font-size:0.82rem;color:var(--text-muted);">Lower risk, steady growth — recommended during uncertain markets.</div>
+            <div id="ipModeModal" style="display:none;" onclick="if(event.target===this)ipCloseModeModal()">
+                <div class="ip-modal-card">
+                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.35rem;">🔄 Request Mode Change</h3>
+                    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Select your preferred trading mode. Your account manager will review your request.</p>
+
+                    <div id="ipModeOptCons" class="ip-mode-opt" onclick="ipSelectModeOption('conservative')">
+                        <div class="ip-mode-opt-icon">🛡</div>
+                        <div><div class="ip-mode-opt-title">Conservative</div><div class="ip-mode-opt-sub">Lower risk, steadier growth — ideal during uncertain markets.</div></div>
                     </div>
-                    <div id="ipModeOptBase" class="ip-mode-option" onclick="ipSelectModeOpt('base')">
-                        <div style="font-weight:700;margin-bottom:0.25rem;">⚡ Base</div>
-                        <div style="font-size:0.82rem;color:var(--text-muted);">Higher activity, more growth potential — for confident market conditions.</div>
+                    <div id="ipModeOptBase" class="ip-mode-opt" onclick="ipSelectModeOption('base')">
+                        <div class="ip-mode-opt-icon">⚡</div>
+                        <div><div class="ip-mode-opt-title">Base</div><div class="ip-mode-opt-sub">More active trading — higher potential during strong market conditions.</div></div>
                     </div>
+
                     <div class="form-group" style="margin-top:0.5rem;">
-                        <label class="form-label">Message to your account manager (optional)</label>
-                        <textarea class="form-textarea" id="ipModeReqMsg" placeholder="e.g. I'd like to switch to conservative for now..." style="min-height:70px;font-size:0.875rem;"></textarea>
+                        <label class="form-label">Message to your account manager <span style="color:var(--text-dim);font-weight:400;text-transform:none;">(optional)</span></label>
+                        <textarea class="form-textarea" id="ipModeReqMsg" placeholder="e.g. I'd prefer to reduce risk for now..." style="min-height:72px;font-size:0.875rem;"></textarea>
                     </div>
+
                     <div style="display:flex;gap:0.75rem;margin-top:1rem;">
-                        <button class="btn btn-primary" style="flex:1;" id="ipModeSubmitBtn" onclick="ipSubmitModeRequest()">Send Request</button>
+                        <button class="btn btn-primary" id="ipModeSubmitBtn" style="flex:1;" onclick="ipSubmitModeRequest()">Send Request</button>
                         <button class="btn btn-secondary" onclick="ipCloseModeModal()">Cancel</button>
                     </div>
                 </div>
@@ -3751,72 +3748,108 @@ function tmplDesc(name) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  INVESTOR PORTAL — Full Illusion System
+//  INVESTOR PORTAL
+//  Privacy rules: investors NEVER see PA balance, $50k, raw P&L,
+//  account numbers, or the words prop/PA/fail/breach/blown.
 // ═══════════════════════════════════════════════════════
 
-// ── Constants ──
-const IP_START_BAL    = 50000;
-const IP_GOAL_PROFIT  = 4600;
-const IP_GOAL_BAL     = IP_START_BAL + IP_GOAL_PROFIT; // $54,600
-// Warning thresholds — % drop from $50k starting balance
-const IP_WARN_L1_PCT  = 0.03;  // 3% → $48,500
-const IP_WARN_L2_PCT  = 0.05;  // 5% → $47,500
-const IP_WARN_L3_PCT  = 0.08;  // 8% → $46,000
+// ── Constants (admin-only, never injected into investor UI) ──
+const IP_PA_START    = 50000;
+const IP_PA_GOAL     = 4600;   // profit target
+const IP_WARN_L1_BAL = 48500;  // 3% drop → yellow
+const IP_WARN_L2_BAL = 47500;  // 5% drop → orange
+const IP_WARN_L3_BAL = 46000;  // 8% drop → red
 
-// State
+// ── State ──
 let ipInvestors      = [];
 let ipModeRequests   = [];
 let ipEquityChartObj = null;
-let ipSelectedMode   = null;   // for modal
+let ipSelectedMode   = null;   // tracks mode option selected in modal
 
-// ── Helpers ──
-function ipCalcMultiplier(entry, payout) { return (payout - entry) / IP_GOAL_PROFIT; }
-function ipCalcDisplayValue(entry, payout, masterProfit) {
-    // Method 1: percentage mirror  value = entry × (PA_balance / PA_start)
-    const paBal = IP_START_BAL + masterProfit;
-    return entry * (paBal / IP_START_BAL);
+// ── Core math (all three methods stay in sync) ──
+function ipMultiplier(entry, payout) {
+    // Method 2 multiplier: (payout - entry) / PA_GOAL
+    return (payout - entry) / IP_PA_GOAL;
 }
-function ipCalcPct(entry, payout, masterProfit) {
-    // Same % gain as PA
-    return masterProfit / IP_START_BAL * 100;
+function ipDisplayValue(entry, payout, masterPnl) {
+    // Method 1+2 (identical result): entry + pnl × multiplier
+    // At masterPnl = IP_PA_GOAL, result = payout exactly.
+    return entry + masterPnl * ipMultiplier(entry, payout);
 }
-function ipModeLabel(mode) {
-    return mode === 'base' ? '⚡ Base' : '🛡 Conservative';
-}
-function ipRiskToMode(riskTemplate) {
-    // $300 risk = Base, everything else = Conservative
-    return String(riskTemplate) === '300' ? 'Base' : 'Conservative';
+function ipCyclePct(masterPnl) {
+    // Method 3: same % the PA is up/down
+    return (masterPnl / IP_PA_START) * 100;
 }
 function ipWarningLevel(masterPnl) {
-    const bal = IP_START_BAL + masterPnl;
-    const drop = (IP_START_BAL - bal) / IP_START_BAL;
-    if (drop >= IP_WARN_L3_PCT) return 3;
-    if (drop >= IP_WARN_L2_PCT) return 2;
-    if (drop >= IP_WARN_L1_PCT) return 1;
+    const bal = IP_PA_START + masterPnl;
+    if (bal <= IP_WARN_L3_BAL) return 3;
+    if (bal <= IP_WARN_L2_BAL) return 2;
+    if (bal <= IP_WARN_L1_BAL) return 1;
     return 0;
 }
+function fmtPnl(n) {
+    // Formats scaled P&L: +$X.XX or −$X.XX  (investor-facing)
+    const abs = Math.abs(Number(n) || 0);
+    const f = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2}).format(abs);
+    return (Number(n) >= 0 ? '+' : '−') + f;
+}
+function ipRiskLabel(riskTemplate) {
+    // $100 risk → "Conservative"   $300 risk → "Base"
+    const r = parseInt(riskTemplate);
+    if (r === 300) return 'Base';
+    return 'Conservative';
+}
+function ipModeBadgeHtml(mode) {
+    const cls = mode === 'base' ? 'base' : 'conservative';
+    const label = mode === 'base' ? '⚡ Base' : '🛡 Conservative';
+    return `<span class="ip-mode-badge ${cls}">${label}</span>`;
+}
+function ipWarnDot(level) {
+    return ['🟢','🟡','🟠','🔴'][level] || '🟢';
+}
 
-// Get trades for a specific PA account number
-function ipGetTradesForAccount(accNum) {
+// ── Trade filtering by mode ──
+function ipGetTradesForInvestor(inv) {
+    const accNum = parseInt(inv.linked_account);
+    if (!accNum) return [];
+    const mode = inv.mode || 'conservative';
+    // Filter trades by risk template matching the investor's mode
+    // conservative → $100 risk; base → $300 risk
+    return allData.filter(t => {
+        if (parseInt(t.account) !== accNum) return false;
+        if (t.no_trade_day) return false;
+        const r = parseInt(t.risk_template);
+        if (mode === 'base') return r === 300;
+        return r === 100;
+    });
+}
+function ipPnlForInvestor(inv) {
+    return ipGetTradesForInvestor(inv).reduce((s,t) => s + parseFloat(t.pnl||0), 0);
+}
+// Admin needs total PA P&L regardless of mode
+function ipGetAllTradesForAccount(accNum) {
     if (!accNum) return [];
     return allData.filter(t => parseInt(t.account) === parseInt(accNum) && !t.no_trade_day);
 }
-function ipGetPnlForAccount(accNum) {
-    return ipGetTradesForAccount(accNum).reduce((s, t) => s + parseFloat(t.pnl || 0), 0);
+function ipPaBalanceForAccount(accNum) {
+    const pnl = ipGetAllTradesForAccount(accNum).reduce((s,t) => s + parseFloat(t.pnl||0), 0);
+    return IP_PA_START + pnl;
 }
 
-// ── LOAD ──
+// ── DB load ──
 async function ipLoadState() {
     try {
         const [invRes, reqRes] = await Promise.all([
-            sbClient.from('investor_portal_investors').select('*').order('created_at', { ascending: true }),
-            sbClient.from('investor_mode_requests').select('*').order('created_at', { ascending: false })
+            sbClient.from('investor_portal_investors').select('*').order('created_at', {ascending:true}),
+            sbClient.from('investor_mode_requests').select('*').order('created_at', {ascending:false})
         ]);
         if (invRes.data) ipInvestors = invRes.data;
         if (reqRes.data) ipModeRequests = reqRes.data;
         return;
     } catch(_) {}
-    try { ipInvestors = JSON.parse(localStorage.getItem('pfp_investors') || '[]'); } catch(_) { ipInvestors = []; }
+    // localStorage fallback
+    try { ipInvestors    = JSON.parse(localStorage.getItem('pfp_investors')     || '[]'); } catch(_) { ipInvestors = []; }
+    try { ipModeRequests = JSON.parse(localStorage.getItem('pfp_mode_requests') || '[]'); } catch(_) { ipModeRequests = []; }
 }
 
 async function ipSaveInvestors() {
@@ -3833,127 +3866,100 @@ async function ipSaveInvestors() {
     localStorage.setItem('pfp_investors', JSON.stringify(ipInvestors));
 }
 
-// ── MAIN RENDER ──
+// ── Main render router ──
 async function updateInvestorPortalPage() {
     await ipLoadState();
-    const isAdmin   = currentProfile?.role === 'admin';
-    const myEmail   = (currentUser?.email || currentProfile?.email || '').toLowerCase();
-    const myProfile = ipInvestors.find(i => i.email && i.email.toLowerCase() === myEmail);
+    const isAdmin  = currentProfile?.role === 'admin';
+    const myEmail  = (currentUser?.email || currentProfile?.email || '').toLowerCase();
+    const myInv    = ipInvestors.find(i => i.email?.toLowerCase() === myEmail);
 
-    // ROLE GUARD
-    const ipPg = document.getElementById('investorPortalPage');
-    const denied = ipPg?.querySelector('.ip-denied');
+    // Role guard
+    const pg     = document.getElementById('investorPortalPage');
+    const denied = pg?.querySelector('.ip-denied');
     if (denied) denied.remove();
 
     if (currentProfile?.role !== 'admin' && currentProfile?.role !== 'investor') {
         ['ipAdminSection','ipInvestorSection','ipNotRegistered'].forEach(id => {
             const el = document.getElementById(id); if (el) el.style.display = 'none';
         });
-        if (ipPg) {
+        if (pg) {
             const div = document.createElement('div');
             div.className = 'ip-denied';
             div.style.cssText = 'text-align:center;padding:4rem 2rem;background:var(--bg-card);border:1px dashed var(--border-glow);border-radius:var(--radius);margin-top:1rem;';
             div.innerHTML = '<div style="font-size:3rem;margin-bottom:1rem;">🔒</div><h3 style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem;">Investor Access Only</h3><p style="color:var(--text-muted);font-size:.875rem;max-width:340px;margin:0 auto;">This section is restricted to registered investors.</p>';
-            ipPg.prepend(div);
+            pg.prepend(div);
         }
         return;
     }
 
-    const adminEl = document.getElementById('ipAdminSection');
-    const invEl   = document.getElementById('ipInvestorSection');
-    const notEl   = document.getElementById('ipNotRegistered');
-
-    if (adminEl) adminEl.style.display = isAdmin ? 'block' : 'none';
-    if (invEl)   invEl.style.display   = 'none';
-    if (notEl)   notEl.style.display   = 'none';
+    document.getElementById('ipAdminSection').style.display  = isAdmin ? 'block' : 'none';
+    document.getElementById('ipInvestorSection').style.display = 'none';
+    document.getElementById('ipNotRegistered').style.display   = 'none';
 
     if (isAdmin) ipRenderAdmin();
 
-    if (myProfile) {
-        if (invEl) invEl.style.display = 'block';
-        ipRenderInvestorView(myProfile);
+    if (myInv) {
+        document.getElementById('ipInvestorSection').style.display = 'block';
+        ipRenderInvestorView(myInv);
     } else if (!isAdmin) {
-        if (notEl) notEl.style.display = 'block';
+        document.getElementById('ipNotRegistered').style.display = 'block';
     }
 }
 
-// ── ADMIN RENDER ──
+// ════════════════════════════════════════════════════════
+//  ADMIN RENDER
+// ════════════════════════════════════════════════════════
 function ipRenderAdmin() {
     const el = id => document.getElementById(id);
 
-    // Populate PA selector in add form
+    // Populate account selector
     const sel = el('ipLinkAccountSelect');
     if (sel) {
         const cur = sel.value;
-        sel.innerHTML = '<option value="">— Select PA Account —</option>';
+        sel.innerHTML = '<option value="">— Select Account —</option>';
         for (let i = 1; i <= USER_ACCOUNT_GOAL; i++) {
             const nick = getNickname(i);
-            const opt = document.createElement('option');
-            opt.value = i;
-            opt.textContent = nick ? `PA #${i} — ${nick}` : `PA Account #${i}`;
-            if (String(i) === String(cur)) opt.selected = true;
-            sel.appendChild(opt);
+            const o = document.createElement('option');
+            o.value = i;
+            o.textContent = nick ? `Account #${i} — ${nick}` : `Account #${i}`;
+            if (String(i) === String(cur)) o.selected = true;
+            sel.appendChild(o);
         }
     }
 
-    // PA Health panel — real numbers for admin only
-    const totalPnl = allData.filter(t=>!t.no_trade_day).reduce((s,t)=>s+parseFloat(t.pnl||0),0);
-    const paBal    = IP_START_BAL + totalPnl;
-    const paPct    = Math.min((totalPnl / IP_GOAL_PROFIT) * 100, 100);
-    const globalWL = ipWarningLevel(totalPnl);
-    const wlIcons  = ['🟢','🟡','🟠','🔴'];
-    const wlText   = ['All clear','Drawdown active','Running low','Monitor active'];
-    if (el('ipAdminPaBal')) el('ipAdminPaBal').textContent = fmtCurrency(paBal);
-    if (el('ipAdminPaPnl')) { el('ipAdminPaPnl').textContent = fmtCurrency(totalPnl); el('ipAdminPaPnl').style.color = totalPnl >= 0 ? 'var(--success)' : 'var(--danger)'; }
-    if (el('ipAdminPaPct')) el('ipAdminPaPct').textContent = paPct.toFixed(1) + '%';
-    if (el('ipAdminWarnLevel')) el('ipAdminWarnLevel').textContent = wlIcons[globalWL];
-    if (el('ipAdminWarnText'))  el('ipAdminWarnText').textContent  = wlText[globalWL];
-    const atRisk = ipInvestors.filter(inv => ipWarningLevel(ipGetPnlForAccount(inv.linked_account)) > 0).length;
+    // PA Health Panel — real numbers, admin only
+    // Use all data combined for global PA health display
+    const allPnl = allData.filter(t=>!t.no_trade_day).reduce((s,t)=>s+parseFloat(t.pnl||0),0);
+    const paBal  = IP_PA_START + allPnl;
+    const paPct  = Math.min((allPnl / IP_PA_GOAL) * 100, 100).toFixed(1);
+    const globalWL = ipWarningLevel(allPnl);
+    if (el('ipAdminPaBal'))      el('ipAdminPaBal').textContent      = fmtCurrency(paBal);
+    if (el('ipAdminPaProgress')) {
+        el('ipAdminPaProgress').textContent  = `${allPnl >= 0 ? '+' : ''}${fmtCurrency(allPnl)} (${paPct}%)`;
+        el('ipAdminPaProgress').style.color  = allPnl >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
+    if (el('ipAdminWarnDot')) el('ipAdminWarnDot').textContent = ipWarnDot(globalWL);
+    const atRisk = ipInvestors.filter(inv => {
+        const pnl = ipGetAllTradesForAccount(inv.linked_account).reduce((s,t)=>s+parseFloat(t.pnl||0),0);
+        return ipWarningLevel(pnl) > 0;
+    }).length;
     if (el('ipAdminAtRisk')) el('ipAdminAtRisk').textContent = atRisk;
 
-    // Overview stats
-    const linked = [...new Set(ipInvestors.map(i => i.linked_account).filter(Boolean))];
-    const atGoal = ipInvestors.filter(inv => ipGetPnlForAccount(inv.linked_account) >= IP_GOAL_PROFIT).length;
+    // Overview metrics
+    const linked  = [...new Set(ipInvestors.map(i=>i.linked_account).filter(Boolean))];
+    const atGoal  = ipInvestors.filter(inv => ipPnlForInvestor(inv) >= IP_PA_GOAL).length;
+    const pending = ipModeRequests.filter(r => r.status === 'pending').length;
     if (el('ipInvestorCount')) el('ipInvestorCount').textContent = ipInvestors.length;
     if (el('ipLinkedCount'))   el('ipLinkedCount').textContent   = linked.length;
     if (el('ipAtGoalCount'))   el('ipAtGoalCount').textContent   = atGoal;
+    if (el('ipPendingCount'))  el('ipPendingCount').textContent  = pending;
 
-    // Notification badge
-    const pendingReqs = ipModeRequests.filter(r => r.status === 'pending');
-    const badge = el('ipNotifBadge');
-    const count = el('ipNotifCount');
-    if (badge) { badge.textContent = pendingReqs.length; badge.style.display = pendingReqs.length ? 'flex' : 'none'; }
-    if (count) count.textContent = `${pendingReqs.length} pending`;
+    // Bell badge
+    const badge = el('ipBellBadge');
+    if (badge) { badge.textContent = pending; badge.style.display = pending ? 'inline' : 'none'; }
 
-    // Notification list
-    const notifList = el('ipNotifList');
-    if (notifList) {
-        if (!pendingReqs.length) {
-            notifList.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.875rem;">No pending requests ✓</div>';
-        } else {
-            notifList.innerHTML = pendingReqs.map(r => {
-                const inv = ipInvestors.find(i => i.id === r.investor_id);
-                const name = inv?.name || inv?.email || 'Unknown';
-                const initials = name.substring(0,2).toUpperCase();
-                const ts = r.created_at ? new Date(r.created_at).toLocaleString() : '—';
-                return `<div style="display:flex;align-items:center;gap:0.875rem;padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px solid var(--border);">
-                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;">${initials}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-weight:600;font-size:0.875rem;">${name}</div>
-                        <div style="font-size:0.78rem;color:var(--text-muted);">
-                            ${ipModeLabel(r.current_mode)} → ${ipModeLabel(r.requested_mode)}
-                            <span style="margin-left:0.5rem;color:var(--text-dim);">${ts}</span>
-                        </div>
-                        ${r.message ? `<div style="font-size:0.78rem;color:var(--text-muted);font-style:italic;margin-top:0.2rem;">"${r.message}"</div>` : ''}
-                    </div>
-                    <div style="display:flex;gap:0.4rem;flex-shrink:0;">
-                        <button class="btn btn-success" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="ipRespondRequest('${r.id}','${inv?.id}','${r.requested_mode}','approved')">✅ Approve</button>
-                        <button class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="ipRespondRequest('${r.id}','${inv?.id}','${r.current_mode}','denied')">❌ Deny</button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-    }
+    // Notification list (render but keep panel open/closed state)
+    ipRenderNotifList();
 
     // Investor table
     const tbody = el('ipInvestorTableBody');
@@ -3962,70 +3968,180 @@ function ipRenderAdmin() {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">No investors yet. Add one below.</td></tr>';
         return;
     }
+    const wlColors = ['','rgba(245,166,35,0.06)','rgba(240,130,60,0.08)','rgba(240,92,106,0.1)'];
+    const wlBorder = ['','rgba(245,166,35,0.25)','rgba(240,130,60,0.3)','rgba(240,92,106,0.35)'];
     tbody.innerHTML = ipInvestors.map((inv, idx) => {
-        const e    = parseFloat(inv.entry_point)   || 115;
-        const p    = parseFloat(inv.payout_target) || 800;
-        const acc  = parseInt(inv.linked_account)  || null;
-        const pnl  = acc ? ipGetPnlForAccount(acc) : 0;
-        const dv   = ipCalcDisplayValue(e, p, pnl);
-        const pct  = Math.min(Math.max((dv - e) / (p - e) * 100, 0), 100);
-        const nick = acc ? (getNickname(acc) ? `PA #${acc} — ${getNickname(acc)}` : `PA #${acc}`) : '<span style="color:var(--warning);">⚠ Not linked</span>';
-        const mode = inv.mode || 'conservative';
-        const wl   = ipWarningLevel(pnl);
-        const wlDots = ['🟢','🟡','🟠','🔴'];
-        const pendingReq = ipModeRequests.find(r => r.investor_id === inv.id && r.status === 'pending');
-        return `<tr style="${wl>=2?'background:rgba(240,92,106,0.03)':''}">
+        const entry  = parseFloat(inv.entry_point)   || 115;
+        const payout = parseFloat(inv.payout_target) || 800;
+        const masterPnl = ipGetAllTradesForAccount(inv.linked_account).reduce((s,t)=>s+parseFloat(t.pnl||0),0);
+        const dv    = ipDisplayValue(entry, payout, masterPnl);
+        const pct   = Math.min(Math.max((dv - entry) / (payout - entry) * 100, 0), 100);
+        const wl    = ipWarningLevel(masterPnl);
+        const mode  = inv.mode || 'conservative';
+        const hasPending = ipModeRequests.some(r => r.investor_id === inv.id && r.status === 'pending');
+        const rowStyle = wl > 0 ? `background:${wlColors[wl]};outline:1px solid ${wlBorder[wl]};` : '';
+        return `<tr style="${rowStyle}">
             <td><strong>${inv.name || '—'}</strong></td>
             <td style="color:var(--text-muted);font-size:0.82rem;">${inv.email || '—'}</td>
-            <td style="font-size:0.82rem;">${nick}</td>
-            <td>
-                <span class="badge" style="${mode==='base'?'background:rgba(155,111,250,0.12);color:var(--purple);border:1px solid rgba(155,111,250,0.3);':'background:rgba(34,211,160,0.1);color:var(--success);border:1px solid rgba(34,211,160,0.25);'}">${ipModeLabel(mode)}</span>
-                ${pendingReq?`<span style="font-size:0.68rem;color:var(--warning);margin-left:0.3rem;">⏳ req</span>`:''}
-            </td>
-            <td style="font-family:'JetBrains Mono',monospace;color:${dv>=p?'var(--gold)':'var(--success)'};">${fmtCurrency(dv)}</td>
+            <td style="font-family:'JetBrains Mono',monospace;">${fmtCurrency(entry)}</td>
+            <td>${ipModeBadgeHtml(mode)}${hasPending ? ' <span style="font-size:0.7rem;color:var(--warning);">⏳</span>' : ''}</td>
+            <td style="font-family:'JetBrains Mono',monospace;color:${dv>=payout?'var(--gold)':dv>=entry?'var(--success)':'var(--danger)'};">${fmtCurrency(dv)}</td>
             <td>
                 <div style="display:flex;align-items:center;gap:0.5rem;">
                     <div style="flex:1;height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;max-width:80px;">
-                        <div style="height:100%;width:${pct.toFixed(0)}%;background:${dv>=p?'var(--gold)':'var(--accent)'};border-radius:3px;"></div>
+                        <div style="height:100%;width:${pct.toFixed(0)}%;background:${dv>=payout?'var(--gold)':'var(--accent)'};border-radius:3px;transition:width 1s;"></div>
                     </div>
                     <span style="font-size:0.72rem;color:var(--text-muted);">${pct.toFixed(0)}%</span>
                 </div>
             </td>
-            <td title="${['Normal','Level 1 — Drawdown','Level 2 — Running Low','Level 3 — Critical'][wl]}">${wlDots[wl]}</td>
-            <td>
-                <button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipRemoveInvestor(${idx})">✕ Remove</button>
+            <td style="font-size:1.1rem;">${ipWarnDot(wl)}</td>
+            <td style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+                <button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipAdminViewAs(${idx})">👁 View</button>
+                ${hasPending ? `<button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipToggleNotifPanel()">🔔</button>` : ''}
+                <button class="btn btn-danger" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipRemoveInvestor(${idx})">✕</button>
             </td>
         </tr>`;
     }).join('');
 }
 
-// ── INVESTOR VIEW RENDER ──
-function ipRenderInvestorView(inv) {
+function ipRenderNotifList() {
+    const list = document.getElementById('ipNotifList');
+    if (!list) return;
+    const pending = ipModeRequests.filter(r => r.status === 'pending');
+    const count   = document.getElementById('ipNotifCount');
+    if (count) count.textContent = pending.length ? `${pending.length} pending` : 'All clear ✓';
+    if (!pending.length) {
+        list.innerHTML = '<div style="padding:1.25rem;text-align:center;color:var(--text-muted);font-size:0.875rem;">No pending requests ✓</div>';
+        return;
+    }
+    list.innerHTML = pending.map(r => {
+        const inv   = ipInvestors.find(i => i.id === r.investor_id);
+        const name  = inv?.name || inv?.email || 'Unknown';
+        const init  = name.substring(0,2).toUpperCase();
+        const from  = r.current_mode  === 'base' ? '⚡ Base' : '🛡 Conservative';
+        const to    = r.requested_mode === 'base' ? '⚡ Base' : '🛡 Conservative';
+        const ts    = r.created_at ? new Date(r.created_at).toLocaleString() : '';
+        const isUrgent = r.urgent;
+        return `<div style="padding:0.875rem 1.25rem;border-bottom:1px solid var(--border);${isUrgent?'background:rgba(240,130,60,0.04);':''}">
+            <div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.6rem;">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;">${init}</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;font-size:0.875rem;">${name} ${isUrgent ? '<span style="background:rgba(240,92,106,0.15);color:var(--danger);border-radius:4px;padding:1px 5px;font-size:0.68rem;font-weight:700;">URGENT</span>' : ''}</div>
+                    <div style="font-size:0.78rem;color:var(--text-muted);">${from} → ${to}</div>
+                    ${r.message ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.25rem;font-style:italic;">"${r.message}"</div>` : ''}
+                    <div style="font-size:0.7rem;color:var(--text-dim);margin-top:0.2rem;">${ts}</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:0.5rem;">
+                <input type="text" placeholder="Reply (optional)" id="ipReplyInput_${r.id}" class="form-input" style="flex:1;padding:0.35rem 0.6rem;font-size:0.8rem;">
+                <button class="btn btn-success" style="padding:0.3rem 0.625rem;font-size:0.8rem;" onclick="ipRespondRequest('${r.id}','approved')">✅ Approve</button>
+                <button class="btn btn-danger"  style="padding:0.3rem 0.625rem;font-size:0.8rem;" onclick="ipRespondRequest('${r.id}','denied')">❌ Deny</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function ipToggleNotifPanel() {
+    const panel = document.getElementById('ipNotifPanel');
+    if (!panel) return;
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+async function ipRespondRequest(reqId, decision) {
+    const req = ipModeRequests.find(r => r.id === reqId);
+    if (!req) return;
+    const reply = document.getElementById(`ipReplyInput_${reqId}`)?.value.trim() || null;
+    req.status      = decision;
+    req.admin_reply = reply;
+    req.responded_at = new Date().toISOString();
+
+    // If approved — update investor mode in memory and DB
+    if (decision === 'approved') {
+        const inv = ipInvestors.find(i => i.id === req.investor_id);
+        if (inv) {
+            inv.mode = req.requested_mode;
+            try {
+                await sbClient.from('investor_portal_investors')
+                    .update({ mode: req.requested_mode })
+                    .eq('id', inv.id);
+            } catch(_) {}
+        }
+    }
+
+    // Persist request update
+    try {
+        await sbClient.from('investor_mode_requests').update({
+            status: decision, admin_reply: reply, responded_at: req.responded_at
+        }).eq('id', reqId);
+    } catch(_) {}
+    localStorage.setItem('pfp_mode_requests', JSON.stringify(ipModeRequests));
+    localStorage.setItem('pfp_investors', JSON.stringify(ipInvestors));
+
+    ipRenderAdmin();
+    showAlert(decision === 'approved' ? '✅ Request approved — mode updated.' : '❌ Request denied.', decision === 'approved' ? 'success' : 'error');
+}
+
+// Admin preview: view the investor portal as a specific investor
+function ipAdminViewAs(idx) {
+    const inv = ipInvestors[idx];
+    if (!inv) return;
+    document.getElementById('ipAdminSection').style.display   = 'none';
+    document.getElementById('ipInvestorSection').style.display = 'block';
+    ipRenderInvestorView(inv, true);
+    showAlert(`👁 Viewing portal as: ${inv.name || inv.email}`, 'success');
+    // Add a "back to admin" button at top of investor view
+    const sec = document.getElementById('ipInvestorSection');
+    const existing = sec.querySelector('.ip-admin-back');
+    if (existing) existing.remove();
+    const back = document.createElement('div');
+    back.className = 'ip-admin-back';
+    back.style.cssText = 'margin-bottom:1rem;';
+    back.innerHTML = `<button class="btn btn-secondary" onclick="ipAdminBackFromPreview()" style="padding:0.4rem 0.875rem;font-size:0.82rem;">← Back to Admin View</button> <span style="color:var(--text-muted);font-size:0.82rem;">Previewing as <strong>${inv.name || inv.email}</strong></span>`;
+    sec.prepend(back);
+}
+function ipAdminBackFromPreview() {
+    const sec = document.getElementById('ipInvestorSection');
+    const back = sec.querySelector('.ip-admin-back');
+    if (back) back.remove();
+    document.getElementById('ipAdminSection').style.display   = 'block';
+    document.getElementById('ipInvestorSection').style.display = 'none';
+}
+
+// ════════════════════════════════════════════════════════
+//  INVESTOR VIEW RENDER
+//  Privacy: nothing here exposes PA numbers to investors.
+// ════════════════════════════════════════════════════════
+function ipRenderInvestorView(inv, isAdminPreview) {
     const el = id => document.getElementById(id);
+
     const entry   = parseFloat(inv.entry_point)   || 115;
     const payout  = parseFloat(inv.payout_target) || 800;
-    const accNum  = parseInt(inv.linked_account)  || null;
     const mode    = inv.mode || 'conservative';
-    const mult    = ipCalcMultiplier(entry, payout);
-    const trades  = ipGetTradesForAccount(accNum).sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
+    const mult    = ipMultiplier(entry, payout);
 
-    // Filter trades by mode: conservative = $100 risk, base = $300 risk
-    // Both modes show all trades but label them correctly
-    const masterPnl = trades.reduce((s,t) => s+parseFloat(t.pnl||0), 0);
-    const dv        = ipCalcDisplayValue(entry, payout, masterPnl);
-    const pctGain   = ipCalcPct(entry, payout, masterPnl);
+    // Filter trades by mode
+    const trades = ipGetTradesForInvestor(inv)
+        .sort((a,b) => new Date(a.trade_date) - new Date(b.trade_date));
+
+    const masterPnl = trades.reduce((s,t) => s + parseFloat(t.pnl||0), 0);
+    const dv        = ipDisplayValue(entry, payout, masterPnl);
     const profit    = dv - entry;
     const progPct   = Math.min(Math.max((dv - entry) / (payout - entry) * 100, 0), 100);
     const atGoal    = dv >= payout;
-    const wl        = ipWarningLevel(masterPnl);
+    const cyclePct  = ipCyclePct(masterPnl);
+    const warnLevel = ipWarningLevel(masterPnl);
 
     // ── Warning banners ──
-    ['ipWarnL1','ipWarnL2','ipWarnL3'].forEach(id => { if(el(id)) el(id).style.display='none'; });
-    if (wl === 1 && el('ipWarnL1')) el('ipWarnL1').style.display = 'flex';
-    if (wl === 2 && el('ipWarnL2')) el('ipWarnL2').style.display = 'flex';
-    if (wl === 3 && el('ipWarnL3')) el('ipWarnL3').style.display = 'flex';
+    ['ipWarnL1','ipWarnL2','ipWarnL3'].forEach((id, i) => {
+        const bannerEl = el(id);
+        if (bannerEl) bannerEl.style.display = (warnLevel === i+1) ? 'flex' : 'none';
+    });
+    // Level 2: auto-create urgent admin notification (once per session)
+    if (warnLevel >= 2 && !isAdminPreview) {
+        ipAutoUrgentNotify(inv);
+    }
 
-    // ── Hero header ──
+    // ── Hero card ──
     const dvEl = el('ipDisplayValue');
     if (dvEl) {
         dvEl.textContent = fmtCurrency(dv);
@@ -4035,54 +4151,58 @@ function ipRenderInvestorView(inv) {
     if (el('ipEntryDisplay'))  el('ipEntryDisplay').textContent  = fmtCurrency(entry);
     if (el('ipPayoutDisplay')) el('ipPayoutDisplay').textContent = fmtCurrency(payout);
 
-    // Cycle gain %
-    const gainEl = el('ipCycleGain');
-    if (gainEl) {
-        gainEl.textContent = (pctGain >= 0 ? '+' : '') + pctGain.toFixed(2) + '%';
-        gainEl.style.color = pctGain >= 0 ? 'var(--success)' : 'var(--danger)';
+    // Cycle % gain badge (Method 3 — same % as PA)
+    const gainBadge = el('ipCycleGainBadge');
+    if (gainBadge) {
+        const sign = cyclePct >= 0 ? '+' : '';
+        gainBadge.textContent = `${sign}${cyclePct.toFixed(2)}%`;
+        gainBadge.style.color = cyclePct >= 0 ? 'var(--success)' : 'var(--danger)';
     }
 
-    // Mode badge
+    // Mode badge + request button
     const modeBadge = el('ipModeBadge');
     if (modeBadge) {
-        modeBadge.textContent = ipModeLabel(mode);
-        modeBadge.className = `ip-mode-badge ${mode}`;
+        modeBadge.className = `ip-mode-badge ${mode === 'base' ? 'base' : 'conservative'}`;
+        modeBadge.textContent = mode === 'base' ? '⚡ Base' : '🛡 Conservative';
     }
 
-    // Check for pending request — if pending, disable mode request button
-    const myEmail = (currentUser?.email || currentProfile?.email || '').toLowerCase();
+    // Check for pending request — disable button if pending
     const pendingReq = ipModeRequests.find(r =>
-        r.status === 'pending' &&
-        ipInvestors.find(i => i.id === r.investor_id && i.email?.toLowerCase() === myEmail)
+        r.investor_id === inv.id && r.status === 'pending'
     );
-    const modeBtn = el('ipModeReqBtn');
-    if (modeBtn) {
+    const modeBtn     = el('ipModeReqBtn');
+    const pendingBadge = el('ipPendingBadge');
+    if (modeBtn && pendingBadge) {
         if (pendingReq) {
-            modeBtn.textContent = '⏳ Request Pending';
-            modeBtn.disabled = true;
-            modeBtn.style.opacity = '0.6';
-        } else if (wl === 3) {
-            modeBtn.style.display = 'none';
+            modeBtn.style.display    = 'none';
+            pendingBadge.style.display = 'inline-flex';
         } else {
-            modeBtn.textContent = 'Request Mode Change';
-            modeBtn.disabled = false;
-            modeBtn.style.opacity = '1';
-            modeBtn.style.display = '';
+            // Check for recently denied
+            const lastReq = [...ipModeRequests]
+                .filter(r => r.investor_id === inv.id)
+                .sort((a,b) => new Date(b.created_at)-new Date(a.created_at))[0];
+            modeBtn.style.display    = warnLevel === 3 ? 'none' : 'inline-flex'; // disabled at level 3
+            pendingBadge.style.display = 'none';
+            if (lastReq?.status === 'denied') {
+                // Show "reviewed" notice briefly
+                modeBtn.title = 'Your last request was reviewed — no change at this time.';
+            }
         }
     }
 
-    if (el('ipStatMode')) el('ipStatMode').textContent = ipModeLabel(mode);
-
-    // Header glow at goal
+    // Header goal styling
     const hdr = el('ipInvHeader');
     if (hdr) {
         hdr.style.borderColor = atGoal ? 'rgba(255,209,102,0.5)' : '';
-        hdr.style.background  = atGoal ? 'linear-gradient(135deg,rgba(255,209,102,0.1),rgba(245,166,35,0.06))' : '';
+        hdr.style.background  = atGoal
+            ? 'linear-gradient(135deg,rgba(255,209,102,0.1),rgba(245,166,35,0.06))'
+            : '';
     }
 
     // Progress bar
     if (el('ipInvProgLeft'))  el('ipInvProgLeft').textContent  = `Your value: ${fmtCurrency(dv)}`;
-    if (el('ipInvProgRight')) el('ipInvProgRight').textContent = `Payout: ${fmtCurrency(payout)}`;
+    if (el('ipInvProgLeft2')) el('ipInvProgLeft2').textContent = fmtCurrency(entry);
+    if (el('ipInvProgRight')) el('ipInvProgRight').textContent = fmtCurrency(payout);
     if (el('ipInvProgFill')) {
         const fill = el('ipInvProgFill');
         fill.style.width      = progPct.toFixed(1) + '%';
@@ -4090,61 +4210,61 @@ function ipRenderInvestorView(inv) {
             ? 'linear-gradient(90deg,var(--gold),#ffb700)'
             : 'linear-gradient(90deg,var(--accent),var(--purple))';
     }
-    if (el('ipInvProgPct')) el('ipInvProgPct').textContent = atGoal ? '🎉 Payout Reached!' : progPct.toFixed(1) + '% to payout';
+    if (el('ipInvProgPct')) el('ipInvProgPct').textContent = atGoal
+        ? '🎉 Payout Reached!'
+        : progPct.toFixed(1) + '% to payout';
 
-    // Stat cards — NO raw PA numbers
-    if (el('ipStatEntry'))  el('ipStatEntry').textContent  = fmtCurrency(entry);
-    if (el('ipStatProfit')) { el('ipStatProfit').textContent = (profit>=0?'+':'')+fmtCurrency(profit); el('ipStatProfit').style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)'; }
-    if (el('ipStatPayout')) el('ipStatPayout').textContent = fmtCurrency(payout);
-    if (el('ipStatPayoutSub')) el('ipStatPayoutSub').textContent = atGoal ? '🎉 Payout Triggered!' : 'Your target payout';
-    if (el('ipStatPct'))    { el('ipStatPct').textContent = (pctGain>=0?'+':'')+pctGain.toFixed(2)+'%'; el('ipStatPct').style.color = pctGain>=0?'var(--accent)':'var(--danger)'; }
-
-    // Session stats (all scaled)
-    const wins = trades.filter(t => parseFloat(t.pnl||0) > 0);
-    const losses = trades.filter(t => parseFloat(t.pnl||0) < 0);
-    const winRate = trades.length ? (wins.length/trades.length*100) : 0;
+    // ── Stats row (all scaled — Method 2) ──
     const scaledPnls = trades.map(t => parseFloat(t.pnl||0) * mult);
-    const bestScaled  = scaledPnls.length ? Math.max(...scaledPnls) : 0;
-    const worstScaled = scaledPnls.length ? Math.min(...scaledPnls) : 0;
-    if (el('ipStatTotal'))   el('ipStatTotal').textContent   = trades.length;
-    if (el('ipStatWinRate')) el('ipStatWinRate').textContent = Math.round(winRate) + '%';
-    if (el('ipStatBest'))    el('ipStatBest').textContent    = '+' + fmtCurrency(bestScaled);
-    if (el('ipStatWorst'))   el('ipStatWorst').textContent   = fmtCurrency(worstScaled);
+    const wins       = scaledPnls.filter(v => v > 0);
+    const best       = scaledPnls.length ? Math.max(...scaledPnls) : null;
+    const worst      = scaledPnls.length ? Math.min(...scaledPnls) : null;
+    const winRate    = scaledPnls.length ? (wins.length / scaledPnls.length * 100) : 0;
+    if (el('ipStatBest'))      el('ipStatBest').textContent      = best  !== null ? fmtPnl(best)  : '—';
+    if (el('ipStatWorst'))     el('ipStatWorst').textContent     = worst !== null ? fmtPnl(worst) : '—';
+    if (el('ipStatSessions'))  el('ipStatSessions').textContent  = trades.length;
+    if (el('ipStatWinRate'))   el('ipStatWinRate').textContent   = trades.length ? winRate.toFixed(0) + '%' : '—';
+    if (el('ipStatCycleGain')) {
+        const cg = el('ipStatCycleGain');
+        cg.textContent = fmtPnl(profit);
+        cg.style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
 
-    // Milestone chips
-    if (el('ipMsPayoutLabel')) el('ipMsPayoutLabel').textContent = Math.round(payout);
-    const msChips = el('ipMilestoneChips');
-    if (msChips) {
-        const checkpoints = Array.from({length:11}, (_,i) => ({
-            pct: i*10,
-            paPnl: Math.round(IP_GOAL_PROFIT * i / 10),
-            val: ipCalcDisplayValue(entry, payout, Math.round(IP_GOAL_PROFIT * i / 10))
-        }));
-        msChips.innerHTML = checkpoints.map((cp, i) => {
-            const passed  = masterPnl >= cp.paPnl && (cp.paPnl > 0 || masterPnl > 0);
-            const current = i < checkpoints.length-1 && masterPnl >= cp.paPnl && masterPnl < checkpoints[i+1].paPnl;
-            const isGoal  = i === checkpoints.length-1;
-            let cls = isGoal && passed ? 'goal' : passed ? 'reached' : current ? 'current' : 'pending';
+    // ── Milestone chips — dollar values only, no "X% ·" prefix ──
+    const chips = el('ipMilestoneChips');
+    if (chips) {
+        chips.innerHTML = Array.from({length:11}, (_, i) => {
+            // Evenly spaced: $115, $184, $253, ..., $800
+            const targetDv   = entry + (payout - entry) * (i / 10);
+            const isGoal     = i === 10;
+            const passed     = i > 0 && masterPnl >= reqProfit(i, entry, payout, mult);
+            const current    = !passed && i > 0 &&
+                masterPnl >= reqProfit(i-1, entry, payout, mult) &&
+                masterPnl < reqProfit(i, entry, payout, mult);
+            const cls = isGoal && passed ? 'goal' : passed ? 'reached' : current ? 'current' : 'pending';
             const icon = isGoal && passed ? '🏆' : passed ? '✓' : current ? '▶' : '○';
-            return `<span class="ip-ms-chip ${cls}">${icon} ${cp.pct}% · ${fmtCurrency(cp.val)}</span>`;
+            return `<span class="ip-ms-chip ${cls}">${icon} ${fmtCurrency(targetDv)}</span>`;
         }).join('');
     }
 
-    // ── Equity curve — investor-safe: shows THEIR value only, no PA balance ──
-    const sorted = [...trades].sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
+    // ── Equity chart — ONE gold line (investor value) + ONE grey dashed benchmark ──
     const ctx = el('ipEquityChart');
     if (ctx) {
-        let runPnl = 0;
+        const sorted = [...trades];
         const labels  = ['Start'];
         const dvData  = [entry];
-        const benchData = [entry];
-        const step = (payout - entry) / (sorted.length || 1);
-        sorted.forEach((t, i) => {
-            runPnl += parseFloat(t.pnl||0);
-            dvData.push(ipCalcDisplayValue(entry, payout, runPnl));
+        let cumPnl = 0;
+        sorted.forEach(t => {
+            cumPnl += parseFloat(t.pnl||0);
             labels.push(t.trade_date);
-            benchData.push(entry + step * (i+1));
+            dvData.push(ipDisplayValue(entry, payout, cumPnl));
         });
+
+        // Grey benchmark: straight line from entry to payout across the same # points
+        const benchData = labels.map((_, i) =>
+            entry + (payout - entry) * (i / Math.max(labels.length - 1, 1))
+        );
+
         if (ipEquityChartObj) { ipEquityChartObj.destroy(); ipEquityChartObj = null; }
         ipEquityChartObj = new Chart(ctx, {
             type: 'line',
@@ -4154,18 +4274,23 @@ function ipRenderInvestorView(inv) {
                     {
                         label: 'Your Account Value',
                         data: dvData,
-                        borderColor: 'rgba(255,209,102,0.9)',
-                        backgroundColor: 'rgba(255,209,102,0.07)',
+                        borderColor: '#ffd166',
+                        backgroundColor: 'rgba(255,209,102,0.08)',
                         fill: true, tension: 0.35,
                         pointRadius: sorted.length > 20 ? 0 : 3,
-                        borderWidth: 2.5, yAxisID: 'y'
+                        pointBackgroundColor: '#ffd166',
+                        borderWidth: 2.5,
+                        yAxisID: 'y'
                     },
                     {
                         label: 'Benchmark Path',
                         data: benchData,
-                        borderColor: 'rgba(122,139,181,0.35)',
+                        borderColor: 'rgba(120,140,180,0.35)',
+                        backgroundColor: 'transparent',
                         fill: false, tension: 0,
-                        pointRadius: 0, borderDash: [5,4], borderWidth: 1.5,
+                        pointRadius: 0,
+                        borderWidth: 1.5,
+                        borderDash: [5, 5],
                         yAxisID: 'y'
                     }
                 ]
@@ -4173,224 +4298,235 @@ function ipRenderInvestorView(inv) {
             options: {
                 responsive: true, maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { labels: { color: '#7a8bb5', font: { size: 10 } } } },
+                plugins: {
+                    legend: { labels: { color: '#7a8bb5', font:{ size:11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                // Only show investor value, not the benchmark PA info
+                                if (ctx.dataset.label === 'Benchmark Path') return null;
+                                return ` Your value: ${fmtCurrency(ctx.raw)}`;
+                            }
+                        }
+                    }
+                },
                 scales: {
-                    x: { ticks: { color: '#3d4f78', maxTicksLimit: 6, font:{size:10} }, grid: { color: 'rgba(99,179,237,0.05)' }, border:{display:false} },
+                    x: { ticks:{ color:'#3d4f78', maxTicksLimit:6, font:{size:10} }, grid:{ color:'rgba(99,179,237,0.05)' } },
                     y: {
-                        ticks: { color: '#ffd166', font:{size:10}, callback: v => '$'+v.toFixed(0) },
-                        grid: { color: 'rgba(99,179,237,0.06)' }, border:{display:false},
-                        min: Math.max(0, entry * 0.85), // never show $0 — hides the "bottom"
-                        suggestedMax: payout * 1.05
+                        min: entry * 0.97,   // don't show below entry (hides PA crash math)
+                        max: payout * 1.02,
+                        ticks:{ color:'#ffd166', font:{size:10}, callback: v => `$${v.toFixed(0)}` },
+                        grid:{ color:'rgba(99,179,237,0.06)' }
                     }
                 }
             }
         });
     }
 
-    // ── Trade log — investor-facing, fully scaled, no raw PA numbers ──
-    const tBody  = el('ipTradeBody');
+    // ── Trade log — investor-safe columns ──
+    const tBody = el('ipTradeBody');
     const tCount = el('ipTradeCount');
     const tradesSorted = [...trades].sort((a,b) => new Date(b.trade_date)-new Date(a.trade_date));
     if (tCount) tCount.textContent = `${tradesSorted.length} session${tradesSorted.length !== 1 ? 's' : ''}`;
     if (tBody) {
         if (!tradesSorted.length) {
-            tBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text-muted);">${accNum ? 'No sessions yet' : 'No account linked'}</td></tr>`;
+            tBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">No sessions recorded yet.</td></tr>`;
         } else {
-            // Build running value map oldest→newest
-            const orderedOldNew = [...trades].sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
+            // Build running investor value map (old→new)
+            const orderedOldNew = [...trades];
             const runMap = new Map();
             let rp = 0;
             orderedOldNew.forEach(t => {
                 rp += parseFloat(t.pnl||0);
-                runMap.set(t.id || t.timestamp, rp);
+                runMap.set(t.id || t.trade_date + t.pnl, rp);
             });
             tBody.innerHTML = tradesSorted.map((t, i) => {
-                const pnlRaw = parseFloat(t.pnl||0);
-                const scaled = pnlRaw * mult;   // Method 2 — trade log multiplier
-                const runP   = runMap.get(t.id || t.timestamp) ?? 0;
-                const runDv  = ipCalcDisplayValue(entry, payout, runP);
-                const tradeMode = ipRiskToMode(t.risk_template);
+                const pnl    = parseFloat(t.pnl||0);
+                const scaled = pnl * mult;
+                const runP   = runMap.get(t.id || t.trade_date + t.pnl) ?? 0;
+                const runDv  = ipDisplayValue(entry, payout, runP);
+                const riskLbl = ipRiskLabel(t.risk_template); // "Conservative" or "Base"
                 return `<tr class="ip-trade-row">
                     <td style="color:var(--text-dim);font-size:0.78rem;">${tradesSorted.length - i}</td>
                     <td style="font-size:0.82rem;color:var(--text-muted);">${t.trade_date}</td>
                     <td style="font-size:0.82rem;">${t.market_condition || '—'}</td>
-                    <td><span style="font-size:0.75rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:10px;${tradeMode==='Base'?'background:rgba(155,111,250,0.1);color:var(--purple);':'background:rgba(34,211,160,0.1);color:var(--success);'}">${tradeMode}</span></td>
-                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:600;color:${scaled>=0?'var(--success)':'var(--danger)'};">${scaled>=0?'+':''}${fmtCurrency(scaled)}</td>
-                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:${runDv>=payout?'var(--gold)':'var(--text)'};">${fmtCurrency(runDv)}</td>
-                    <td style="font-size:0.78rem;color:var(--text-muted);">C${t.cycle}</td>
+                    <td style="font-size:0.82rem;">${ipModeBadgeHtml(riskLbl === 'Base' ? 'base' : 'conservative')}</td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:600;color:${scaled>=0?'var(--success)':'var(--danger)'};">${fmtPnl(scaled)}</td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:${runDv>=payout?'var(--gold)':'var(--text)'};">${fmtCurrency(runDv)}</td>
                 </tr>`;
             }).join('');
         }
     }
 
-    // ── Milestone breakdown table — clean, no PA references ──
+    // ── Milestone breakdown table — no PA columns ──
     const mBody = el('ipMilestoneBody');
     if (mBody) {
-        const checkpoints = Array.from({length:11}, (_,i) => Math.round(IP_GOAL_PROFIT * i / 10));
-        mBody.innerHTML = checkpoints.map((p, i) => {
-            const val  = ipCalcDisplayValue(entry, payout, p);
-            const gain = val - entry;
-            const passed  = masterPnl >= p && (p > 0 || masterPnl > 0);
-            const current = i < checkpoints.length-1 && masterPnl >= p && masterPnl < checkpoints[i+1];
-            const badge = current ? `<span class="badge badge-success">▶ Here</span>`
-                        : passed  ? `<span class="badge badge-active">✓ Done</span>`
-                        :           `<span style="color:var(--text-dim);font-size:0.75rem;">○ Ahead</span>`;
+        mBody.innerHTML = Array.from({length:11}, (_, i) => {
+            const targetDv  = entry + (payout - entry) * (i / 10);
+            const gain      = targetDv - entry;
+            const passed    = i > 0 && masterPnl >= reqProfit(i, entry, payout, mult);
+            const isCurrent = !passed && i > 0 &&
+                masterPnl >= reqProfit(i-1, entry, payout, mult) &&
+                masterPnl < reqProfit(i, entry, payout, mult);
+            const badge = isCurrent
+                ? `<span class="badge badge-success">▶ Here</span>`
+                : passed
+                ? `<span class="badge badge-active">✓ Done</span>`
+                : `<span style="color:var(--text-dim);font-size:0.75rem;">○ Pending</span>`;
             return `<tr>
                 <td>${badge}</td>
-                <td style="font-size:0.82rem;color:var(--text-muted);">${i*10}% of goal</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:${val>=payout?'var(--gold)':'var(--success)'};">${fmtCurrency(val)}</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:${gain>0?'var(--success)':'var(--text-muted)'};">${gain>0?'+':''}${fmtCurrency(gain)}</td>
-                <td>${p === IP_GOAL_PROFIT ? `<span class="badge" style="background:rgba(255,209,102,0.12);color:var(--gold);border:1px solid rgba(255,209,102,0.3);">🏆 ${fmtCurrency(payout)} PAYOUT</span>` : p === 0 ? `<span style="color:var(--text-dim);font-size:.75rem;">Start</span>` : ''}</td>
+                <td style="font-size:0.82rem;">#${i+1} checkpoint</td>
+                <td style="font-family:'JetBrains Mono',monospace;color:${targetDv>=payout?'var(--gold)':'var(--success)'};">${fmtCurrency(targetDv)}</td>
+                <td style="font-family:'JetBrains Mono',monospace;color:${gain>0?'var(--success)':'var(--text-muted)'};">${gain > 0 ? '+' : ''}${fmtCurrency(gain)}</td>
+                <td>${i === 10 ? `<span class="badge" style="background:rgba(255,209,102,0.12);color:var(--gold);border:1px solid rgba(255,209,102,0.3);">🏆 Payout</span>` : i === 0 ? `<span style="color:var(--text-dim);font-size:.75rem;">Start</span>` : ''}</td>
             </tr>`;
         }).join('');
     }
 }
 
-// ── MODE REQUEST SYSTEM ──
-function ipToggleNotifPanel() {
-    const p = document.getElementById('ipNotifPanel');
-    if (p) p.style.display = p.style.display === 'none' ? 'block' : 'none';
+// Helper to compute required master P&L for milestone i
+function reqProfit(i, entry, payout, mult) {
+    if (i <= 0) return 0;
+    const targetDv = entry + (payout - entry) * (i / 10);
+    return (targetDv - entry) / mult;
 }
 
-let ipSelectedMode = null;
+// ── Auto-urgent notify (level 2+) ──
+function ipAutoUrgentNotify(inv) {
+    // Create one urgent pending request if none exists yet
+    const alreadyUrgent = ipModeRequests.some(r =>
+        r.investor_id === inv.id && r.status === 'pending' && r.urgent
+    );
+    if (alreadyUrgent) return;
+    const req = {
+        id: crypto.randomUUID(), investor_id: inv.id, user_id: inv.user_id || null,
+        current_mode: inv.mode || 'conservative', requested_mode: 'conservative',
+        message: `[AUTO] Account reached warning level — mode change recommended.`,
+        status: 'pending', urgent: true,
+        created_at: new Date().toISOString()
+    };
+    ipModeRequests.unshift(req);
+    try {
+        sbClient.from('investor_mode_requests').insert({...req}).then(()=>{});
+    } catch(_) {}
+    localStorage.setItem('pfp_mode_requests', JSON.stringify(ipModeRequests));
+}
 
+// ════════════════════════════════════════════════════════
+//  MODE REQUEST MODAL (investor-side)
+// ════════════════════════════════════════════════════════
 function ipOpenModeModal(preselect) {
     ipSelectedMode = preselect || null;
-    document.getElementById('ipModeReqMsg').value = '';
-    document.getElementById('ipModeOptCons').className = 'ip-mode-option' + (preselect==='conservative'?' selected':'');
-    document.getElementById('ipModeOptBase').className = 'ip-mode-option' + (preselect==='base'?' selected-base':'');
-    document.getElementById('ipModeModalOverlay').style.display = 'flex';
+    document.getElementById('ipModeModal').style.display  = 'flex';
+    document.getElementById('ipModeReqMsg').value         = '';
+    document.getElementById('ipModeOptCons').className    = 'ip-mode-opt';
+    document.getElementById('ipModeOptBase').className    = 'ip-mode-opt';
+    if (preselect === 'conservative') ipSelectModeOption('conservative');
+    if (preselect === 'base')         ipSelectModeOption('base');
 }
 function ipCloseModeModal() {
-    document.getElementById('ipModeModalOverlay').style.display = 'none';
+    document.getElementById('ipModeModal').style.display = 'none';
     ipSelectedMode = null;
 }
-function ipSelectModeOpt(mode) {
+function ipSelectModeOption(mode) {
     ipSelectedMode = mode;
-    document.getElementById('ipModeOptCons').className = 'ip-mode-option' + (mode==='conservative'?' selected':'');
-    document.getElementById('ipModeOptBase').className = 'ip-mode-option' + (mode==='base'?' selected-base':'');
+    document.getElementById('ipModeOptCons').className = 'ip-mode-opt' + (mode === 'conservative' ? ' selected-cons' : '');
+    document.getElementById('ipModeOptBase').className = 'ip-mode-opt' + (mode === 'base' ? ' selected-base' : '');
 }
-
 async function ipSubmitModeRequest() {
-    if (!ipSelectedMode) { showAlert('Please select a mode first', 'error'); return; }
-    const myEmail   = (currentUser?.email || currentProfile?.email || '').toLowerCase();
-    const myInv     = ipInvestors.find(i => i.email?.toLowerCase() === myEmail);
-    if (!myInv) { showAlert('Investor profile not found', 'error'); return; }
-    if (myInv.mode === ipSelectedMode) { showAlert('You\'re already on that mode', 'info'); ipCloseModeModal(); return; }
+    if (!ipSelectedMode) { showAlert('Please select a mode first.', 'error'); return; }
+    const myEmail = (currentUser?.email || currentProfile?.email || '').toLowerCase();
+    const inv = ipInvestors.find(i => i.email?.toLowerCase() === myEmail);
+    if (!inv) { showAlert('Investor profile not found.', 'error'); return; }
 
-    const msg = document.getElementById('ipModeReqMsg')?.value.trim() || '';
+    const message = document.getElementById('ipModeReqMsg')?.value.trim() || null;
     const req = {
         id: crypto.randomUUID(),
-        investor_id: myInv.id,
-        current_mode: myInv.mode || 'conservative',
+        investor_id: inv.id,
+        user_id: currentUser?.id || null,
+        current_mode: inv.mode || 'conservative',
         requested_mode: ipSelectedMode,
-        message: msg,
+        message,
         status: 'pending',
         created_at: new Date().toISOString()
     };
-
-    try {
-        await sbClient.from('investor_mode_requests').insert([req]);
-    } catch(_) {}
     ipModeRequests.unshift(req);
+    try {
+        await sbClient.from('investor_mode_requests').insert(req);
+    } catch(_) {}
+    localStorage.setItem('pfp_mode_requests', JSON.stringify(ipModeRequests));
 
     ipCloseModeModal();
-    showAlert('✓ Mode change request sent! Your account manager will review it shortly.', 'success');
-    await updateInvestorPortalPage();
+    ipRenderInvestorView(inv);
+    showAlert('✓ Request sent — your account manager will review it shortly.', 'success');
 }
 
-async function ipRespondRequest(reqId, investorId, newMode, decision) {
-    try {
-        await sbClient.from('investor_mode_requests').update({
-            status: decision,
-            responded_at: new Date().toISOString()
-        }).eq('id', reqId);
-    } catch(_) {}
-
-    // Update local cache
-    const idx = ipModeRequests.findIndex(r => r.id === reqId);
-    if (idx >= 0) ipModeRequests[idx].status = decision;
-
-    // If approved, update the investor's mode in DB
-    if (decision === 'approved' && investorId) {
-        try {
-            await sbClient.from('investor_portal_investors').update({ mode: newMode }).eq('id', investorId);
-        } catch(_) {}
-        const invIdx = ipInvestors.findIndex(i => i.id === investorId);
-        if (invIdx >= 0) ipInvestors[invIdx].mode = newMode;
-    }
-
-    showAlert(decision === 'approved' ? `✅ Mode change approved` : `❌ Request denied`, decision === 'approved' ? 'success' : 'info');
-    ipRenderAdmin();
-}
-
-// ── USER SEARCH (for admin add form) ──
+// ════════════════════════════════════════════════════════
+//  USER SEARCH (admin add form)
+// ════════════════════════════════════════════════════════
 let ipAllProfilesCache = [];
 
 async function ipLoadProfiles() {
     if (ipAllProfilesCache.length) return;
     try {
-        const { data } = await sbClient.from('profiles').select('id, username, email, role').order('created_at', { ascending: false });
+        const { data } = await sbClient.from('profiles').select('id,username,email,role').order('created_at',{ascending:false});
         if (data) ipAllProfilesCache = data;
     } catch(_) {}
 }
 
 async function ipSearchUsers() {
     await ipLoadProfiles();
-    const q = (document.getElementById('ipUserSearch')?.value || '').toLowerCase().trim();
+    const q  = (document.getElementById('ipUserSearch')?.value || '').toLowerCase().trim();
     const dd = document.getElementById('ipUserDropdown');
     if (!dd) return;
     if (!q) { dd.style.display = 'none'; return; }
     const matches = ipAllProfilesCache.filter(p =>
-        (p.email || '').toLowerCase().includes(q) ||
-        (p.username || '').toLowerCase().includes(q)
-    ).slice(0, 8);
+        (p.email||'').toLowerCase().includes(q) || (p.username||'').toLowerCase().includes(q)
+    ).slice(0,8);
     if (!matches.length) { dd.style.display = 'none'; return; }
     dd.style.display = 'block';
     dd.innerHTML = matches.map(p => `
         <div onclick="ipSelectUser(${JSON.stringify(p.id)},${JSON.stringify(p.email)},${JSON.stringify(p.username||p.email)})"
              style="padding:0.625rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"
              onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
-            <span><strong style="font-size:0.875rem;">${p.username || p.email}</strong><br><span style="font-size:0.75rem;color:var(--text-muted);">${p.email}</span></span>
-            <span class="badge ${p.role==='investor'?'badge-gold':p.role==='admin'?'badge-gold':'badge-active'}" style="${p.role==='investor'?'background:rgba(255,209,102,0.12);color:var(--gold);border:1px solid rgba(255,209,102,0.3);':''};font-size:0.68rem;">${p.role||'user'}</span>
+            <span><strong style="font-size:0.875rem;">${p.username||p.email}</strong><br><span style="font-size:0.75rem;color:var(--text-muted);">${p.email}</span></span>
+            <span style="font-size:0.7rem;color:var(--text-muted);">${p.role||'user'}</span>
         </div>
     `).join('');
 }
 
 function ipSelectUser(id, email, name) {
-    document.getElementById('ipSelectedUserId').value  = id;
+    document.getElementById('ipSelectedUserId').value    = id;
     document.getElementById('ipSelectedUserEmail').value = email;
     document.getElementById('ipSelectedUserName').value  = name;
     const disp = document.getElementById('ipSelectedUser');
     if (disp) disp.innerHTML = `<span style="color:var(--text);">✓ <strong>${name}</strong> <span style="color:var(--text-muted);font-size:0.8rem;">(${email})</span></span>`;
     const search = document.getElementById('ipUserSearch');
     if (search) search.value = name;
-    const dd = document.getElementById('ipUserDropdown');
-    if (dd) dd.style.display = 'none';
+    document.getElementById('ipUserDropdown').style.display = 'none';
     const nameField = document.getElementById('ipNewName');
     if (nameField && !nameField.value) nameField.value = name;
     ipPreviewFormula();
 }
 
-// ── FORMULA PREVIEW ──
 function ipPreviewFormula() {
     const fp  = document.getElementById('ipFormulaPreview');
     const sel = document.getElementById('ipLinkAccountSelect');
     const accNum = parseInt(sel?.value);
-    const entry  = parseFloat(document.getElementById('ipNewEntry')?.value) || 115;
+    const entry  = parseFloat(document.getElementById('ipNewEntry')?.value)  || 115;
     const payout = parseFloat(document.getElementById('ipNewPayout')?.value) || 800;
     if (!fp) return;
     fp.style.display = 'flex';
-    const mult = ipCalcMultiplier(entry, payout);
-    const fe = document.getElementById('ipFormulaEntry');
-    const fm = document.getElementById('ipFormulaMultiplier');
-    const fp2 = document.getElementById('ipFormulaPaPnl');
-    const fv  = document.getElementById('ipFormulaCurrentVal');
-    if (fe) fe.textContent = fmtCurrency(entry);
+    const mult = ipMultiplier(entry, payout);
+    const fm   = document.getElementById('ipFormulaMultiplier');
+    const fe   = document.getElementById('ipFormulaEntry');
+    const fp2  = document.getElementById('ipFormulaPaPnl');
+    const fv   = document.getElementById('ipFormulaCurrentVal');
     if (fm) fm.textContent = mult.toFixed(4);
+    if (fe) fe.textContent = fmtCurrency(entry);
     if (accNum && fp2 && fv) {
-        const pnl = ipGetPnlForAccount(accNum);
-        const dv  = ipCalcDisplayValue(entry, payout, pnl);
+        const pnl = ipGetAllTradesForAccount(accNum).reduce((s,t)=>s+parseFloat(t.pnl||0),0);
+        const dv  = ipDisplayValue(entry, payout, pnl);
         fp2.textContent = fmtCurrency(pnl);
         fv.textContent  = fmtCurrency(dv);
     } else {
@@ -4399,31 +4535,34 @@ function ipPreviewFormula() {
     }
 }
 
-// ── ADD / REMOVE INVESTOR ──
+// ── ADD / REMOVE ──
 async function ipAddInvestor() {
-    const email   = document.getElementById('ipSelectedUserEmail')?.value.trim();
-    const uid     = document.getElementById('ipSelectedUserId')?.value.trim();
-    const name    = document.getElementById('ipNewName')?.value.trim() || document.getElementById('ipSelectedUserName')?.value.trim();
-    const acc     = parseInt(document.getElementById('ipLinkAccountSelect')?.value);
-    const entry   = parseFloat(document.getElementById('ipNewEntry')?.value);
-    const payout  = parseFloat(document.getElementById('ipNewPayout')?.value) || 800;
-    const modeVal = document.getElementById('ipNewMode')?.value || 'conservative';
+    const email  = document.getElementById('ipSelectedUserEmail')?.value.trim();
+    const uid    = document.getElementById('ipSelectedUserId')?.value.trim();
+    const name   = document.getElementById('ipNewName')?.value.trim() || document.getElementById('ipSelectedUserName')?.value.trim();
+    const acc    = parseInt(document.getElementById('ipLinkAccountSelect')?.value);
+    const entry  = parseFloat(document.getElementById('ipNewEntry')?.value);
+    const payout = parseFloat(document.getElementById('ipNewPayout')?.value) || 800;
+    const mode   = document.getElementById('ipNewMode')?.value || 'conservative';
 
-    if (!email)           { showAlert('Please search and select a user first', 'error'); return; }
-    if (!acc)             { showAlert('Please select a PA account to link', 'error'); return; }
-    if (isNaN(entry) || entry <= 0) { showAlert('Enter a valid entry amount', 'error'); return; }
+    if (!email)                      { showAlert('Select a user first', 'error'); return; }
+    if (!acc)                        { showAlert('Select a linked account', 'error'); return; }
+    if (isNaN(entry) || entry <= 0)  { showAlert('Enter a valid entry amount', 'error'); return; }
 
-    // Upsert (update if email already exists)
-    const existing = ipInvestors.findIndex(i => i.email.toLowerCase() === email.toLowerCase());
-    const inv = { id: existing >= 0 ? ipInvestors[existing].id : crypto.randomUUID(), name: name || email, email, entry_point: entry, payout_target: payout, linked_account: acc, mode: modeVal, created_at: existing >= 0 ? ipInvestors[existing].created_at : new Date().toISOString() };
+    const existing = ipInvestors.findIndex(i => i.email?.toLowerCase() === email.toLowerCase());
+    const inv = {
+        id: existing >= 0 ? ipInvestors[existing].id : crypto.randomUUID(),
+        name: name || email, email, entry_point: entry, payout_target: payout,
+        linked_account: acc, mode,
+        created_at: existing >= 0 ? ipInvestors[existing].created_at : new Date().toISOString()
+    };
     if (existing >= 0) ipInvestors[existing] = inv; else ipInvestors.push(inv);
 
-    // Also set the user's role to 'investor' if not already admin
     try {
         if (uid) {
             const { data: prof } = await sbClient.from('profiles').select('role').eq('id', uid).single();
             if (prof && prof.role !== 'admin') {
-                await sbClient.from('profiles').update({ role: 'investor', approved: true }).eq('id', uid);
+                await sbClient.from('profiles').update({ role:'investor', approved:true }).eq('id', uid);
             }
         }
     } catch(_) {}
@@ -4431,45 +4570,40 @@ async function ipAddInvestor() {
     await ipSaveInvestors();
     ipClearNewForm();
     ipRenderAdmin();
-    // Refresh admin user table too
     if (typeof loadAdminData === 'function') setTimeout(loadAdminData, 300);
-    showAlert(`✓ ${name || email} added as investor — linked to PA #${acc}`, 'success');
+    showAlert(`✓ ${name||email} added — ${mode === 'base' ? '⚡ Base' : '🛡 Conservative'} mode`, 'success');
 }
 
 async function ipRemoveInvestor(idx) {
     const inv = ipInvestors[idx];
-    if (!confirm(`Remove ${inv.name || inv.email} from the investor portal?`)) return;
+    if (!confirm(`Remove ${inv.name||inv.email} from the investor portal?`)) return;
     try { await sbClient.from('investor_portal_investors').delete().eq('id', inv.id); } catch(_) {}
     ipInvestors.splice(idx, 1);
     await ipSaveInvestors();
     ipRenderAdmin();
-    showAlert(`Removed ${inv.name || inv.email}`, 'success');
+    showAlert(`Removed ${inv.name||inv.email}`, 'success');
 }
 
 function ipClearNewForm() {
-    ['ipUserSearch','ipNewName','ipNewEntry','ipNewPayout'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = id === 'ipNewPayout' ? '800' : id === 'ipNewEntry' ? '115' : '';
-    });
-    ['ipSelectedUserId','ipSelectedUserEmail','ipSelectedUserName'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.value = '';
-    });
+    ['ipUserSearch','ipNewName'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
+    const entry=document.getElementById('ipNewEntry');   if(entry)  entry.value='115';
+    const pay  =document.getElementById('ipNewPayout');  if(pay)    pay.value='800';
+    const mode =document.getElementById('ipNewMode');    if(mode)   mode.value='conservative';
+    ['ipSelectedUserId','ipSelectedUserEmail','ipSelectedUserName'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
     const disp = document.getElementById('ipSelectedUser');
     if (disp) disp.innerHTML = '<span>No user selected</span>';
     const dd = document.getElementById('ipUserDropdown');
     if (dd) dd.style.display = 'none';
-    const sel = document.getElementById('ipLinkAccountSelect');
-    if (sel) sel.value = '';
-    const fp = document.getElementById('ipFormulaPreview');
-    if (fp) fp.style.display = 'none';
+    const sel = document.getElementById('ipLinkAccountSelect'); if(sel) sel.value='';
+    const fp  = document.getElementById('ipFormulaPreview');    if(fp)  fp.style.display='none';
 }
 
-// Legacy stubs
+// ── Legacy stubs (prevent errors if called) ──
 async function ipSaveMasterAccount() {}
-async function ipUpdateProfit() {}
-async function ipSaveProfit() {}
+async function ipUpdateProfit()      {}
+async function ipSaveProfit()        {}
 let ipMasterAccountNum = null;
-let ipMasterProfit = 0;
+let ipMasterProfit     = 0;
 
 // ═══════════════════════════════════════════════════════
 //  🔧 DEBUG TOOL — call window.debugDashboard() in console

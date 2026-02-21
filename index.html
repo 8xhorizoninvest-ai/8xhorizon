@@ -119,6 +119,7 @@
         .user-name { font-weight: 600; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .user-role { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
         .user-role.admin { color: var(--gold); }
+        .user-role.investor { color: var(--purple); }
         .user-role.investor { color: var(--gold); }
         .nav-section { margin-bottom: 1.5rem; }
         .nav-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); padding: 0 0.75rem; margin-bottom: 0.5rem; }
@@ -674,7 +675,8 @@
             </div>
         </div>
 
-        <nav class="nav-section">
+        <!-- TRADER nav — hidden for pure investors -->
+        <nav class="nav-section" id="traderNavMain">
             <div class="nav-label">Main</div>
             <div class="nav-item active" data-page="overview"><span class="nav-icon">📊</span>Overview</div>
             <div class="nav-item" data-page="cyclePerformance"><span class="nav-icon">🔄</span>Cycle Performance</div>
@@ -682,23 +684,23 @@
             <div class="nav-item" data-page="accounts"><span class="nav-icon">💼</span>Accounts</div>
             <div class="nav-item" data-page="analytics"><span class="nav-icon">📈</span>Analytics</div>
             <div class="nav-item" data-page="riskMonitor"><span class="nav-icon">⚠️</span>Risk Monitor</div>
-            
         </nav>
 
-        <nav class="nav-section">
+        <!-- TRADER actions — hidden for pure investors -->
+        <nav class="nav-section" id="traderNavActions">
             <div class="nav-label">Actions</div>
             <div class="nav-item" data-page="addTrade"><span class="nav-icon">➕</span>Add Trade</div>
             <div class="nav-item" data-page="logPayout"><span class="nav-icon">💰</span>Log Payout</div>
             <div class="nav-item" data-page="tradeLog"><span class="nav-icon">📝</span>Trade Log</div>
-            
             <div class="nav-item" data-page="deleteData"><span class="nav-icon">🗑️</span>Delete Data</div>
             <div class="nav-item" onclick="window.location.href='pamm_calculator_dashboard.html'"><span class="nav-icon">📊</span><span>PAMM Calculator</span></div>
             <div class="nav-item" onclick="window.location.href='economic-calendar.html'"><span class="nav-icon">📅</span><span>Economic Calendar</span></div>
         </nav>
 
-        <nav class="nav-section">
+        <!-- INVESTOR nav — shown only when investor or admin -->
+        <nav class="nav-section" id="investorNavSection" style="display:none;">
             <div class="nav-label">Investor</div>
-            <div class="nav-item" data-page="investorPortal" id="investorPortalNavItem" style="display:none;"><span class="nav-icon">💼</span>Investor Portal</div>
+            <div class="nav-item" data-page="investorPortal" id="investorPortalNavItem"><span class="nav-icon">💼</span>Investor Portal</div>
         </nav>
 
         <nav class="nav-section">
@@ -2525,22 +2527,30 @@ function showDashboard() {
         || 'Trader';
 
     const initials = displayName.substring(0, 2).toUpperCase();
-    const isAdmin = currentProfile?.role === 'admin';
+    const isAdmin    = currentProfile?.role === 'admin';
+    const isInvestor = currentProfile?.role === 'investor';
 
     document.getElementById('userAvatar').textContent = initials;
     document.getElementById('userName').textContent = displayName;
     document.getElementById('heroName').textContent = displayName;
+
+    // Update nav visibility FIRST before navigating
     updateSidebarRole();
     document.getElementById('adminNavItem').style.display = isAdmin ? 'flex' : 'none';
 
     populateDropdowns();
     setTodayDates();
     buildContractEditor();
-    loadDashboardData();
 
-    // Only show onboarding for new non-admin users who haven't set username
-    // Show onboarding for first-time users (any role except admin) who haven't completed it
-    if (isFirstShow && !isAdmin && !currentProfile?.onboarded) {
+    // Investors land directly on Investor Portal — they don't see trader pages
+    if (isFirstShow && isInvestor) {
+        navigateTo('investorPortal');
+    } else {
+        loadDashboardData();
+    }
+
+    // Only show onboarding for new non-admin, non-investor users
+    if (isFirstShow && !isAdmin && !isInvestor && !currentProfile?.onboarded) {
         setTimeout(() => startOnboarding(), 800);
     }
 }
@@ -2579,19 +2589,36 @@ async function loadDashboardData() {
 // ─── Sidebar role chip — call this any time role may have changed ───
 function updateSidebarRole() {
     const role = currentProfile?.role || 'user';
-    const isAdmin = role === 'admin';
+    const isAdmin    = role === 'admin';
     const isInvestor = role === 'investor';
+    const isTrader   = !isInvestor; // admins also get trader nav
+
     let label, cls;
     if (isAdmin)         { label = '👑 Admin';    cls = 'user-role admin'; }
-    else if (isInvestor) { label = '💼 Investor'; cls = 'user-role'; }
+    else if (isInvestor) { label = '💼 Investor'; cls = 'user-role investor'; }
     else                 { label = 'Member';      cls = 'user-role'; }
+
     const roleEl = document.getElementById('userRole');
     if (roleEl) { roleEl.textContent = label; roleEl.className = cls; }
-    document.getElementById('adminNavItem').style.display = isAdmin ? 'flex' : 'none';
-    const invNav = document.getElementById('investorPortalNavItem');
-    if (invNav) invNav.style.display = (isAdmin || isInvestor) ? 'flex' : 'none';
+
+    // Trader nav sections: only visible for admins + regular users, NOT pure investors
+    const traderMain    = document.getElementById('traderNavMain');
+    const traderActions = document.getElementById('traderNavActions');
+    const showTrader    = isAdmin || (!isInvestor);
+    if (traderMain)    traderMain.style.display    = showTrader ? '' : 'none';
+    if (traderActions) traderActions.style.display = showTrader ? '' : 'none';
+
+    // Investor nav section
+    const invNavSection = document.getElementById('investorNavSection');
+    if (invNavSection) invNavSection.style.display = (isAdmin || isInvestor) ? '' : 'none';
+
+    // Admin + debug items
+    const adminNav = document.getElementById('adminNavItem');
+    if (adminNav) adminNav.style.display = isAdmin ? 'flex' : 'none';
     const dbgNav = document.getElementById('debugNavItem');
     if (dbgNav) dbgNav.style.display = isAdmin ? 'flex' : 'none';
+
+    // Settings: everyone gets it
 }
 
 async function refreshData() {
@@ -4021,15 +4048,29 @@ async function ipLoadState() {
 async function ipSaveInvestors() {
     try {
         for (const inv of ipInvestors) {
-            await sbClient.from('investor_portal_investors').upsert({
-                id: inv.id, name: inv.name, email: inv.email,
-                entry_point: inv.entry_point, payout_target: inv.payout_target,
-                linked_account: inv.linked_account, mode: inv.mode || 'conservative',
+            const { error } = await sbClient.from('investor_portal_investors').upsert({
+                id: inv.id,
+                name: inv.name,
+                email: inv.email,
+                entry_point: inv.entry_point,
+                payout_target: inv.payout_target,
+                linked_account: inv.linked_account,
+                mode: inv.mode || 'conservative',
                 created_at: inv.created_at
-            });
+            }, { onConflict: 'id' });
+            if (error) {
+                console.error('ipSaveInvestors upsert error:', error);
+                showAlert('DB error saving investor: ' + error.message, 'error');
+                return false; // stop and let caller know
+            }
         }
-    } catch(_) {}
-    localStorage.setItem('pfp_investors', JSON.stringify(ipInvestors));
+        localStorage.setItem('pfp_investors', JSON.stringify(ipInvestors));
+        return true;
+    } catch(e) {
+        console.error('ipSaveInvestors exception:', e);
+        showAlert('Failed to save investor: ' + e.message, 'error');
+        return false;
+    }
 }
 
 // ── Main render router ──
@@ -4633,15 +4674,16 @@ async function ipSubmitModeRequest() {
 let ipAllProfilesCache = [];
 
 async function ipLoadProfiles() {
-    if (ipAllProfilesCache.length) return;
+    // Always refresh cache when explicitly called
     try {
-        const { data } = await sbClient.from('profiles').select('id,username,email,role').order('created_at',{ascending:false});
+        const { data, error } = await sbClient.from('profiles').select('id,username,email,role').order('created_at',{ascending:false});
+        if (error) { console.error('ipLoadProfiles error:', error); return; }
         if (data) ipAllProfilesCache = data;
-    } catch(_) {}
+    } catch(e) { console.error('ipLoadProfiles exception:', e); }
 }
 
 async function ipSearchUsers() {
-    await ipLoadProfiles();
+    if (!ipAllProfilesCache.length) await ipLoadProfiles();
     const q  = (document.getElementById('ipUserSearch')?.value || '').toLowerCase().trim();
     const dd = document.getElementById('ipUserDropdown');
     if (!dd) return;
@@ -4652,26 +4694,39 @@ async function ipSearchUsers() {
     if (!matches.length) { dd.style.display = 'none'; return; }
     dd.style.display = 'block';
     dd.innerHTML = matches.map(p => `
-        <div onclick="ipSelectUser(${JSON.stringify(p.id)},${JSON.stringify(p.email)},${JSON.stringify(p.username||p.email)})"
+        <div onclick="ipSelectUser(${JSON.stringify(p.id)},${JSON.stringify(p.email||'')},${JSON.stringify(p.username||p.email||'')})"
              style="padding:0.625rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"
              onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
-            <span><strong style="font-size:0.875rem;">${p.username||p.email}</strong><br><span style="font-size:0.75rem;color:var(--text-muted);">${p.email}</span></span>
+            <span>
+                <strong style="font-size:0.875rem;">${p.username||'(no username)'}</strong>
+                <br>
+                <span style="font-size:0.75rem;color:${p.email ? 'var(--text-muted)' : 'var(--warning)'};">
+                    ${p.email || '⚠ no email — run Debug > Sync Emails first'}
+                </span>
+            </span>
             <span style="font-size:0.7rem;color:var(--text-muted);">${p.role||'user'}</span>
         </div>
     `).join('');
 }
 
 function ipSelectUser(id, email, name) {
-    document.getElementById('ipSelectedUserId').value    = id;
-    document.getElementById('ipSelectedUserEmail').value = email;
-    document.getElementById('ipSelectedUserName').value  = name;
+    // email may be empty if not synced yet — store id always
+    document.getElementById('ipSelectedUserId').value    = id || '';
+    document.getElementById('ipSelectedUserEmail').value = email || '';
+    document.getElementById('ipSelectedUserName').value  = name || '';
+
     const disp = document.getElementById('ipSelectedUser');
-    if (disp) disp.innerHTML = `<span style="color:var(--text);">✓ <strong>${name}</strong> <span style="color:var(--text-muted);font-size:0.8rem;">(${email})</span></span>`;
+    if (disp) {
+        const emailDisplay = email
+            ? `<span style="color:var(--text-muted);font-size:0.8rem;">(${email})</span>`
+            : `<span style="color:var(--warning);font-size:0.8rem;">⚠ no email stored — will use user ID</span>`;
+        disp.innerHTML = `<span style="color:var(--text);">✓ <strong>${name||id}</strong> ${emailDisplay}</span>`;
+    }
     const search = document.getElementById('ipUserSearch');
-    if (search) search.value = name;
+    if (search) search.value = name || email || id;
     document.getElementById('ipUserDropdown').style.display = 'none';
     const nameField = document.getElementById('ipNewName');
-    if (nameField && !nameField.value) nameField.value = name;
+    if (nameField && !nameField.value) nameField.value = name || '';
     ipPreviewFormula();
 }
 
@@ -4703,7 +4758,7 @@ function ipPreviewFormula() {
 
 // ── ADD / REMOVE ──
 async function ipAddInvestor() {
-    const email  = document.getElementById('ipSelectedUserEmail')?.value.trim();
+    let email  = document.getElementById('ipSelectedUserEmail')?.value.trim();
     const uid    = document.getElementById('ipSelectedUserId')?.value.trim();
     const name   = document.getElementById('ipNewName')?.value.trim() || document.getElementById('ipSelectedUserName')?.value.trim();
     const acc    = parseInt(document.getElementById('ipLinkAccountSelect')?.value);
@@ -4711,42 +4766,75 @@ async function ipAddInvestor() {
     const payout = parseFloat(document.getElementById('ipNewPayout')?.value) || 800;
     const mode   = document.getElementById('ipNewMode')?.value || 'conservative';
 
-    if (!email)                      { showAlert('Select a user first', 'error'); return; }
-    if (!acc)                        { showAlert('Select a linked account', 'error'); return; }
-    if (isNaN(entry) || entry <= 0)  { showAlert('Enter a valid entry amount', 'error'); return; }
+    if (!uid && !email) { showAlert('Select a user from the dropdown first', 'error'); return; }
+    if (!acc)           { showAlert('Select a linked account number', 'error'); return; }
+    if (isNaN(entry) || entry <= 0) { showAlert('Enter a valid entry amount', 'error'); return; }
 
-    const existing = ipInvestors.findIndex(i => i.email?.toLowerCase() === email.toLowerCase());
+    // If email is missing but we have uid, try to get it from their profile or auth
+    if (!email && uid) {
+        const { data: prof } = await sbClient.from('profiles').select('email').eq('id', uid).maybeSingle();
+        if (prof?.email && !prof.email.includes('@propfarmpro.app')) {
+            email = prof.email;
+        } else {
+            // Use a placeholder so we can still save — email will sync when user logs in
+            showAlert('⚠ This user has no email stored. Run Debug Panel > Sync Emails, or have them log in once. Adding by user ID.', 'error');
+            // Still continue — we'll track by uid and set email = empty for now
+        }
+    }
+
+    const emailToStore = email || `uid:${uid}`; // fallback identifier
+
+    const existing = ipInvestors.findIndex(i =>
+        (email && i.email?.toLowerCase() === email.toLowerCase()) ||
+        (uid && i.user_id === uid)
+    );
+
     const inv = {
         id: existing >= 0 ? ipInvestors[existing].id : crypto.randomUUID(),
-        name: name || email, email, entry_point: entry, payout_target: payout,
-        linked_account: acc, mode,
+        name: name || email || uid,
+        email: emailToStore,
+        entry_point: entry,
+        payout_target: payout,
+        linked_account: acc,
+        mode,
         created_at: existing >= 0 ? ipInvestors[existing].created_at : new Date().toISOString()
     };
     if (existing >= 0) ipInvestors[existing] = inv; else ipInvestors.push(inv);
 
+    // Step 1: Update their profile role to investor
+    let roleUpdated = false;
     try {
-        if (uid) {
-            const { data: prof } = await sbClient.from('profiles').select('role').eq('id', uid).single();
-            if (prof && prof.role !== 'admin') {
-                // Grant investor role + store email so future lookups work
-                const profileUpdate = { role:'investor', approved:true };
-                if (email && !email.includes('@propfarmpro.app')) profileUpdate.email = email;
-                await sbClient.from('profiles').update(profileUpdate).eq('id', uid);
-            }
-        } else if (email) {
-            // Try to find by email even if uid not selected
-            const { data: profByEmail } = await sbClient.from('profiles').select('id,role').eq('email', email).maybeSingle();
-            if (profByEmail && profByEmail.role !== 'admin') {
-                await sbClient.from('profiles').update({ role:'investor', approved:true }).eq('id', profByEmail.id);
+        const profileId = uid;
+        if (profileId) {
+            const updates = { role: 'investor', approved: true };
+            if (email && !email.includes('@propfarmpro.app')) updates.email = email;
+            const { error: roleErr } = await sbClient.from('profiles').update(updates).eq('id', profileId);
+            if (roleErr) {
+                console.error('Role update error:', roleErr);
+                showAlert('Warning: could not update role — ' + roleErr.message, 'error');
+            } else {
+                roleUpdated = true;
             }
         }
-    } catch(_) {}
+    } catch(e) {
+        console.error('Role update exception:', e);
+    }
 
-    await ipSaveInvestors();
+    // Step 2: Save investor record to DB
+    const saved = await ipSaveInvestors();
+    if (!saved) {
+        // Remove from local array since DB save failed
+        if (existing < 0) ipInvestors.pop();
+        return;
+    }
+
     ipClearNewForm();
+    ipAllProfilesCache = []; // force refresh next search
     ipRenderAdmin();
     if (typeof loadAdminData === 'function') setTimeout(loadAdminData, 300);
-    showAlert(`✓ ${name||email} added — ${mode === 'base' ? '⚡ Base' : '🛡 Conservative'} mode`, 'success');
+
+    const roleMsg = roleUpdated ? ' Role → investor ✓' : '';
+    showAlert(`✓ ${name||email||uid} added as investor (${mode === 'base' ? '⚡ Base' : '🛡 Conservative'}).${roleMsg}`, 'success');
 }
 
 async function ipRemoveInvestor(idx) {

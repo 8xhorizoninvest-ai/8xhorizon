@@ -3689,6 +3689,22 @@ async function approveUser(userId, email) {
     const { error } = await sbClient.from('profiles').update({ approved: true }).eq('id', userId);
     if (error) { showAlert('Error approving user: ' + error.message, 'error'); return; }
     showAlert(`✓ ${email} approved — they can now access the dashboard`, 'success');
+    // Auto-send approval email
+    if (ipInitEmailJS() && email) {
+        const profile = adminAllProfiles.find(p => p.id === userId);
+        const name = profile?.username || email.split('@')[0];
+        try {
+            await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_MSG_TEMPLATE_ID, {
+                to_email:      email,
+                to_name:       name,
+                admin_subject: '✅ Your account has been approved',
+                admin_message: `Hi ${name},\n\nGreat news — your account has been reviewed and approved. You can now log in and access your dashboard.\n\nIf you have any questions, feel free to reach out.\n\nBest regards,\nYour Account Manager`,
+            });
+            showAlert(`📧 Approval email sent to ${email}`, 'success');
+        } catch(e) {
+            console.warn('Approval email failed:', e);
+        }
+    }
     loadAdminData();
 }
 
@@ -7069,6 +7085,18 @@ async function dbgApproveOne(userId) {
     const { error } = await sbClient.from('profiles').update({approved:true}).eq('id', userId);
     if (error) { alert('Failed: '+error.message); return; }
     dbgLog('✓ Approved: ' + userId.slice(0,8), 'ok');
+    // Auto-send approval email
+    const prof = _dbgAllProfiles.find(p => p.id === userId);
+    if (ipInitEmailJS() && prof?.email) {
+        const name = prof.username || prof.email.split('@')[0];
+        try {
+            await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_MSG_TEMPLATE_ID, {
+                to_email: prof.email, to_name: name,
+                admin_subject: '✅ Your account has been approved',
+                admin_message: `Hi ${name},\n\nYour account has been approved. You can now log in and access your dashboard.\n\nBest regards,\nYour Account Manager`,
+            });
+        } catch(e) { console.warn('Approval email failed:', e); }
+    }
     await dbgLoadAllData();
     dbgRenderUsersTable(_dbgAllProfiles);
 }

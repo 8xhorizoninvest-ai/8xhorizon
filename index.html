@@ -1818,127 +1818,282 @@
     </main>
 </div><!-- /dashboard -->
 
-<!-- ──────────────────── DEBUG PANEL OVERLAY (admin only) ──────────────────── -->
-<div id="debugPanelOverlay" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:8000;overflow-y:auto;font-family:'Space Grotesk',sans-serif;">
-    <div style="max-width:1100px;margin:0 auto;padding:2rem 1.5rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
-            <div style="display:flex;align-items:center;gap:1rem;">
-                <div style="font-size:2rem;filter:drop-shadow(0 0 12px rgba(59,126,248,0.6));">🔧</div>
-                <div>
-                    <div style="font-size:1.4rem;font-weight:700;letter-spacing:-0.02em;">Debug Panel</div>
-                    <div style="color:var(--text-muted);font-size:0.82rem;">Diagnose auth, roles, emails, Supabase data, and investor setup</div>
-                </div>
-            </div>
-            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                <button class="btn btn-primary" onclick="runFullDiagnostic()" id="dbgRunBtn" style="gap:0.5rem;"><span id="dbgRunSpinner" class="spinner" style="display:none;width:14px;height:14px;border-width:2px;"></span>&#9654; Run Full Diagnostic</button>
-                <button class="btn btn-secondary" onclick="dbgClearResults()">&#128465; Clear</button>
-                <button class="btn btn-secondary" onclick="closeDebugPanel()">&#10005; Close</button>
-            </div>
-        </div>
+<!-- ══════════════════════════════════════════════════════════════
+     PROP FARM PRO — FULL DEBUG PANEL (admin only)
+══════════════════════════════════════════════════════════════ -->
+<div id="debugPanelOverlay" style="display:none;position:fixed;inset:0;background:#080c18;z-index:8000;overflow-y:auto;font-family:'Space Grotesk',sans-serif;color:#e8f0ff;">
 
-        <!-- Quick Fix Tools -->
-        <div style="background:var(--bg-card);border:1px solid rgba(245,166,35,0.3);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
-            <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--warning);margin-bottom:1rem;">&#9889; Quick Fix Tools</div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;">
-
-                <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:1rem;">
-                    <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.625rem;">&#128273; Fix User Role</div>
-                    <input type="text" id="dbgFixEmail" placeholder="email or username" class="form-input" style="margin-bottom:0.5rem;padding:0.5rem 0.75rem;font-size:0.82rem;">
-                    <select id="dbgFixRole" class="form-select" style="margin-bottom:0.5rem;padding:0.5rem 0.75rem;font-size:0.82rem;">
-                        <option value="user">user — standard</option>
-                        <option value="investor">investor — portal access</option>
-                        <option value="admin">admin — full access</option>
-                    </select>
-                    <button class="btn btn-primary" style="width:100%;padding:0.5rem;font-size:0.82rem;" onclick="dbgFixRole()">Apply Role Fix</button>
-                </div>
-
-                <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:1rem;">
-                    <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.5rem;">&#9993; Sync Missing Emails</div>
-                    <div style="font-size:0.76rem;color:var(--text-muted);margin-bottom:0.75rem;line-height:1.5;">Copies emails from Auth into profiles table so role lookups work. Run when investors cannot be found by email.</div>
-                    <button class="btn btn-success" style="width:100%;padding:0.5rem;font-size:0.82rem;" onclick="dbgSyncEmails()">Sync All Emails Now</button>
-                </div>
-
-                <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:1rem;">
-                    <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.5rem;">&#128065; Inspect User</div>
-                    <input type="text" id="dbgInspectEmail" placeholder="email or username" class="form-input" style="margin-bottom:0.5rem;padding:0.5rem 0.75rem;font-size:0.82rem;">
-                    <button class="btn btn-secondary" style="width:100%;padding:0.5rem;font-size:0.82rem;" onclick="dbgInspectUser()">Inspect Profile</button>
-                </div>
-
-                <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:1rem;">
-                    <div style="font-size:0.8rem;font-weight:700;margin-bottom:0.5rem;">&#128260; Refresh My Session</div>
-                    <div style="font-size:0.76rem;color:var(--text-muted);margin-bottom:0.75rem;line-height:1.5;">Reloads your profile from Supabase and refreshes sidebar role badge and all nav items without page reload.</div>
-                    <button class="btn btn-secondary" style="width:100%;padding:0.5rem;font-size:0.82rem;" onclick="dbgRefreshSession()">Refresh Session</button>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Status Cards -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.875rem;margin-bottom:1.5rem;" id="dbgStatusCards">
-            <div class="dbg-status-card" id="dbgCard_auth"><div style="font-size:1.4rem;">&#128272;</div><div class="dbg-card-label">Auth Session</div><div class="dbg-card-val" id="dbgVal_auth">—</div></div>
-            <div class="dbg-status-card" id="dbgCard_role"><div style="font-size:1.4rem;">&#127991;</div><div class="dbg-card-label">Your Role</div><div class="dbg-card-val" id="dbgVal_role">—</div></div>
-            <div class="dbg-status-card" id="dbgCard_email"><div style="font-size:1.4rem;">&#9993;</div><div class="dbg-card-label">Email in Profile</div><div class="dbg-card-val" id="dbgVal_email">—</div></div>
-            <div class="dbg-status-card" id="dbgCard_approved"><div style="font-size:1.4rem;">&#9989;</div><div class="dbg-card-label">Approved</div><div class="dbg-card-val" id="dbgVal_approved">—</div></div>
-            <div class="dbg-status-card" id="dbgCard_supabase"><div style="font-size:1.4rem;">&#128451;</div><div class="dbg-card-label">DB Connection</div><div class="dbg-card-val" id="dbgVal_supabase">—</div></div>
-            <div class="dbg-status-card" id="dbgCard_investors"><div style="font-size:1.4rem;">&#128188;</div><div class="dbg-card-label">Investor Records</div><div class="dbg-card-val" id="dbgVal_investors">—</div></div>
-        </div>
-
-        <!-- Log -->
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem;">
-            <div style="padding:0.875rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:0.875rem;font-weight:700;">&#128203; Diagnostic Log</span>
-                <span id="dbgLogCount" style="color:var(--text-muted);font-size:0.78rem;font-family:'JetBrains Mono',monospace;"></span>
-            </div>
-            <div id="dbgLog" style="padding:1rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:0.78rem;line-height:1.9;max-height:480px;overflow-y:auto;min-height:60px;color:var(--text-muted);">
-                <span style="color:var(--text-dim);">Run diagnostic to see results...</span>
-            </div>
-        </div>
-
-        <!-- All Profiles Table -->
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem;">
-            <div style="padding:0.875rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
-                <span style="font-size:0.875rem;font-weight:700;">&#128101; All Profiles (Live from DB)</span>
-                <div style="display:flex;gap:0.5rem;align-items:center;">
-                    <input type="text" id="dbgProfileSearch" placeholder="Filter..." class="form-input" style="padding:0.35rem 0.6rem;font-size:0.78rem;width:140px;" oninput="dbgFilterProfiles()">
-                    <button class="btn btn-secondary" style="padding:0.3rem 0.75rem;font-size:0.78rem;" onclick="dbgLoadProfiles()">&#8635; Reload</button>
-                </div>
-            </div>
-            <div style="overflow-x:auto;max-height:380px;overflow-y:auto;">
-                <table style="width:100%;border-collapse:collapse;">
-                    <thead><tr id="dbgProfilesHead">
-                        <th style="text-align:left;padding:0.5rem 0.875rem;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-elevated);white-space:nowrap;">Username</th>
-                        <th style="text-align:left;padding:0.5rem 0.875rem;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-elevated);white-space:nowrap;">Email (profiles table)</th>
-                        <th style="text-align:left;padding:0.5rem 0.875rem;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-elevated);white-space:nowrap;">Role</th>
-                        <th style="text-align:left;padding:0.5rem 0.875rem;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-elevated);white-space:nowrap;">Approved</th>
-                        <th style="text-align:left;padding:0.5rem 0.875rem;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-elevated);white-space:nowrap;">Email Missing?</th>
-                        <th style="text-align:left;padding:0.5rem 0.875rem;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);background:var(--bg-elevated);white-space:nowrap;">Quick Actions</th>
-                    </tr></thead>
-                    <tbody id="dbgProfilesBody">
-                        <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.85rem;">Click "Run Full Diagnostic" or "Reload" to load profiles</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Investor Health -->
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
-            <div style="padding:0.875rem 1.25rem;border-bottom:1px solid var(--border);">
-                <span style="font-size:0.875rem;font-weight:700;">&#128188; Investor Portal Health</span>
-            </div>
-            <div id="dbgInvestorHealth" style="padding:1.25rem;color:var(--text-muted);font-size:0.85rem;">
-                Run diagnostic to check investor portal...
-            </div>
-        </div>
+  <!-- Top bar -->
+  <div style="position:sticky;top:0;z-index:10;background:#080c18;border-bottom:1px solid rgba(99,179,237,0.15);padding:0.875rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+    <div style="display:flex;align-items:center;gap:0.875rem;">
+      <span style="font-size:1.6rem;filter:drop-shadow(0 0 10px rgba(59,126,248,0.7));">🔧</span>
+      <div>
+        <div style="font-size:1.1rem;font-weight:700;letter-spacing:-0.01em;">Prop Farm Pro — Full Debug Panel</div>
+        <div style="font-size:0.72rem;color:#7a8bb5;">Every feature tested in real-time. Admin eyes only.</div>
+      </div>
     </div>
-</div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button onclick="dbgRunAll()" id="dbgRunAllBtn" style="background:#3b7ef8;color:#fff;border:none;border-radius:8px;padding:0.5rem 1.1rem;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:0.4rem;">
+        <span id="dbgRunAllSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;"></span>
+        ▶ Run All Tests
+      </button>
+      <button onclick="dbgClearAll()" style="background:transparent;color:#7a8bb5;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.5rem 0.875rem;font-size:0.82rem;cursor:pointer;">🗑 Clear</button>
+      <button onclick="closeDebugPanel()" style="background:transparent;color:#7a8bb5;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.5rem 0.875rem;font-size:0.82rem;cursor:pointer;">✕ Close</button>
+    </div>
+  </div>
+
+  <div style="max-width:1200px;margin:0 auto;padding:1.5rem;">
+
+    <!-- Tab bar -->
+    <div id="dbgTabs" style="display:flex;gap:0.25rem;margin-bottom:1.5rem;background:#0f1629;border-radius:10px;padding:0.3rem;flex-wrap:wrap;">
+      <button class="dbg-tab active" data-tab="overview"  onclick="dbgShowTab('overview')">📊 Overview</button>
+      <button class="dbg-tab" data-tab="auth"      onclick="dbgShowTab('auth')">🔐 Auth</button>
+      <button class="dbg-tab" data-tab="users"     onclick="dbgShowTab('users')">👥 Users</button>
+      <button class="dbg-tab" data-tab="trades"    onclick="dbgShowTab('trades')">📈 Trades</button>
+      <button class="dbg-tab" data-tab="investor"  onclick="dbgShowTab('investor')">💼 Investor</button>
+      <button class="dbg-tab" data-tab="database"  onclick="dbgShowTab('database')">🗄 Database</button>
+      <button class="dbg-tab" data-tab="fixes"     onclick="dbgShowTab('fixes')">⚡ Quick Fixes</button>
+      <button class="dbg-tab" data-tab="log"       onclick="dbgShowTab('log')">📋 Full Log</button>
+    </div>
+
+    <!-- ── OVERVIEW TAB ── -->
+    <div id="dbgTab_overview" class="dbg-tab-panel">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:0.75rem;margin-bottom:1.25rem;">
+        <div class="dsc" id="dsc_auth"><div class="dsc-icon">🔐</div><div class="dsc-lbl">Auth</div><div class="dsc-val" id="dscv_auth">—</div></div>
+        <div class="dsc" id="dsc_role"><div class="dsc-icon">🏷</div><div class="dsc-lbl">My Role</div><div class="dsc-val" id="dscv_role">—</div></div>
+        <div class="dsc" id="dsc_profile"><div class="dsc-icon">👤</div><div class="dsc-lbl">Profile</div><div class="dsc-val" id="dscv_profile">—</div></div>
+        <div class="dsc" id="dsc_db"><div class="dsc-icon">🗄</div><div class="dsc-lbl">DB</div><div class="dsc-val" id="dscv_db">—</div></div>
+        <div class="dsc" id="dsc_users"><div class="dsc-icon">👥</div><div class="dsc-lbl">Total Users</div><div class="dsc-val" id="dscv_users">—</div></div>
+        <div class="dsc" id="dsc_trades"><div class="dsc-icon">📈</div><div class="dsc-lbl">Total Trades</div><div class="dsc-val" id="dscv_trades">—</div></div>
+        <div class="dsc" id="dsc_investors"><div class="dsc-icon">💼</div><div class="dsc-lbl">Investors</div><div class="dsc-val" id="dscv_investors">—</div></div>
+        <div class="dsc" id="dsc_issues"><div class="dsc-icon">⚠</div><div class="dsc-lbl">Issues Found</div><div class="dsc-val" id="dscv_issues">—</div></div>
+      </div>
+      <div style="background:#0f1629;border:1px solid rgba(99,179,237,0.12);border-radius:10px;padding:1.25rem;">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a8bb5;margin-bottom:0.875rem;">Test Results Summary</div>
+        <div id="dbgOverviewResults" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;line-height:2;color:#7a8bb5;">Click "Run All Tests" to see results...</div>
+      </div>
+    </div>
+
+    <!-- ── AUTH TAB ── -->
+    <div id="dbgTab_auth" class="dbg-tab-panel" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div class="dbg-box">
+          <div class="dbg-box-title">🔐 Current Session</div>
+          <div id="dbgAuthInfo" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;line-height:1.9;color:#7a8bb5;">Run tests to see session info...</div>
+        </div>
+        <div class="dbg-box">
+          <div class="dbg-box-title">👤 Current Profile (DB)</div>
+          <div id="dbgProfileInfo" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;line-height:1.9;color:#7a8bb5;">Run tests to see profile...</div>
+        </div>
+      </div>
+      <div class="dbg-box">
+        <div class="dbg-box-title">🧪 Auth Flow Tests</div>
+        <div id="dbgAuthTests" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;line-height:1.9;color:#7a8bb5;">Run tests...</div>
+      </div>
+    </div>
+
+    <!-- ── USERS TAB ── -->
+    <div id="dbgTab_users" class="dbg-tab-panel" style="display:none;">
+      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="dbgUserFilter" placeholder="Filter users..." oninput="dbgFilterUsers()" style="background:#0f1629;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.45rem 0.75rem;color:#e8f0ff;font-size:0.82rem;width:200px;">
+        <select id="dbgRoleFilter" onchange="dbgFilterUsers()" style="background:#0f1629;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.45rem 0.75rem;color:#e8f0ff;font-size:0.82rem;">
+          <option value="">All roles</option>
+          <option value="admin">admin</option>
+          <option value="investor">investor</option>
+          <option value="user">user</option>
+        </select>
+        <select id="dbgApprovedFilter" onchange="dbgFilterUsers()" style="background:#0f1629;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.45rem 0.75rem;color:#e8f0ff;font-size:0.82rem;">
+          <option value="">All approval status</option>
+          <option value="approved">approved</option>
+          <option value="pending">pending</option>
+        </select>
+        <button onclick="dbgLoadUsers()" style="background:#1a2035;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.45rem 0.875rem;color:#e8f0ff;font-size:0.82rem;cursor:pointer;">⟳ Reload</button>
+        <span id="dbgUserCount" style="color:#7a8bb5;font-size:0.78rem;margin-left:0.5rem;"></span>
+      </div>
+      <div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(99,179,237,0.12);">
+        <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+          <thead><tr style="background:#0f1629;">
+            <th class="dth">Username</th><th class="dth">Email</th><th class="dth">Role</th>
+            <th class="dth">Approved</th><th class="dth">Email ✓</th><th class="dth">Trades</th>
+            <th class="dth">Onboarded</th><th class="dth">Created</th><th class="dth">Actions</th>
+          </tr></thead>
+          <tbody id="dbgUsersBody"><tr><td colspan="9" style="text-align:center;padding:2rem;color:#7a8bb5;">Click Reload or Run All Tests</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TRADES TAB ── -->
+    <div id="dbgTab_trades" class="dbg-tab-panel" style="display:none;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;margin-bottom:1rem;">
+        <div class="dbg-box" style="text-align:center;"><div style="font-size:1.5rem;">📈</div><div class="dsc-lbl">Total Trades</div><div class="dsc-val" id="dbgTotalTrades" style="font-size:1.4rem;">—</div></div>
+        <div class="dbg-box" style="text-align:center;"><div style="font-size:1.5rem;">💰</div><div class="dsc-lbl">Total P&L</div><div class="dsc-val" id="dbgTotalPnl" style="font-size:1.4rem;">—</div></div>
+        <div class="dbg-box" style="text-align:center;"><div style="font-size:1.5rem;">📅</div><div class="dsc-lbl">Payouts</div><div class="dsc-val" id="dbgTotalPayouts" style="font-size:1.4rem;">—</div></div>
+        <div class="dbg-box" style="text-align:center;"><div style="font-size:1.5rem;">👤</div><div class="dsc-lbl">Your Trades</div><div class="dsc-val" id="dbgMyTrades" style="font-size:1.4rem;">—</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div class="dbg-box">
+          <div class="dbg-box-title">🧪 Trade Write Test</div>
+          <div style="font-size:0.78rem;color:#7a8bb5;margin-bottom:0.75rem;">Inserts a test trade, reads it back, then deletes it. Confirms insert + select + delete work.</div>
+          <button onclick="dbgTestTradeWrite()" style="background:#1a2035;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.4rem 0.875rem;color:#e8f0ff;font-size:0.8rem;cursor:pointer;">▶ Run Trade Write Test</button>
+          <div id="dbgTradeWriteResult" style="margin-top:0.75rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;"></div>
+        </div>
+        <div class="dbg-box">
+          <div class="dbg-box-title">🧪 Payout Write Test</div>
+          <div style="font-size:0.78rem;color:#7a8bb5;margin-bottom:0.75rem;">Inserts a test payout, reads it back, then deletes it. Confirms payout flow works end-to-end.</div>
+          <button onclick="dbgTestPayoutWrite()" style="background:#1a2035;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.4rem 0.875rem;color:#e8f0ff;font-size:0.8rem;cursor:pointer;">▶ Run Payout Write Test</button>
+          <div id="dbgPayoutWriteResult" style="margin-top:0.75rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;"></div>
+        </div>
+      </div>
+      <div class="dbg-box">
+        <div class="dbg-box-title">📊 Trades Per User (top 20)</div>
+        <div id="dbgTradesPerUser" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#7a8bb5;">Run tests to load...</div>
+      </div>
+    </div>
+
+    <!-- ── INVESTOR TAB ── -->
+    <div id="dbgTab_investor" class="dbg-tab-panel" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div class="dbg-box">
+          <div class="dbg-box-title">💼 Investor Portal Write Test</div>
+          <div style="font-size:0.78rem;color:#7a8bb5;margin-bottom:0.75rem;">Inserts a test investor record, reads it, deletes it. Confirms RLS allows admin to write to investor_portal_investors.</div>
+          <button onclick="dbgTestInvestorWrite()" style="background:#1a2035;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.4rem 0.875rem;color:#e8f0ff;font-size:0.8rem;cursor:pointer;">▶ Run Investor Write Test</button>
+          <div id="dbgInvestorWriteResult" style="margin-top:0.75rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;"></div>
+        </div>
+        <div class="dbg-box">
+          <div class="dbg-box-title">📨 Mode Request Write Test</div>
+          <div style="font-size:0.78rem;color:#7a8bb5;margin-bottom:0.75rem;">Tests that investor_mode_requests table accepts inserts and updates (approve/deny flow).</div>
+          <button onclick="dbgTestModeRequestWrite()" style="background:#1a2035;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.4rem 0.875rem;color:#e8f0ff;font-size:0.8rem;cursor:pointer;">▶ Run Mode Request Test</button>
+          <div id="dbgModeReqResult" style="margin-top:0.75rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;"></div>
+        </div>
+      </div>
+      <div class="dbg-box" style="margin-bottom:1rem;">
+        <div class="dbg-box-title">💼 All Investor Records</div>
+        <div id="dbgInvestorRecords" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#7a8bb5;overflow-x:auto;">Run tests to load...</div>
+      </div>
+      <div class="dbg-box">
+        <div class="dbg-box-title">⚠ Role / Portal Mismatch Check</div>
+        <div id="dbgInvestorMismatch" style="font-size:0.82rem;color:#7a8bb5;">Run tests to check...</div>
+      </div>
+    </div>
+
+    <!-- ── DATABASE TAB ── -->
+    <div id="dbgTab_database" class="dbg-tab-panel" style="display:none;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-bottom:1rem;">
+        <div class="dbg-box">
+          <div class="dbg-box-title">🗄 Tables & RLS</div>
+          <div id="dbgTablesInfo" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.9;color:#7a8bb5;">Run tests...</div>
+        </div>
+        <div class="dbg-box">
+          <div class="dbg-box-title">🔑 Supabase Config</div>
+          <div id="dbgConfigInfo" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.9;color:#7a8bb5;">Run tests...</div>
+        </div>
+      </div>
+      <div class="dbg-box">
+        <div class="dbg-box-title">🧪 RLS Policy Tests (read/write per table)</div>
+        <div id="dbgRLSTests" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.9;color:#7a8bb5;">Run tests...</div>
+      </div>
+    </div>
+
+    <!-- ── QUICK FIXES TAB ── -->
+    <div id="dbgTab_fixes" class="dbg-tab-panel" style="display:none;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;">
+
+        <div class="dbg-box">
+          <div class="dbg-box-title">🔑 Set User Role</div>
+          <input type="text" id="dbgFixSearch" placeholder="Email or username..." oninput="dbgFixSearchUsers()" style="width:100%;background:#0a0e1a;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.45rem 0.75rem;color:#e8f0ff;font-size:0.82rem;margin-bottom:0.35rem;">
+          <div id="dbgFixDropdown" style="display:none;background:#1a2035;border:1px solid rgba(99,179,237,0.25);border-radius:8px;max-height:140px;overflow-y:auto;margin-bottom:0.5rem;"></div>
+          <div id="dbgFixSelected" style="padding:0.4rem 0.75rem;background:#0a0e1a;border:1px solid rgba(99,179,237,0.12);border-radius:8px;font-size:0.78rem;color:#7a8bb5;margin-bottom:0.5rem;">No user selected</div>
+          <select id="dbgFixRoleSelect" style="width:100%;background:#0a0e1a;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.45rem 0.75rem;color:#e8f0ff;font-size:0.82rem;margin-bottom:0.5rem;">
+            <option value="user">👤 user</option>
+            <option value="investor">💼 investor</option>
+            <option value="admin">👑 admin</option>
+          </select>
+          <button onclick="dbgApplyRoleFix()" style="width:100%;background:#3b7ef8;color:#fff;border:none;border-radius:8px;padding:0.5rem;font-size:0.82rem;font-weight:700;cursor:pointer;">Apply Role</button>
+          <div id="dbgFixRoleResult" style="margin-top:0.5rem;font-size:0.75rem;"></div>
+        </div>
+
+        <div class="dbg-box">
+          <div class="dbg-box-title">✉️ Sync Missing Emails</div>
+          <div style="font-size:0.78rem;color:#7a8bb5;margin-bottom:0.75rem;line-height:1.5;">Copies emails from auth session cache into profiles table. Fixes role lookups that fail because email column is null. This is the most common cause of "can't add investor".</div>
+          <button onclick="dbgSyncEmails()" style="width:100%;background:#22d3a0;color:#000;border:none;border-radius:8px;padding:0.5rem;font-size:0.82rem;font-weight:700;cursor:pointer;">Sync All Emails Now</button>
+          <div id="dbgSyncEmailResult" style="margin-top:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;"></div>
+        </div>
+
+        <div class="dbg-box">
+          <div class="dbg-box-title">✅ Approve All Pending</div>
+          <div style="font-size:0.78rem;color:#7a8bb5;margin-bottom:0.75rem;line-height:1.5;">Sets approved=true for every user currently stuck in pending. Use this if new users can't get in.</div>
+          <button onclick="dbgApproveAll()" style="width:100%;background:#f5a623;color:#000;border:none;border-radius:8px;padding:0.5rem;font-size:0.82rem;font-weight:700;cursor:pointer;">Approve All Pending</button>
+          <div id="dbgApproveResult" style="margin-top:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;"></div>
+        </div>
+
+        <div class="dbg-box">
+          <div class="dbg-box-title">👁 Inspect Any User</div>
+          <input type="text" id="dbgInspectInput" placeholder="Email or username..." style="width:100%;background:#0a0e1a;border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:0.45rem 0.75rem;color:#e8f0ff;font-size:0.82rem;margin-bottom:0.5rem;">
+          <button onclick="dbgInspectUser()" style="width:100%;background:#1a2035;border:1px solid rgba(99,179,237,0.25);border-radius:8px;padding:0.5rem;font-size:0.82rem;color:#e8f0ff;cursor:pointer;">Inspect</button>
+          <div id="dbgInspectResult" style="margin-top:0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;color:#7a8bb5;"></div>
+        </div>
+
+        <div class="dbg-box">
+          <div class="dbg-box-title">🔄 Refresh My Session</div>
+          <div style="font-size:0.78rem;color:#7a8bb5;margin-bottom:0.75rem;line-height:1.5;">Reloads your profile from DB and refreshes the nav, role badge, and all views without a page reload.</div>
+          <button onclick="dbgRefreshMySession()" style="width:100%;background:#1a2035;border:1px solid rgba(99,179,237,0.25);border-radius:8px;padding:0.5rem;font-size:0.82rem;color:#e8f0ff;cursor:pointer;">Refresh Session</button>
+          <div id="dbgRefreshResult" style="margin-top:0.5rem;font-size:0.75rem;"></div>
+        </div>
+
+        <div class="dbg-box">
+          <div class="dbg-box-title">🗑 Delete Test Data</div>
+          <div style="font-size:0.78rem;color:#7a8bb5;margin-bottom:0.75rem;line-height:1.5;">Removes all test trades/records created by debug write tests. Safe — only deletes rows with debug marker.</div>
+          <button onclick="dbgCleanTestData()" style="width:100%;background:#1a2035;border:1px solid rgba(240,92,106,0.3);border-radius:8px;padding:0.5rem;font-size:0.82rem;color:#f05c6a;cursor:pointer;">Clean Test Data</button>
+          <div id="dbgCleanResult" style="margin-top:0.5rem;font-size:0.75rem;"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── FULL LOG TAB ── -->
+    <div id="dbgTab_log" class="dbg-tab-panel" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+        <div style="display:flex;gap:0.35rem;">
+          <button onclick="dbgLogFilter('all')"  class="dbg-log-filter active" data-f="all">All</button>
+          <button onclick="dbgLogFilter('ok')"   class="dbg-log-filter" data-f="ok">✓ Pass</button>
+          <button onclick="dbgLogFilter('err')"  class="dbg-log-filter" data-f="err">✗ Fail</button>
+          <button onclick="dbgLogFilter('warn')" class="dbg-log-filter" data-f="warn">⚠ Warn</button>
+        </div>
+        <span id="dbgLogCountEl" style="color:#7a8bb5;font-size:0.75rem;font-family:'JetBrains Mono',monospace;"></span>
+      </div>
+      <div id="dbgFullLog" style="background:#0a0e1a;border:1px solid rgba(99,179,237,0.12);border-radius:10px;padding:1rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.9;max-height:65vh;overflow-y:auto;">
+        <span style="color:#3d4f78;">Run All Tests to populate the log...</span>
+      </div>
+    </div>
+
+  </div><!-- /max-width -->
+</div><!-- /debugPanelOverlay -->
 
 <style>
-.dbg-status-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.875rem;text-align:center;transition:border-color 0.2s; }
-.dbg-card-label { font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin:0.25rem 0; }
-.dbg-card-val { font-family:"JetBrains Mono",monospace;font-size:0.82rem;font-weight:700; }
-.dbg-status-card.ok  { border-color:rgba(34,211,160,0.4);background:rgba(34,211,160,0.04); }
-.dbg-status-card.warn{ border-color:rgba(245,166,35,0.4);background:rgba(245,166,35,0.04); }
-.dbg-status-card.err { border-color:rgba(240,92,106,0.4);background:rgba(240,92,106,0.04); }
+@keyframes spin { to { transform:rotate(360deg); } }
+.dbg-tab { background:transparent; border:none; border-radius:8px; padding:0.4rem 0.875rem; font-size:0.8rem; color:#7a8bb5; cursor:pointer; font-family:'Space Grotesk',sans-serif; font-weight:600; white-space:nowrap; transition:all 0.15s; }
+.dbg-tab:hover { background:#1a2035; color:#e8f0ff; }
+.dbg-tab.active { background:#3b7ef8; color:#fff; }
+.dbg-tab-panel { }
+.dbg-box { background:#0f1629; border:1px solid rgba(99,179,237,0.12); border-radius:10px; padding:1.1rem 1.25rem; }
+.dbg-box-title { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#7a8bb5; margin-bottom:0.875rem; }
+.dsc { background:#0f1629; border:1px solid rgba(99,179,237,0.12); border-radius:10px; padding:0.875rem; text-align:center; transition:border-color 0.2s; }
+.dsc-icon { font-size:1.3rem; margin-bottom:0.2rem; }
+.dsc-lbl { font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#7a8bb5; margin-bottom:0.2rem; }
+.dsc-val { font-family:'JetBrains Mono',monospace; font-size:0.9rem; font-weight:700; color:#e8f0ff; }
+.dsc.ok  { border-color:rgba(34,211,160,0.4); background:rgba(34,211,160,0.03); }
+.dsc.warn{ border-color:rgba(245,166,35,0.4);  background:rgba(245,166,35,0.03); }
+.dsc.err { border-color:rgba(240,92,106,0.4);  background:rgba(240,92,106,0.03); }
+.dth { text-align:left; padding:0.5rem 0.875rem; font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#7a8bb5; border-bottom:1px solid rgba(99,179,237,0.12); white-space:nowrap; }
+.dtd { padding:0.45rem 0.875rem; font-size:0.78rem; border-bottom:1px solid rgba(99,179,237,0.06); }
+.dl-ok   { color:#22d3a0; }
+.dl-err  { color:#f05c6a; }
+.dl-warn { color:#f5a623; }
+.dl-info { color:#7ab4ff; }
+.dl-head { color:#e8f0ff; font-weight:700; border-top:1px solid rgba(99,179,237,0.12); padding-top:0.2rem; margin-top:0.3rem; }
+.dl-dim  { color:#3d4f78; }
+.dbg-log-filter { background:#1a2035; border:1px solid rgba(99,179,237,0.15); border-radius:6px; padding:0.25rem 0.6rem; font-size:0.72rem; color:#7a8bb5; cursor:pointer; font-family:'Space Grotesk',sans-serif; }
+.dbg-log-filter.active { background:#3b7ef8; color:#fff; border-color:#3b7ef8; }
 </style>
 
 
@@ -4994,444 +5149,812 @@ async function authDoSignup() { await handleSignup({ preventDefault: ()=>{} }); 
 async function authDoReset() { await handlePasswordReset({ preventDefault: ()=>{} }); }
 async function authDoGoogle() { await handleGoogleAuth(); }
 
-// ═══════════════════════════════════════════════════════
-//  BUILT-IN DEBUG PANEL
-// ═══════════════════════════════════════════════════════
 
-function openDebugPanel() {
-    document.getElementById('debugPanelOverlay').style.display = 'block';
-    document.body.style.overflow = 'hidden';
-}
-function closeDebugPanel() {
-    document.getElementById('debugPanelOverlay').style.display = 'none';
-    document.body.style.overflow = '';
+
+// ═══════════════════════════════════════════════════════
+//  FULL DEBUG PANEL — STATE & HELPERS
+// ═══════════════════════════════════════════════════════
+let _dbgAllProfiles   = [];
+let _dbgAllTrades     = [];
+let _dbgAllPayouts    = [];
+let _dbgAllInvestors  = [];
+let _dbgAllModeReqs   = [];
+let _dbgLogs          = [];
+let _dbgIssues        = 0;
+let _dbgFixSelectedId = '';
+let _dbgFixSelectedEmail = '';
+let _dbgFixSelectedName  = '';
+let _dbgLogCurrentFilter = 'all';
+
+function openDebugPanel()  { document.getElementById('debugPanelOverlay').style.display='block'; document.body.style.overflow='hidden'; }
+function closeDebugPanel() { document.getElementById('debugPanelOverlay').style.display='none'; document.body.style.overflow=''; }
+
+function dbgShowTab(tab) {
+    document.querySelectorAll('.dbg-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    document.querySelectorAll('.dbg-tab-panel').forEach(p => p.style.display = p.id === 'dbgTab_' + tab ? '' : 'none');
 }
 
-// ── Log helpers ──
-let dbgLines = [];
 function dbgLog(msg, type) {
-    // type: ok | warn | err | info | head | dim
-    dbgLines.push({ msg, type: type || 'dim' });
-    renderDbgLog();
+    _dbgLogs.push({ msg: String(msg), type: type || 'dim', ts: new Date().toLocaleTimeString() });
+    if (type === 'err' || type === 'warn') _dbgIssues++;
+    dbgRenderLog();
 }
-function renderDbgLog() {
-    const el = document.getElementById('dbgLog');
+function dbgRenderLog() {
+    const el = document.getElementById('dbgFullLog');
+    const cnt = document.getElementById('dbgLogCountEl');
     if (!el) return;
-    el.innerHTML = dbgLines.map(l =>
-        `<div class="dbg-line-${l.type}" style="${l.type==='head'?'margin-top:0.5rem;':''}${l.type==='err'?'background:rgba(240,92,106,0.06);padding:0 4px;border-radius:3px;':''}">${escHtml(l.msg)}</div>`
-    ).join('');
+    const filter = _dbgLogCurrentFilter;
+    const visible = filter === 'all' ? _dbgLogs : _dbgLogs.filter(l => l.type === filter);
+    el.innerHTML = visible.length ? visible.map(l =>
+        `<div class="dl-${l.type}" style="${l.type==='err'?'background:rgba(240,92,106,0.06);padding:0 4px;border-radius:3px;':''}">`+
+        `<span style="color:#3d4f78;margin-right:0.5rem;">[${l.ts}]</span>${esc(l.msg)}</div>`
+    ).join('') : '<span style="color:#3d4f78;">No entries for this filter.</span>';
     el.scrollTop = el.scrollHeight;
-    const cnt = document.getElementById('dbgLogCount');
-    if (cnt) cnt.textContent = dbgLines.length + ' entries';
+    if (cnt) cnt.textContent = visible.length + ' / ' + _dbgLogs.length + ' entries';
 }
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function dbgSetCard(id, val, state) {
-    const card = document.getElementById('dbgCard_' + id);
-    const valEl = document.getElementById('dbgVal_' + id);
-    if (card) { card.className = 'dbg-status-card ' + (state||''); }
-    if (valEl) { valEl.textContent = val; valEl.style.color = state==='ok'?'var(--success)':state==='err'?'var(--danger)':state==='warn'?'var(--warning)':'var(--text)'; }
-}
-function dbgClearResults() {
-    dbgLines = [];
-    renderDbgLog();
-    document.getElementById('dbgLog').innerHTML = '<span style="color:var(--text-dim);">Cleared. Run diagnostic to see results...</span>';
-    ['auth','role','email','approved','supabase','investors'].forEach(id => dbgSetCard(id,'—',''));
-    document.getElementById('dbgInvestorHealth').innerHTML = 'Run diagnostic to check investor portal...';
-    document.getElementById('dbgLogCount').textContent = '';
+function dbgLogFilter(f) {
+    _dbgLogCurrentFilter = f;
+    document.querySelectorAll('.dbg-log-filter').forEach(b => b.classList.toggle('active', b.dataset.f === f));
+    dbgRenderLog();
 }
 
-// ── FULL DIAGNOSTIC ──
-async function runFullDiagnostic() {
-    dbgClearResults();
-    const btn = document.getElementById('dbgRunBtn');
-    const spin = document.getElementById('dbgRunSpinner');
-    if (btn) btn.disabled = true;
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function dCard(id, val, state) {
+    const el = document.getElementById('dsc_'+id); const v = document.getElementById('dscv_'+id);
+    if (el) { el.className = 'dsc' + (state ? ' '+state : ''); }
+    if (v)  { v.textContent = val; v.style.color = state==='ok'?'#22d3a0':state==='err'?'#f05c6a':state==='warn'?'#f5a623':'#e8f0ff'; }
+}
+function dbgResult(elId, lines) {
+    const el = document.getElementById(elId);
+    if (el) el.innerHTML = lines.map(l => `<div class="dl-${l[1]||'dim'}">${esc(l[0])}</div>`).join('');
+}
+
+function dbgClearAll() {
+    _dbgLogs = []; _dbgIssues = 0; dbgRenderLog();
+    document.getElementById('dbgFullLog').innerHTML = '<span style="color:#3d4f78;">Cleared.</span>';
+    document.getElementById('dbgLogCountEl').textContent = '';
+    ['auth','role','profile','db','users','trades','investors','issues'].forEach(id => dCard(id,'—',''));
+    document.getElementById('dbgOverviewResults').innerHTML = 'Click "Run All Tests" to see results...';
+    ['dbgAuthInfo','dbgProfileInfo','dbgAuthTests','dbgTablesInfo','dbgConfigInfo','dbgRLSTests',
+     'dbgTradesPerUser','dbgInvestorRecords','dbgInvestorMismatch'].forEach(id => {
+        const e = document.getElementById(id); if(e) e.innerHTML = 'Run tests to load...';
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+//  RUN ALL TESTS
+// ═══════════════════════════════════════════════════════
+async function dbgRunAll() {
+    dbgClearAll();
+    _dbgIssues = 0;
+    const btn  = document.getElementById('dbgRunAllBtn');
+    const spin = document.getElementById('dbgRunAllSpinner');
+    if (btn)  btn.disabled = true;
     if (spin) spin.style.display = '';
 
-    dbgLog('═══════════════════════════════════════════', 'dim');
+    dbgLog('════════════════════════════════════════════', 'dim');
     dbgLog('  PROP FARM PRO — FULL DIAGNOSTIC', 'head');
     dbgLog('  ' + new Date().toLocaleString(), 'dim');
-    dbgLog('═══════════════════════════════════════════', 'dim');
+    dbgLog('════════════════════════════════════════════', 'dim');
 
-    // 1. Auth check
-    dbgLog('', 'dim');
-    dbgLog('[ 1 ] AUTH & SESSION', 'head');
-    try {
-        const { data: { session } } = await sbClient.auth.getSession();
-        if (session) {
-            dbgSetCard('auth', 'Active', 'ok');
-            dbgLog('✓ Session active', 'ok');
-            dbgLog('  User ID   : ' + session.user.id, 'dim');
-            dbgLog('  Auth email: ' + (session.user.email || '(none)'), session.user.email ? 'ok' : 'warn');
-            dbgLog('  Provider  : ' + (session.user.app_metadata?.provider || 'unknown'), 'dim');
-            const exp = new Date(session.expires_at * 1000);
-            dbgLog('  Expires   : ' + exp.toLocaleString(), 'dim');
-        } else {
-            dbgSetCard('auth', 'No Session', 'err');
-            dbgLog('✗ No active session found', 'err');
-        }
-    } catch(e) {
-        dbgSetCard('auth', 'Error', 'err');
-        dbgLog('✗ Session check error: ' + e.message, 'err');
-    }
+    await dbgTestAuth();
+    await dbgTestDatabase();
+    await dbgLoadAllData();
+    await dbgTestUsers();
+    await dbgTestTrades();
+    await dbgTestInvestorData();
+    await dbgTestRLSPolicies();
 
-    // 2. Profile check
-    dbgLog('', 'dim');
-    dbgLog('[ 2 ] PROFILE (in-memory)', 'head');
-    if (currentProfile) {
-        const role = currentProfile.role || 'MISSING';
-        dbgSetCard('role', role, role === 'admin' ? 'ok' : role === 'investor' ? 'warn' : 'ok');
-        dbgLog('✓ Profile loaded', 'ok');
-        dbgLog('  Username : ' + (currentProfile.username || '—'), 'dim');
-        dbgLog('  Role     : ' + role, role === 'admin' || role === 'investor' ? 'ok' : 'dim');
-        dbgLog('  Approved : ' + currentProfile.approved, currentProfile.approved ? 'ok' : 'err');
-        dbgLog('  Email    : ' + (currentProfile.email || '⚠ MISSING — role lookups may fail'), currentProfile.email ? 'ok' : 'warn');
-        dbgSetCard('email', currentProfile.email ? 'Present' : '⚠ Missing', currentProfile.email ? 'ok' : 'warn');
-        dbgSetCard('approved', currentProfile.approved ? 'Yes' : 'No', currentProfile.approved ? 'ok' : 'err');
-    } else {
-        dbgSetCard('role', 'No Profile', 'err');
-        dbgLog('✗ currentProfile is null', 'err');
-    }
-
-    // 3. Live DB profile
-    dbgLog('', 'dim');
-    dbgLog('[ 3 ] PROFILE (live from Supabase)', 'head');
-    try {
-        const { data: lp, error: lpe } = await sbClient.from('profiles').select('*').eq('id', currentUser.id).single();
-        if (lpe) {
-            dbgLog('✗ DB profile fetch error: ' + lpe.message, 'err');
-            dbgSetCard('supabase', 'Error', 'err');
-        } else {
-            dbgSetCard('supabase', 'Connected', 'ok');
-            dbgLog('✓ DB profile fetched', 'ok');
-            dbgLog('  id       : ' + lp.id, 'dim');
-            dbgLog('  username : ' + (lp.username || '—'), 'dim');
-            dbgLog('  role     : ' + (lp.role || '—'), lp.role ? 'ok' : 'warn');
-            dbgLog('  email    : ' + (lp.email || '⚠ MISSING'), lp.email ? 'ok' : 'warn');
-            dbgLog('  approved : ' + lp.approved, lp.approved ? 'ok' : 'err');
-            dbgLog('  onboarded: ' + lp.onboarded, 'dim');
-            if (!lp.email) {
-                dbgLog('  → FIX: Click "Sync All Emails" to backfill the email column', 'warn');
-            }
-            if (!lp.role) {
-                dbgLog('  → FIX: No role set — user will be treated as anonymous', 'warn');
-            }
-        }
-    } catch(e) {
-        dbgSetCard('supabase', 'Error', 'err');
-        dbgLog('✗ Supabase error: ' + e.message, 'err');
-    }
-
-    // 4. Sidebar state
-    dbgLog('', 'dim');
-    dbgLog('[ 4 ] SIDEBAR / NAV STATE', 'head');
-    const roleEl = document.getElementById('userRole');
-    const adminNavEl = document.getElementById('adminNavItem');
-    const invNavEl = document.getElementById('investorPortalNavItem');
-    dbgLog('  Role badge text   : "' + (roleEl?.textContent || '—') + '"', 'dim');
-    dbgLog('  Admin nav visible : ' + (adminNavEl?.style.display !== 'none' ? 'YES' : 'NO'), adminNavEl?.style.display !== 'none' ? 'ok' : 'warn');
-    dbgLog('  Investor nav visi : ' + (invNavEl?.style.display !== 'none' ? 'YES' : 'NO'), invNavEl?.style.display !== 'none' ? 'ok' : 'warn');
-
-    // 5. All profiles with email check
-    dbgLog('', 'dim');
-    dbgLog('[ 5 ] ALL PROFILES — EMAIL AUDIT', 'head');
-    await dbgLoadProfiles(true);
-
-    // 6. Investor portal
-    dbgLog('', 'dim');
-    dbgLog('[ 6 ] INVESTOR PORTAL', 'head');
-    await dbgCheckInvestorPortal();
-
-    // 7. Tables exist
-    dbgLog('', 'dim');
-    dbgLog('[ 7 ] DATABASE TABLES CHECK', 'head');
-    const tables = ['profiles','trades','payouts','investor_portal_investors','investor_mode_requests'];
-    for (const tbl of tables) {
-        try {
-            const { error } = await sbClient.from(tbl).select('id').limit(1);
-            if (error) {
-                dbgLog('✗ Table "' + tbl + '": ' + error.message, 'err');
-            } else {
-                dbgLog('✓ Table "' + tbl + '" accessible', 'ok');
-            }
-        } catch(e) {
-            dbgLog('✗ Table "' + tbl + '" error: ' + e.message, 'err');
-        }
-    }
+    // Summary
+    dCard('issues', _dbgIssues === 0 ? 'None ✓' : _dbgIssues + ' found', _dbgIssues === 0 ? 'ok' : 'err');
+    const passCount = _dbgLogs.filter(l => l.type === 'ok').length;
+    const errCount  = _dbgLogs.filter(l => l.type === 'err').length;
+    const warnCount = _dbgLogs.filter(l => l.type === 'warn').length;
+    document.getElementById('dbgOverviewResults').innerHTML =
+        `<div class="dl-ok">✓ ${passCount} checks passed</div>` +
+        (errCount  ? `<div class="dl-err">✗ ${errCount} errors</div>` : '') +
+        (warnCount ? `<div class="dl-warn">⚠ ${warnCount} warnings</div>` : '') +
+        `<div class="dl-dim">── Run individual tabs for details ──</div>`;
 
     dbgLog('', 'dim');
-    dbgLog('═══════════════════════════════════════════', 'dim');
-    dbgLog('  DIAGNOSTIC COMPLETE', 'head');
-    dbgLog('═══════════════════════════════════════════', 'dim');
+    dbgLog('  DIAGNOSTIC COMPLETE — ' + passCount + ' pass, ' + errCount + ' errors, ' + warnCount + ' warnings', errCount > 0 ? 'err' : warnCount > 0 ? 'warn' : 'ok');
 
-    if (btn) btn.disabled = false;
+    if (btn)  btn.disabled = false;
     if (spin) spin.style.display = 'none';
 }
 
-// ── Load all profiles into table ──
-let dbgAllProfiles = [];
-async function dbgLoadProfiles(silent) {
-    const tbody = document.getElementById('dbgProfilesBody');
-    if (!silent) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Loading...</td></tr>';
+// ═══════════════════════════════════════════════════════
+//  1. AUTH TESTS
+// ═══════════════════════════════════════════════════════
+async function dbgTestAuth() {
+    dbgLog('', 'dim');
+    dbgLog('[ AUTH & SESSION ]', 'head');
+    const lines = [];
     try {
-        const { data, error } = await sbClient.from('profiles').select('id,username,email,role,approved,created_at').order('created_at',{ascending:false});
-        if (error) { if (!silent) showAlert('Failed: ' + error.message, 'error'); dbgLog('✗ profiles fetch error: ' + error.message, 'err'); return; }
-        dbgAllProfiles = data || [];
-        const missing = dbgAllProfiles.filter(p => !p.email || p.email.includes('@propfarmpro.app'));
-        if (!silent) {
-            dbgLog('  Total profiles : ' + dbgAllProfiles.length, 'info');
-            dbgLog('  Missing email  : ' + missing.length + (missing.length > 0 ? ' ⚠ run "Sync All Emails"' : ' ✓'), missing.length > 0 ? 'warn' : 'ok');
-        } else {
-            dbgLog('  Profiles loaded: ' + dbgAllProfiles.length + ' | Missing email: ' + missing.length, missing.length > 0 ? 'warn' : 'ok');
-            if (missing.length > 0) dbgLog('  → ' + missing.map(p => p.username||p.id.slice(0,8)).join(', '), 'warn');
+        const { data: { session }, error } = await sbClient.auth.getSession();
+        if (error) { dbgLog('✗ getSession() error: ' + error.message, 'err'); dCard('auth','Error','err'); return; }
+
+        if (!session) {
+            dbgLog('✗ No active session', 'err'); dCard('auth','None','err'); return;
         }
-        renderDbgProfiles(dbgAllProfiles);
+        dCard('auth','Active','ok');
+        dbgLog('✓ Session active', 'ok');
+
+        const u = session.user;
+        const authEmail = u.email || '(none)';
+        const provider = u.app_metadata?.provider || 'email';
+        const expiry = new Date(session.expires_at * 1000);
+        const expiresIn = Math.round((expiry - Date.now()) / 60000);
+
+        dbgLog('  User ID   : ' + u.id, 'dim');
+        dbgLog('  Auth email: ' + authEmail + (u.email ? '' : ' ⚠ MISSING'), u.email ? 'ok' : 'warn');
+        dbgLog('  Provider  : ' + provider, 'info');
+        dbgLog('  Expires   : ' + expiry.toLocaleString() + ' (' + expiresIn + ' min)', expiresIn < 60 ? 'warn' : 'ok');
+
+        lines.push(['User ID: ' + u.id, 'dim']);
+        lines.push(['Auth email: ' + authEmail, u.email ? 'ok' : 'err']);
+        lines.push(['Provider: ' + provider, 'info']);
+        lines.push(['Session expires: ' + expiry.toLocaleString(), expiresIn < 60 ? 'warn' : 'ok']);
+
+        // Profile
+        dbgLog('', 'dim');
+        dbgLog('[ PROFILE (in memory) ]', 'head');
+        if (!currentProfile) {
+            dbgLog('✗ currentProfile is null — profile never loaded', 'err');
+            dCard('role','null','err'); dCard('profile','null','err');
+            lines.push(['currentProfile: null', 'err']);
+        } else {
+            const role = currentProfile.role || 'MISSING';
+            const approved = currentProfile.approved;
+            const emailInProfile = currentProfile.email;
+
+            dCard('role', role, role === 'admin' ? 'ok' : role === 'investor' ? 'warn' : 'ok');
+            dCard('profile', currentProfile.username || u.id.slice(0,8), 'ok');
+
+            dbgLog('✓ Profile loaded', 'ok');
+            dbgLog('  username : ' + (currentProfile.username || '(none)'), 'dim');
+            dbgLog('  role     : ' + role, role === 'user' || role === 'admin' || role === 'investor' ? 'ok' : 'err');
+            dbgLog('  approved : ' + approved, approved ? 'ok' : 'err');
+            dbgLog('  email    : ' + (emailInProfile || '⚠ MISSING — role lookups will fail!'), emailInProfile ? 'ok' : 'warn');
+            dbgLog('  onboarded: ' + currentProfile.onboarded, 'dim');
+
+            if (!emailInProfile) {
+                dbgLog('  → FIX: Go to Quick Fixes tab → Sync Missing Emails', 'warn');
+            }
+            if (!approved && role !== 'admin') {
+                dbgLog('  → FIX: User not approved — go to Quick Fixes → Approve All Pending', 'warn');
+            }
+            lines.push(['role: ' + role, 'info']);
+            lines.push(['email in profile: ' + (emailInProfile || 'MISSING'), emailInProfile ? 'ok' : 'err']);
+            lines.push(['approved: ' + approved, approved ? 'ok' : 'err']);
+        }
+
+        // Nav state
+        dbgLog('', 'dim');
+        dbgLog('[ NAV STATE ]', 'head');
+        const adminNavVis  = document.getElementById('adminNavItem')?.style.display !== 'none';
+        const invNavVis    = document.getElementById('investorNavSection')?.style.display !== 'none';
+        const traderVis    = document.getElementById('traderNavMain')?.style.display !== 'none';
+        const bodyInvestor = document.body.classList.contains('role-investor');
+        dbgLog('  Admin nav  : ' + (adminNavVis ? 'visible' : 'hidden'), 'dim');
+        dbgLog('  Investor nav: ' + (invNavVis ? 'visible' : 'hidden'), 'dim');
+        dbgLog('  Trader nav : ' + (traderVis ? 'visible' : 'hidden'), 'dim');
+        dbgLog('  body.role-investor: ' + bodyInvestor, 'dim');
+        if (currentProfile?.role === 'investor' && traderVis) {
+            dbgLog('  ✗ INVESTOR CAN SEE TRADER NAV — role guard not working', 'err');
+        }
+        if (currentProfile?.role === 'admin' && !adminNavVis) {
+            dbgLog('  ✗ ADMIN NAV HIDDEN for admin user', 'err');
+        }
+
+        dbgResult('dbgAuthInfo', lines);
+        dbgResult('dbgProfileInfo', [
+            ['id: ' + u.id, 'dim'],
+            ['username: ' + (currentProfile?.username||'—'), 'dim'],
+            ['role: ' + (currentProfile?.role||'—'), 'info'],
+            ['email (profile): ' + (currentProfile?.email||'MISSING'), currentProfile?.email ? 'ok' : 'err'],
+            ['approved: ' + (currentProfile?.approved), currentProfile?.approved ? 'ok' : 'err'],
+            ['onboarded: ' + (currentProfile?.onboarded||false), 'dim'],
+            ['account_goal: ' + (currentProfile?.account_goal||'—'), 'dim'],
+        ]);
+        dbgResult('dbgAuthTests', [
+            ['✓ Session active', 'ok'],
+            [u.email ? '✓ Auth email present' : '✗ Auth email missing', u.email ? 'ok' : 'err'],
+            [currentProfile ? '✓ Profile loaded' : '✗ Profile null', currentProfile ? 'ok' : 'err'],
+            [currentProfile?.email ? '✓ Email in profile' : '✗ Email missing from profile (role lookups fail)', currentProfile?.email ? 'ok' : 'err'],
+            [currentProfile?.approved ? '✓ Approved' : '✗ Not approved', currentProfile?.approved ? 'ok' : 'err'],
+            [currentProfile?.role ? '✓ Role set: ' + currentProfile.role : '✗ No role', currentProfile?.role ? 'ok' : 'err'],
+        ]);
     } catch(e) {
-        dbgLog('✗ profiles error: ' + e.message, 'err');
+        dbgLog('✗ Auth test exception: ' + e.message, 'err');
+        dCard('auth','Error','err');
     }
 }
 
-function renderDbgProfiles(profiles) {
-    const tbody = document.getElementById('dbgProfilesBody');
+// ═══════════════════════════════════════════════════════
+//  2. DATABASE TESTS
+// ═══════════════════════════════════════════════════════
+async function dbgTestDatabase() {
+    dbgLog('', 'dim');
+    dbgLog('[ DATABASE & TABLES ]', 'head');
+
+    const url  = document.getElementById('supabaseUrl')?.value  || window._SUPA_URL  || '(not found)';
+    const key  = document.getElementById('supabaseKey')?.value  || window._SUPA_KEY  || '(not found)';
+    const urlOk = url.includes('supabase.co');
+    dbgLog('  URL : ' + (url.length > 40 ? url.slice(0,40)+'...' : url), urlOk ? 'ok' : 'err');
+    dbgLog('  Key : ' + (key.length > 20 ? key.slice(0,20)+'...' : key), key.length > 10 ? 'ok' : 'err');
+    dbgResult('dbgConfigInfo', [
+        ['Supabase URL: ' + (urlOk ? '✓ valid' : '✗ ' + url), urlOk ? 'ok' : 'err'],
+        ['Anon Key: ' + (key.length > 10 ? '✓ present (' + key.length + ' chars)' : '✗ missing/short'), key.length > 10 ? 'ok' : 'err'],
+        ['sbClient: ' + (sbClient ? '✓ initialized' : '✗ null'), sbClient ? 'ok' : 'err'],
+    ]);
+
+    const tables = ['profiles', 'trades', 'payouts', 'investor_portal_investors', 'investor_mode_requests'];
+    const tableLines = [];
+    let dbOk = true;
+
+    for (const tbl of tables) {
+        try {
+            const { data, error } = await sbClient.from(tbl).select('id').limit(1);
+            if (error) {
+                dbgLog('✗ Table "' + tbl + '": ' + error.message, 'err');
+                tableLines.push(['✗ ' + tbl + ' — ' + error.message, 'err']);
+                dbOk = false;
+            } else {
+                dbgLog('✓ Table "' + tbl + '" accessible', 'ok');
+                tableLines.push(['✓ ' + tbl, 'ok']);
+            }
+        } catch(e) {
+            dbgLog('✗ Table "' + tbl + '" error: ' + e.message, 'err');
+            tableLines.push(['✗ ' + tbl + ' — exception: ' + e.message, 'err']);
+            dbOk = false;
+        }
+    }
+    dCard('db', dbOk ? 'Connected' : 'Errors', dbOk ? 'ok' : 'err');
+    dbgResult('dbgTablesInfo', tableLines);
+}
+
+// ═══════════════════════════════════════════════════════
+//  3. LOAD ALL DATA
+// ═══════════════════════════════════════════════════════
+async function dbgLoadAllData() {
+    dbgLog('', 'dim');
+    dbgLog('[ LOADING ALL DATA ]', 'head');
+    try {
+        const [pr, tr, py, iv, mr] = await Promise.all([
+            sbClient.from('profiles').select('*').order('created_at', {ascending:false}),
+            sbClient.from('trades').select('*'),
+            sbClient.from('payouts').select('*'),
+            sbClient.from('investor_portal_investors').select('*'),
+            sbClient.from('investor_mode_requests').select('*'),
+        ]);
+        _dbgAllProfiles  = pr.data || [];
+        _dbgAllTrades    = tr.data || [];
+        _dbgAllPayouts   = py.data || [];
+        _dbgAllInvestors = iv.data || [];
+        _dbgAllModeReqs  = mr.data || [];
+
+        dbgLog('  Profiles : ' + _dbgAllProfiles.length, 'ok');
+        dbgLog('  Trades   : ' + _dbgAllTrades.length, 'ok');
+        dbgLog('  Payouts  : ' + _dbgAllPayouts.length, 'ok');
+        dbgLog('  Investors: ' + _dbgAllInvestors.length, 'ok');
+        dbgLog('  Mode Reqs: ' + _dbgAllModeReqs.length, 'ok');
+
+        dCard('users',     _dbgAllProfiles.length, 'ok');
+        dCard('trades',    _dbgAllTrades.length, 'ok');
+        dCard('investors', _dbgAllInvestors.length, _dbgAllInvestors.length > 0 ? 'ok' : 'warn');
+    } catch(e) {
+        dbgLog('✗ Data load error: ' + e.message, 'err');
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+//  4. USER TESTS
+// ═══════════════════════════════════════════════════════
+async function dbgTestUsers() {
+    dbgLog('', 'dim');
+    dbgLog('[ USER AUDIT ]', 'head');
+    const missingEmail    = _dbgAllProfiles.filter(p => !p.email || p.email.includes('@propfarmpro.app'));
+    const pending         = _dbgAllProfiles.filter(p => !p.approved && p.role !== 'admin');
+    const noRole          = _dbgAllProfiles.filter(p => !p.role);
+    const investors       = _dbgAllProfiles.filter(p => p.role === 'investor');
+    const admins          = _dbgAllProfiles.filter(p => p.role === 'admin');
+
+    dbgLog('  Total users      : ' + _dbgAllProfiles.length, 'ok');
+    dbgLog('  Admins           : ' + admins.length, admins.length > 0 ? 'ok' : 'warn');
+    dbgLog('  Investors        : ' + investors.length, 'info');
+    dbgLog('  Pending approval : ' + pending.length, pending.length > 0 ? 'warn' : 'ok');
+    dbgLog('  Missing email    : ' + missingEmail.length + (missingEmail.length > 0 ? ' ← RUN SYNC EMAILS FIX' : ''), missingEmail.length > 0 ? 'warn' : 'ok');
+    dbgLog('  No role set      : ' + noRole.length, noRole.length > 0 ? 'warn' : 'ok');
+
+    if (admins.length === 0) dbgLog('  ⚠ NO ADMIN FOUND — go to Quick Fixes and set your role to admin', 'err');
+    if (missingEmail.length > 0) dbgLog('  → ' + missingEmail.map(p=>p.username||p.id.slice(0,8)).join(', '), 'warn');
+
+    dbgRenderUsersTable(_dbgAllProfiles);
+}
+
+function dbgRenderUsersTable(profiles) {
+    const tbody = document.getElementById('dbgUsersBody');
     if (!tbody) return;
-    if (!profiles.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted);">No profiles found</td></tr>'; return; }
+    const tradeCounts = {};
+    _dbgAllTrades.forEach(t => { tradeCounts[t.user_id] = (tradeCounts[t.user_id]||0) + 1; });
+
+    if (!profiles.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:#7a8bb5;">No profiles found</td></tr>';
+        return;
+    }
+
     tbody.innerHTML = profiles.map(p => {
-        const emailMissing = !p.email || p.email.includes('@propfarmpro.app');
-        const roleCls = p.role === 'admin' ? 'color:var(--gold)' : p.role === 'investor' ? 'color:var(--purple)' : 'color:var(--text-muted)';
-        return `<tr style="${emailMissing ? 'background:rgba(245,166,35,0.04);' : ''}">
-            <td style="padding:0.5rem 0.875rem;font-size:0.82rem;"><strong>${p.username || '—'}</strong></td>
-            <td style="padding:0.5rem 0.875rem;font-size:0.78rem;font-family:'JetBrains Mono',monospace;color:${emailMissing ? 'var(--warning)' : 'var(--text-muted)'};">${p.email || '⚠ missing'}</td>
-            <td style="padding:0.5rem 0.875rem;font-size:0.78rem;${roleCls};">${p.role || 'user'}</td>
-            <td style="padding:0.5rem 0.875rem;font-size:0.78rem;color:${p.approved ? 'var(--success)' : 'var(--danger)'};">${p.approved ? '✓ Yes' : '✗ No'}</td>
-            <td style="padding:0.5rem 0.875rem;font-size:0.78rem;">${emailMissing ? '<span style="color:var(--warning);font-size:0.72rem;">⚠ Needs sync</span>' : '<span style="color:var(--success);font-size:0.72rem;">✓ OK</span>'}</td>
-            <td style="padding:0.5rem 0.875rem;">
-                <div style="display:flex;gap:0.25rem;flex-wrap:wrap;">
-                    <button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.7rem;" onclick="dbgQuickRole('${p.id}','investor','${p.email||''}','${p.username||''}')">💼 Investor</button>
-                    <button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.7rem;" onclick="dbgQuickRole('${p.id}','admin','${p.email||''}','${p.username||''}')">👑 Admin</button>
-                    <button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.7rem;" onclick="dbgQuickRole('${p.id}','user','${p.email||''}','${p.username||''}')">👤 User</button>
-                    ${emailMissing ? `<button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.7rem;border-color:rgba(245,166,35,0.4);color:var(--warning);" onclick="dbgSyncOneEmail('${p.id}')">⚡ Sync Email</button>` : ''}
+        const emailOk = p.email && !p.email.includes('@propfarmpro.app');
+        const roleColor = p.role === 'admin' ? '#ffd166' : p.role === 'investor' ? '#9b6ffa' : '#7a8bb5';
+        const tc = tradeCounts[p.id] || 0;
+        const created = p.created_at ? new Date(p.created_at).toLocaleDateString() : '—';
+        return `<tr style="${!emailOk ? 'background:rgba(245,166,35,0.04);' : ''}">
+            <td class="dtd"><strong>${esc(p.username||'(none)')}</strong></td>
+            <td class="dtd" style="font-size:0.72rem;font-family:'JetBrains Mono',monospace;color:${emailOk?'#7a8bb5':'#f5a623'};">${esc(p.email||'⚠ missing')}</td>
+            <td class="dtd" style="color:${roleColor};font-weight:700;">${p.role||'user'}</td>
+            <td class="dtd" style="color:${p.approved?'#22d3a0':'#f05c6a'};">${p.approved ? '✓' : '✗ pending'}</td>
+            <td class="dtd">${emailOk ? '<span style="color:#22d3a0;">✓</span>' : '<span style="color:#f5a623;">⚠</span>'}</td>
+            <td class="dtd" style="font-family:'JetBrains Mono',monospace;">${tc}</td>
+            <td class="dtd">${p.onboarded ? '✓' : '—'}</td>
+            <td class="dtd" style="font-size:0.7rem;color:#7a8bb5;">${created}</td>
+            <td class="dtd">
+                <div style="display:flex;gap:0.2rem;flex-wrap:wrap;">
+                    <button onclick="dbgQuickRole('${p.id}','investor','${(p.email||'').replace(/'/g,'')}')" style="background:#9b6ffa22;border:1px solid #9b6ffa44;border-radius:4px;padding:0.15rem 0.4rem;color:#9b6ffa;font-size:0.68rem;cursor:pointer;">💼</button>
+                    <button onclick="dbgQuickRole('${p.id}','admin','${(p.email||'').replace(/'/g,'')}')"    style="background:#ffd16622;border:1px solid #ffd16644;border-radius:4px;padding:0.15rem 0.4rem;color:#ffd166;font-size:0.68rem;cursor:pointer;">👑</button>
+                    <button onclick="dbgQuickRole('${p.id}','user','${(p.email||'').replace(/'/g,'')}')"    style="background:#1a2035;border:1px solid rgba(99,179,237,0.2);border-radius:4px;padding:0.15rem 0.4rem;color:#7a8bb5;font-size:0.68rem;cursor:pointer;">👤</button>
+                    ${!emailOk ? `<button onclick="dbgSyncOneEmail('${p.id}')" style="background:#f5a62322;border:1px solid #f5a62344;border-radius:4px;padding:0.15rem 0.4rem;color:#f5a623;font-size:0.68rem;cursor:pointer;">📧</button>` : ''}
+                    ${!p.approved ? `<button onclick="dbgApproveOne('${p.id}')" style="background:#22d3a022;border:1px solid #22d3a044;border-radius:4px;padding:0.15rem 0.4rem;color:#22d3a0;font-size:0.68rem;cursor:pointer;">✓ approve</button>` : ''}
                 </div>
             </td>
         </tr>`;
     }).join('');
+    document.getElementById('dbgUserCount').textContent = profiles.length + ' users';
 }
 
-function dbgFilterProfiles() {
-    const q = (document.getElementById('dbgProfileSearch')?.value || '').toLowerCase();
-    const filtered = q ? dbgAllProfiles.filter(p =>
-        (p.username||'').toLowerCase().includes(q) ||
-        (p.email||'').toLowerCase().includes(q) ||
-        (p.role||'').toLowerCase().includes(q)
-    ) : dbgAllProfiles;
-    renderDbgProfiles(filtered);
+function dbgLoadUsers() { dbgLoadAllData().then(() => dbgRenderUsersTable(_dbgAllProfiles)); }
+
+function dbgFilterUsers() {
+    const q   = (document.getElementById('dbgUserFilter')?.value||'').toLowerCase();
+    const role = document.getElementById('dbgRoleFilter')?.value||'';
+    const app  = document.getElementById('dbgApprovedFilter')?.value||'';
+    let list = _dbgAllProfiles;
+    if (q)    list = list.filter(p => (p.username||'').toLowerCase().includes(q)||(p.email||'').toLowerCase().includes(q));
+    if (role) list = list.filter(p => (p.role||'user') === role);
+    if (app === 'approved') list = list.filter(p => p.approved);
+    if (app === 'pending')  list = list.filter(p => !p.approved && p.role !== 'admin');
+    dbgRenderUsersTable(list);
 }
 
-// ── Investor portal health ──
-async function dbgCheckInvestorPortal() {
-    const el = document.getElementById('dbgInvestorHealth');
+// ═══════════════════════════════════════════════════════
+//  5. TRADE TESTS
+// ═══════════════════════════════════════════════════════
+async function dbgTestTrades() {
+    dbgLog('', 'dim');
+    dbgLog('[ TRADE DATA ]', 'head');
+    const totalPnl = _dbgAllTrades.reduce((s,t)=>s+parseFloat(t.pnl||0),0);
+    const myTrades = _dbgAllTrades.filter(t => t.user_id === currentUser?.id);
+    dbgLog('  Total trades : ' + _dbgAllTrades.length, 'ok');
+    dbgLog('  Total P&L    : $' + totalPnl.toFixed(2), totalPnl >= 0 ? 'ok' : 'warn');
+    dbgLog('  Total payouts: ' + _dbgAllPayouts.length, 'ok');
+    dbgLog('  My trades    : ' + myTrades.length, 'ok');
+
+    const el = document.getElementById('dbgTotalTrades');  if(el) el.textContent = _dbgAllTrades.length;
+    const ep = document.getElementById('dbgTotalPnl');     if(ep) ep.textContent = '$' + totalPnl.toFixed(2);
+    const epay = document.getElementById('dbgTotalPayouts'); if(epay) epay.textContent = _dbgAllPayouts.length;
+    const em = document.getElementById('dbgMyTrades');     if(em) em.textContent = myTrades.length;
+
+    // Per-user breakdown
+    const byUser = {};
+    _dbgAllTrades.forEach(t => { if(!byUser[t.user_id]) byUser[t.user_id] = 0; byUser[t.user_id]++; });
+    const sorted = Object.entries(byUser).sort((a,b)=>b[1]-a[1]).slice(0,20);
+    const lines = sorted.map(([uid, cnt]) => {
+        const p = _dbgAllProfiles.find(x => x.id === uid);
+        return ['  ' + (p?.username||uid.slice(0,8)).padEnd(20) + ' : ' + cnt + ' trades', 'dim'];
+    });
+    dbgResult('dbgTradesPerUser', lines.length ? lines : [['No trades found','warn']]);
+}
+
+async function dbgTestTradeWrite() {
+    const el = document.getElementById('dbgTradeWriteResult');
+    el.innerHTML = '<span style="color:#7a8bb5;">Running...</span>';
+    const lines = [];
+    const testId = crypto.randomUUID();
     try {
-        const [invRes, reqRes] = await Promise.all([
-            sbClient.from('investor_portal_investors').select('*'),
-            sbClient.from('investor_mode_requests').select('id,status').eq('status','pending')
-        ]);
-        const investors = invRes.data || [];
-        const pendingReqs = reqRes.data || [];
-        dbgSetCard('investors', investors.length + ' records', investors.length > 0 ? 'ok' : 'warn');
-        dbgLog('  Investor records : ' + investors.length, investors.length > 0 ? 'ok' : 'warn');
-        dbgLog('  Pending requests : ' + pendingReqs.length, pendingReqs.length > 0 ? 'warn' : 'ok');
+        // INSERT
+        const { error: ie } = await sbClient.from('trades').insert([{
+            id: testId, user_id: currentUser.id, trade_date: '2000-01-01',
+            cycle: 99, account: 'DEBUG', pnl: 0.01, notes: '__DBG_TEST__', no_trade_day: false
+        }]);
+        if (ie) { lines.push(['✗ INSERT failed: '+ie.message,'err']); dbgResult('dbgTradeWriteResult',lines); return; }
+        lines.push(['✓ INSERT ok','ok']);
+        // SELECT
+        const { data, error: se } = await sbClient.from('trades').select('id').eq('id',testId).single();
+        lines.push(se ? ['✗ SELECT failed: '+se.message,'err'] : ['✓ SELECT ok — found id: '+data.id.slice(0,12)+'...','ok']);
+        // DELETE
+        const { error: de } = await sbClient.from('trades').delete().eq('id',testId);
+        lines.push(de ? ['✗ DELETE failed: '+de.message,'err'] : ['✓ DELETE ok','ok']);
+    } catch(e) { lines.push(['✗ Exception: '+e.message,'err']); }
+    dbgResult('dbgTradeWriteResult', lines);
+    lines.forEach(l => dbgLog('  Trade write test: ' + l[0], l[1]));
+}
 
-        // Cross-check investor emails vs profiles
-        let issues = 0;
-        const rows = [];
-        for (const inv of investors) {
-            const matchedProfile = dbgAllProfiles.find(p => p.email?.toLowerCase() === inv.email?.toLowerCase());
-            const profileRole = matchedProfile?.role || '—';
-            const hasRoleMatch = profileRole === 'investor' || profileRole === 'admin';
-            if (!hasRoleMatch) issues++;
-            rows.push({ inv, profileRole, hasRoleMatch, matchedProfile });
+async function dbgTestPayoutWrite() {
+    const el = document.getElementById('dbgPayoutWriteResult');
+    el.innerHTML = '<span style="color:#7a8bb5;">Running...</span>';
+    const lines = [];
+    const testId = crypto.randomUUID();
+    try {
+        const { error: ie } = await sbClient.from('payouts').insert([{
+            id: testId, user_id: currentUser.id, payout_date: '2000-01-01',
+            payout_type: '__DBG_TEST__', amount: 0.01
+        }]);
+        if (ie) { lines.push(['✗ INSERT failed: '+ie.message,'err']); dbgResult('dbgPayoutWriteResult',lines); return; }
+        lines.push(['✓ INSERT ok','ok']);
+        const { data, error: se } = await sbClient.from('payouts').select('id').eq('id',testId).single();
+        lines.push(se ? ['✗ SELECT failed: '+se.message,'err'] : ['✓ SELECT ok','ok']);
+        const { error: de } = await sbClient.from('payouts').delete().eq('id',testId);
+        lines.push(de ? ['✗ DELETE failed: '+de.message,'err'] : ['✓ DELETE ok','ok']);
+    } catch(e) { lines.push(['✗ Exception: '+e.message,'err']); }
+    dbgResult('dbgPayoutWriteResult', lines);
+}
+
+// ═══════════════════════════════════════════════════════
+//  6. INVESTOR DATA TESTS
+// ═══════════════════════════════════════════════════════
+async function dbgTestInvestorData() {
+    dbgLog('', 'dim');
+    dbgLog('[ INVESTOR PORTAL ]', 'head');
+    const pending = _dbgAllModeReqs.filter(r => r.status === 'pending');
+    dbgLog('  Investor records : ' + _dbgAllInvestors.length, _dbgAllInvestors.length >= 0 ? 'ok' : 'warn');
+    dbgLog('  Mode requests    : ' + _dbgAllModeReqs.length, 'ok');
+    dbgLog('  Pending requests : ' + pending.length, pending.length > 0 ? 'warn' : 'ok');
+
+    // Check role mismatches
+    let mismatches = 0;
+    const mismatchLines = [];
+    for (const inv of _dbgAllInvestors) {
+        const prof = _dbgAllProfiles.find(p => p.email?.toLowerCase() === inv.email?.toLowerCase());
+        if (prof && prof.role !== 'investor' && prof.role !== 'admin') {
+            mismatches++;
+            dbgLog('  ✗ Role mismatch: ' + (inv.name||inv.email) + ' is in portal but profile role = "' + prof.role + '"', 'err');
+            mismatchLines.push({inv, prof});
         }
-
-        if (rows.length === 0) {
-            el.innerHTML = '<div style="color:var(--text-muted);">No investor records found. Use Admin Panel > Investor Portal to add investors.</div>';
-            return;
+        if (!prof && inv.email) {
+            dbgLog('  ⚠ No profile found for investor email: ' + inv.email, 'warn');
         }
+    }
+    if (mismatches === 0) dbgLog('  ✓ No role mismatches', 'ok');
 
-        const html = `
-        <div style="margin-bottom:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
-            <span style="color:var(--text-muted);font-size:0.82rem;">${investors.length} investor record(s)</span>
-            ${issues > 0 ? `<span style="color:var(--warning);font-size:0.82rem;font-weight:600;">⚠ ${issues} role mismatch(es) — investor in portal but profile role is not "investor"</span>` : '<span style="color:var(--success);font-size:0.82rem;">✓ All investor roles match</span>'}
-        </div>
-        <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
-            <thead><tr>
-                <th style="text-align:left;padding:0.4rem 0.75rem;color:var(--text-muted);border-bottom:1px solid var(--border);">Name</th>
-                <th style="text-align:left;padding:0.4rem 0.75rem;color:var(--text-muted);border-bottom:1px solid var(--border);">Email</th>
-                <th style="text-align:left;padding:0.4rem 0.75rem;color:var(--text-muted);border-bottom:1px solid var(--border);">Mode</th>
-                <th style="text-align:left;padding:0.4rem 0.75rem;color:var(--text-muted);border-bottom:1px solid var(--border);">Linked Acct</th>
-                <th style="text-align:left;padding:0.4rem 0.75rem;color:var(--text-muted);border-bottom:1px solid var(--border);">Profile Role</th>
-                <th style="text-align:left;padding:0.4rem 0.75rem;color:var(--text-muted);border-bottom:1px solid var(--border);">Status</th>
-                <th style="text-align:left;padding:0.4rem 0.75rem;color:var(--text-muted);border-bottom:1px solid var(--border);">Fix</th>
-            </tr></thead>
-            <tbody>
-                ${rows.map(r => `<tr style="${!r.hasRoleMatch ? 'background:rgba(245,166,35,0.05);' : ''}">
-                    <td style="padding:0.4rem 0.75rem;">${r.inv.name || '—'}</td>
-                    <td style="padding:0.4rem 0.75rem;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--text-muted);">${r.inv.email || '—'}</td>
-                    <td style="padding:0.4rem 0.75rem;">${r.inv.mode === 'base' ? '⚡ Base' : '🛡 Conservative'}</td>
-                    <td style="padding:0.4rem 0.75rem;font-family:'JetBrains Mono',monospace;">Account #${r.inv.linked_account || '—'}</td>
-                    <td style="padding:0.4rem 0.75rem;color:${r.hasRoleMatch ? 'var(--success)' : 'var(--danger)'};">${r.profileRole}</td>
-                    <td style="padding:0.4rem 0.75rem;">${r.hasRoleMatch ? '<span style="color:var(--success);">✓ OK</span>' : '<span style="color:var(--warning);">⚠ Role mismatch</span>'}</td>
-                    <td style="padding:0.4rem 0.75rem;">
-                        ${!r.hasRoleMatch && r.matchedProfile ? `<button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.7rem;border-color:rgba(245,166,35,0.4);color:var(--warning);" onclick="dbgQuickRole('${r.matchedProfile.id}','investor','${r.inv.email}','${r.inv.name||''}')">Fix Role</button>` : '—'}
-                    </td>
-                </tr>`).join('')}
-            </tbody>
-        </table></div>`;
-        el.innerHTML = html;
-
-        if (issues > 0) {
-            dbgLog('  ⚠ Role mismatches found — investors in portal but profile role wrong. Use "Fix Role" buttons.', 'warn');
+    // Render investor records
+    const recEl = document.getElementById('dbgInvestorRecords');
+    if (recEl) {
+        if (!_dbgAllInvestors.length) {
+            recEl.innerHTML = '<div class="dl-warn">No investor records yet.</div>';
+        } else {
+            recEl.innerHTML = _dbgAllInvestors.map(inv => {
+                const prof = _dbgAllProfiles.find(p => p.email?.toLowerCase() === inv.email?.toLowerCase());
+                const roleOk = prof && (prof.role === 'investor' || prof.role === 'admin');
+                return `<div style="padding:0.5rem 0;border-bottom:1px solid rgba(99,179,237,0.08);">` +
+                    `<span class="dl-${roleOk?'ok':'err'}">${roleOk?'✓':'✗'}</span> ` +
+                    `<strong>${esc(inv.name||'—')}</strong> ` +
+                    `<span style="color:#7a8bb5;font-size:0.72rem;">${esc(inv.email||'no email')}</span> ` +
+                    `Mode: <span style="color:#9b6ffa;">${inv.mode}</span> ` +
+                    `Acct: #${inv.linked_account||'—'} ` +
+                    `Entry: $${inv.entry_point} ` +
+                    (prof ? `Profile role: <span style="color:${roleOk?'#22d3a0':'#f05c6a'}">${prof.role}</span>` : '<span style="color:#f5a623;">⚠ no profile match</span>') +
+                    `</div>`;
+            }).join('');
         }
-    } catch(e) {
-        dbgLog('✗ Investor portal check error: ' + e.message, 'err');
-        dbgSetCard('investors', 'Error', 'err');
-        el.innerHTML = '<span style="color:var(--danger);">Error: ' + e.message + '</span>';
+    }
+
+    // Mismatch summary
+    const mmEl = document.getElementById('dbgInvestorMismatch');
+    if (mmEl) {
+        if (mismatchLines.length === 0) {
+            mmEl.innerHTML = '<span class="dl-ok">✓ All investor roles match their portal records.</span>';
+        } else {
+            mmEl.innerHTML = mismatchLines.map(({inv, prof}) =>
+                `<div style="margin-bottom:0.5rem;padding:0.5rem;background:rgba(240,92,106,0.06);border-radius:6px;">
+                    <span class="dl-err">✗ ${esc(inv.name||inv.email)}</span> — in portal but profile role = "${prof.role}"
+                    <button onclick="dbgQuickRole('${prof.id}','investor','${(prof.email||'').replace(/'/g,'')}')" style="margin-left:0.5rem;background:#9b6ffa22;border:1px solid #9b6ffa44;border-radius:4px;padding:0.15rem 0.5rem;color:#9b6ffa;font-size:0.72rem;cursor:pointer;">Fix → investor</button>
+                </div>`
+            ).join('');
+        }
     }
 }
 
-// ── Quick Fix: set role directly by user ID ──
-async function dbgQuickRole(userId, role, email, name) {
-    const label = name || email || userId.slice(0,8);
-    if (!confirm(`Set ${label}'s role to "${role}"?`)) return;
+async function dbgTestInvestorWrite() {
+    const el = document.getElementById('dbgInvestorWriteResult');
+    el.innerHTML = '<span style="color:#7a8bb5;">Running...</span>';
+    const lines = [];
+    const testId = crypto.randomUUID();
+    try {
+        const { error: ie } = await sbClient.from('investor_portal_investors').insert([{
+            id: testId, name: '__DBG_TEST__', email: 'debug_test@propfarmpro.app',
+            entry_point: 1, payout_target: 1, mode: 'conservative'
+        }]);
+        if (ie) { lines.push(['✗ INSERT failed: '+ie.message+' (check RLS — admin insert policy needed)','err']); dbgResult('dbgInvestorWriteResult',lines); return; }
+        lines.push(['✓ INSERT ok','ok']);
+        const { data, error: se } = await sbClient.from('investor_portal_investors').select('id').eq('id',testId).single();
+        lines.push(se ? ['✗ SELECT failed: '+se.message,'err'] : ['✓ SELECT ok','ok']);
+        const { error: ue } = await sbClient.from('investor_portal_investors').update({name:'__DBG_TEST_UPDATE__'}).eq('id',testId);
+        lines.push(ue ? ['✗ UPDATE failed: '+ue.message,'err'] : ['✓ UPDATE ok','ok']);
+        const { error: de } = await sbClient.from('investor_portal_investors').delete().eq('id',testId);
+        lines.push(de ? ['✗ DELETE failed: '+de.message,'err'] : ['✓ DELETE ok','ok']);
+    } catch(e) { lines.push(['✗ Exception: '+e.message,'err']); }
+    dbgResult('dbgInvestorWriteResult', lines);
+    lines.forEach(l => dbgLog('  Investor write: ' + l[0], l[1]));
+}
+
+async function dbgTestModeRequestWrite() {
+    const el = document.getElementById('dbgModeReqResult');
+    el.innerHTML = '<span style="color:#7a8bb5;">Running...</span>';
+    const lines = [];
+    if (!_dbgAllInvestors.length) { dbgResult('dbgModeReqResult',[['⚠ No investor records to test with — add an investor first','warn']]); return; }
+    const testId = crypto.randomUUID();
+    const invId = _dbgAllInvestors[0].id;
+    try {
+        const { error: ie } = await sbClient.from('investor_mode_requests').insert([{
+            id: testId, investor_id: invId, user_id: currentUser.id,
+            current_mode: 'conservative', requested_mode: 'base',
+            status: 'pending', message: '__DBG_TEST__'
+        }]);
+        if (ie) { lines.push(['✗ INSERT failed: '+ie.message,'err']); dbgResult('dbgModeReqResult',lines); return; }
+        lines.push(['✓ INSERT ok','ok']);
+        const { error: ue } = await sbClient.from('investor_mode_requests').update({status:'approved',admin_reply:'test'}).eq('id',testId);
+        lines.push(ue ? ['✗ UPDATE (approve) failed: '+ue.message,'err'] : ['✓ UPDATE (approve) ok','ok']);
+        const { error: de } = await sbClient.from('investor_mode_requests').delete().eq('id',testId);
+        lines.push(de ? ['✗ DELETE failed: '+de.message,'err'] : ['✓ DELETE ok','ok']);
+    } catch(e) { lines.push(['✗ Exception: '+e.message,'err']); }
+    dbgResult('dbgModeReqResult', lines);
+}
+
+// ═══════════════════════════════════════════════════════
+//  7. RLS POLICY TESTS
+// ═══════════════════════════════════════════════════════
+async function dbgTestRLSPolicies() {
+    dbgLog('', 'dim');
+    dbgLog('[ RLS POLICY TESTS ]', 'head');
+    const results = [];
+
+    // Profiles: can we SELECT own row?
+    try {
+        const { error } = await sbClient.from('profiles').select('id').eq('id', currentUser.id).single();
+        const ok = !error;
+        dbgLog((ok ? '✓' : '✗') + ' profiles SELECT own', ok ? 'ok' : 'err');
+        results.push([(ok?'✓':'✗') + ' profiles: SELECT own row', ok?'ok':'err']);
+    } catch(e) { results.push(['✗ profiles SELECT exception: '+e.message,'err']); }
+
+    // Profiles: can we SELECT all? (admin only)
+    try {
+        const { data, error } = await sbClient.from('profiles').select('id').limit(5);
+        const ok = !error && data;
+        dbgLog((ok ? '✓' : '✗') + ' profiles SELECT all (admin policy)', ok ? 'ok' : 'err');
+        results.push([(ok?'✓':'✗') + ' profiles: SELECT all (' + (ok?data.length+' rows':'error: '+error?.message) + ')', ok?'ok':'err']);
+    } catch(e) { results.push(['✗ profiles SELECT all exception','err']); }
+
+    // Trades: SELECT
+    try {
+        const { data, error } = await sbClient.from('trades').select('id').eq('user_id', currentUser.id).limit(5);
+        const ok = !error;
+        dbgLog((ok?'✓':'✗') + ' trades SELECT own', ok?'ok':'err');
+        results.push([(ok?'✓':'✗') + ' trades: SELECT own (' + (ok?data?.length+' rows':error?.message) + ')', ok?'ok':'err']);
+    } catch(e) { results.push(['✗ trades SELECT exception','err']); }
+
+    // investor_portal_investors: SELECT
+    try {
+        const { data, error } = await sbClient.from('investor_portal_investors').select('id').limit(5);
+        const ok = !error;
+        dbgLog((ok?'✓':'✗') + ' investor_portal_investors SELECT', ok?'ok':'err');
+        results.push([(ok?'✓':'✗') + ' investor_portal_investors: SELECT (' + (ok?data?.length+' rows':error?.message)+')', ok?'ok':'err']);
+    } catch(e) { results.push(['✗ investor_portal_investors SELECT exception','err']); }
+
+    // investor_mode_requests: SELECT
+    try {
+        const { data, error } = await sbClient.from('investor_mode_requests').select('id').limit(5);
+        const ok = !error;
+        dbgLog((ok?'✓':'✗') + ' investor_mode_requests SELECT', ok?'ok':'err');
+        results.push([(ok?'✓':'✗') + ' investor_mode_requests: SELECT (' + (ok?data?.length+' rows':error?.message)+')', ok?'ok':'err']);
+    } catch(e) { results.push(['✗ investor_mode_requests SELECT exception','err']); }
+
+    dbgResult('dbgRLSTests', results);
+}
+
+// ═══════════════════════════════════════════════════════
+//  QUICK FIXES
+// ═══════════════════════════════════════════════════════
+async function dbgQuickRole(userId, role, email) {
+    if (!confirm('Set role → "' + role + '" for ' + (email||userId.slice(0,8)) + '?')) return;
     const updates = { role };
     if (role === 'investor' || role === 'admin') updates.approved = true;
     if (email && !email.includes('@propfarmpro.app')) updates.email = email;
     const { error } = await sbClient.from('profiles').update(updates).eq('id', userId);
-    if (error) { showAlert('Failed: ' + error.message, 'error'); dbgLog('✗ Role update failed: ' + error.message, 'err'); return; }
-    showAlert(`✓ ${label} → ${role}`, 'success');
-    dbgLog('✓ Role updated: ' + label + ' → ' + role, 'ok');
-    if (currentUser && userId === currentUser.id) { await loadProfile(); updateSidebarRole(); }
-    dbgLoadProfiles();
-    if (typeof loadAdminData === 'function') setTimeout(loadAdminData, 300);
+    if (error) { alert('Failed: ' + error.message); return; }
+    dbgLog('✓ Role updated: ' + (email||userId.slice(0,8)) + ' → ' + role, 'ok');
+    if (typeof showAlert === 'function') showAlert('✓ Role set to ' + role, 'success');
+    if (currentUser?.id === userId) { await loadProfile(); updateSidebarRole(); }
+    await dbgLoadAllData();
+    dbgRenderUsersTable(_dbgAllProfiles);
 }
 
-// ── Fix role by email/username input ──
-async function dbgFixRole() {
-    const q = (document.getElementById('dbgFixEmail')?.value || '').trim();
-    const role = document.getElementById('dbgFixRole')?.value;
-    if (!q) { showAlert('Enter an email or username', 'error'); return; }
-    if (!role) { showAlert('Select a role', 'error'); return; }
-    // Search profiles
-    let profile = null;
-    const { data: byEmail } = await sbClient.from('profiles').select('id,email,username').eq('email', q).maybeSingle();
-    if (byEmail) profile = byEmail;
-    if (!profile) {
-        const { data: byUsername } = await sbClient.from('profiles').select('id,email,username').ilike('username', q).maybeSingle();
-        if (byUsername) profile = byUsername;
-    }
-    if (!profile && dbgAllProfiles.length) {
-        const lc = q.toLowerCase();
-        profile = dbgAllProfiles.find(p => (p.email||'').toLowerCase() === lc || (p.username||'').toLowerCase() === lc);
-    }
-    if (!profile) { showAlert('User not found. Run diagnostic first to load profiles.', 'error'); dbgLog('✗ User not found: ' + q, 'err'); return; }
-    await dbgQuickRole(profile.id, role, profile.email || '', profile.username || '');
+async function dbgApproveOne(userId) {
+    const { error } = await sbClient.from('profiles').update({approved:true}).eq('id', userId);
+    if (error) { alert('Failed: '+error.message); return; }
+    dbgLog('✓ Approved: ' + userId.slice(0,8), 'ok');
+    await dbgLoadAllData();
+    dbgRenderUsersTable(_dbgAllProfiles);
 }
 
-// ── Sync ALL missing emails from Auth ──
+// Fix dropdown search in Quick Fixes tab
+async function dbgFixSearchUsers() {
+    if (!_dbgAllProfiles.length) await dbgLoadAllData();
+    const q = (document.getElementById('dbgFixSearch')?.value||'').toLowerCase().trim();
+    const dd = document.getElementById('dbgFixDropdown');
+    if (!dd) return;
+    if (!q) { dd.style.display='none'; return; }
+    const matches = _dbgAllProfiles.filter(p =>
+        (p.email||'').toLowerCase().includes(q)||(p.username||'').toLowerCase().includes(q)
+    ).slice(0,6);
+    if (!matches.length) { dd.style.display='none'; return; }
+    dd.style.display='block';
+    dd.innerHTML = matches.map(p => {
+        const roleColor = p.role==='admin'?'#ffd166':p.role==='investor'?'#9b6ffa':'#7a8bb5';
+        return `<div class="dbg-fix-opt" data-uid="${p.id}" data-email="${(p.email||'').replace(/"/g,'&quot;')}" data-name="${(p.username||'').replace(/"/g,'&quot;')}"
+            style="padding:0.45rem 0.75rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;border-bottom:1px solid rgba(99,179,237,0.08);">
+            <span><strong>${esc(p.username||'(no name)')}</strong> <span style="color:#7a8bb5;font-size:0.72rem;">${esc(p.email||'no email')}</span></span>
+            <span style="color:${roleColor};font-size:0.7rem;">${p.role||'user'}</span>
+        </div>`;
+    }).join('');
+    dd.querySelectorAll('.dbg-fix-opt').forEach(el => {
+        el.addEventListener('mouseenter', ()=>el.style.background='#1a2035');
+        el.addEventListener('mouseleave', ()=>el.style.background='');
+        el.addEventListener('click', ()=>{
+            _dbgFixSelectedId    = el.dataset.uid;
+            _dbgFixSelectedEmail = el.dataset.email;
+            _dbgFixSelectedName  = el.dataset.name;
+            const disp = document.getElementById('dbgFixSelected');
+            if (disp) disp.innerHTML = `<span style="color:#e8f0ff;">✓ <strong>${esc(_dbgFixSelectedName||_dbgFixSelectedEmail)}</strong> <span style="color:#7a8bb5;font-size:0.72rem;">${esc(_dbgFixSelectedEmail)}</span></span>`;
+            document.getElementById('dbgFixSearch').value = _dbgFixSelectedName || _dbgFixSelectedEmail;
+            dd.style.display='none';
+        });
+    });
+}
+document.addEventListener('click', e => {
+    const dd = document.getElementById('dbgFixDropdown');
+    if (dd && !dd.contains(e.target) && e.target.id !== 'dbgFixSearch') dd.style.display='none';
+});
+
+async function dbgApplyRoleFix() {
+    const resEl = document.getElementById('dbgFixRoleResult');
+    if (!_dbgFixSelectedId) { resEl.innerHTML='<span style="color:#f5a623;">Select a user first</span>'; return; }
+    const role = document.getElementById('dbgFixRoleSelect')?.value;
+    const updates = { role };
+    if (role === 'investor' || role === 'admin') updates.approved = true;
+    if (_dbgFixSelectedEmail && !_dbgFixSelectedEmail.includes('@propfarmpro.app')) updates.email = _dbgFixSelectedEmail;
+    const { error } = await sbClient.from('profiles').update(updates).eq('id', _dbgFixSelectedId);
+    if (error) { resEl.innerHTML='<span style="color:#f05c6a;">✗ '+esc(error.message)+'</span>'; return; }
+    resEl.innerHTML='<span style="color:#22d3a0;">✓ Role set to '+role+'</span>';
+    dbgLog('✓ Role fix applied: ' + (_dbgFixSelectedEmail||_dbgFixSelectedId.slice(0,8)) + ' → ' + role, 'ok');
+    if (typeof showAlert === 'function') showAlert('✓ Role updated to ' + role, 'success');
+    if (currentUser?.id === _dbgFixSelectedId) { await loadProfile(); updateSidebarRole(); }
+    await dbgLoadAllData(); dbgRenderUsersTable(_dbgAllProfiles);
+}
+
 async function dbgSyncEmails() {
-    dbgLog('', 'dim');
-    dbgLog('[ SYNC EMAILS ] Starting...', 'head');
-    const { data: profiles } = await sbClient.from('profiles').select('id,email,username');
-    const needsSync = (profiles || []).filter(p => !p.email || p.email.includes('@propfarmpro.app'));
-    dbgLog('  Profiles needing email sync: ' + needsSync.length, needsSync.length > 0 ? 'warn' : 'ok');
-    if (!needsSync.length) { showAlert('All profiles already have emails ✓', 'success'); return; }
-    // We can query auth.users from admin API — but anon key can't. We use a workaround:
-    // Supabase stores email in auth.users, accessible via RPC if set up, OR we can try
-    // updating each profile with the current user's email if they are the target.
-    // For others we can only sync if we find them in our cached admin list.
+    const resEl = document.getElementById('dbgSyncEmailResult');
+    resEl.innerHTML = '<span style="color:#7a8bb5;">Syncing...</span>';
+    if (!_dbgAllProfiles.length) await dbgLoadAllData();
+    const missing = _dbgAllProfiles.filter(p => !p.email || p.email.includes('@propfarmpro.app'));
+    const lines = [['Profiles needing sync: ' + missing.length, missing.length > 0 ? 'warn' : 'ok']];
     let synced = 0;
-    // Try using adminAllProfiles cache which has emails from loadAdminData()
-    if (adminAllProfiles && adminAllProfiles.length) {
-        for (const p of needsSync) {
-            const admin = adminAllProfiles.find(a => a.id === p.id);
-            if (admin?.email && !admin.email.includes('@propfarmpro.app')) {
-                const { error } = await sbClient.from('profiles').update({ email: admin.email }).eq('id', p.id);
-                if (!error) { synced++; dbgLog('  Synced: ' + (p.username||p.id.slice(0,8)) + ' → ' + admin.email, 'ok'); }
+    // Sync current user's own email
+    if (currentUser?.email && !currentUser.email.includes('@propfarmpro.app')) {
+        const me = missing.find(p => p.id === currentUser.id);
+        if (me) {
+            const { error } = await sbClient.from('profiles').update({email: currentUser.email}).eq('id', currentUser.id);
+            if (!error) { synced++; lines.push(['✓ Synced self: ' + currentUser.email, 'ok']); }
+        }
+    }
+    // Use adminAllProfiles cache (has emails from loadAdminData)
+    if (typeof adminAllProfiles !== 'undefined' && adminAllProfiles.length) {
+        for (const p of missing) {
+            if (p.id === currentUser?.id) continue; // already handled
+            const cached = adminAllProfiles.find(a => a.id === p.id);
+            if (cached?.email && !cached.email.includes('@propfarmpro.app')) {
+                const { error } = await sbClient.from('profiles').update({email: cached.email}).eq('id', p.id);
+                if (!error) { synced++; lines.push(['✓ Synced: '+(p.username||p.id.slice(0,8))+' → '+cached.email, 'ok']); }
+                else lines.push(['✗ Failed: '+(p.username||p.id.slice(0,8))+' — '+error.message, 'err']);
             }
         }
     }
-    // Also sync the current user's email
-    if (currentUser?.email && !currentUser.email.includes('@propfarmpro.app')) {
-        const me = needsSync.find(p => p.id === currentUser.id);
-        if (me) {
-            const { error } = await sbClient.from('profiles').update({ email: currentUser.email }).eq('id', currentUser.id);
-            if (!error) { synced++; dbgLog('  Synced self: ' + currentUser.email, 'ok'); }
-        }
-    }
-    dbgLog('  Synced ' + synced + ' / ' + needsSync.length + ' profiles', synced > 0 ? 'ok' : 'warn');
-    if (synced < needsSync.length) {
-        dbgLog('  ⚠ ' + (needsSync.length - synced) + ' could not be synced automatically.', 'warn');
-        dbgLog('  → Have each user sign in once — email will auto-sync on login.', 'warn');
-    }
-    showAlert('✓ Synced ' + synced + ' email(s)', 'success');
-    dbgLoadProfiles();
+    const remaining = missing.length - synced;
+    lines.push(['Synced: '+synced+' | Could not auto-sync: '+remaining, synced > 0 ? 'ok' : 'warn']);
+    if (remaining > 0) lines.push(['Remaining users must log in once to trigger auto-sync', 'warn']);
+    dbgResult('dbgSyncEmailResult', lines);
+    if (typeof showAlert === 'function') showAlert('✓ Synced ' + synced + ' email(s)', 'success');
+    await dbgLoadAllData(); dbgRenderUsersTable(_dbgAllProfiles);
 }
 
-// ── Sync one email by user ID ──
 async function dbgSyncOneEmail(userId) {
-    // Can only sync if it's the current user or if admin data has their email
     if (userId === currentUser?.id && currentUser.email && !currentUser.email.includes('@propfarmpro.app')) {
-        const { error } = await sbClient.from('profiles').update({ email: currentUser.email }).eq('id', userId);
-        if (!error) { showAlert('✓ Email synced!', 'success'); dbgLoadProfiles(); return; }
+        const { error } = await sbClient.from('profiles').update({email: currentUser.email}).eq('id', userId);
+        if (!error) { if (typeof showAlert==='function') showAlert('✓ Email synced!','success'); await dbgLoadAllData(); dbgRenderUsersTable(_dbgAllProfiles); return; }
     }
-    const adminP = adminAllProfiles.find(p => p.id === userId);
-    if (adminP?.email && !adminP.email.includes('@propfarmpro.app')) {
-        const { error } = await sbClient.from('profiles').update({ email: adminP.email }).eq('id', userId);
-        if (!error) { showAlert('✓ Email synced!', 'success'); dbgLoadProfiles(); return; }
+    const cached = typeof adminAllProfiles !== 'undefined' ? adminAllProfiles.find(p => p.id === userId) : null;
+    if (cached?.email && !cached.email.includes('@propfarmpro.app')) {
+        const { error } = await sbClient.from('profiles').update({email: cached.email}).eq('id', userId);
+        if (!error) { if (typeof showAlert==='function') showAlert('✓ Email synced!','success'); await dbgLoadAllData(); dbgRenderUsersTable(_dbgAllProfiles); return; }
     }
-    showAlert('Cannot auto-sync this email — ask the user to sign in once to trigger sync.', 'error');
+    alert('Cannot auto-sync this email — ask the user to log in once to trigger it automatically.');
 }
 
-// ── Inspect a specific user ──
+async function dbgApproveAll() {
+    const resEl = document.getElementById('dbgApproveResult');
+    resEl.innerHTML = '<span style="color:#7a8bb5;">Approving...</span>';
+    if (!_dbgAllProfiles.length) await dbgLoadAllData();
+    const pending = _dbgAllProfiles.filter(p => !p.approved && p.role !== 'admin');
+    if (!pending.length) { resEl.innerHTML='<span style="color:#22d3a0;">✓ No pending users</span>'; return; }
+    const { error } = await sbClient.from('profiles').update({approved:true}).in('id', pending.map(p=>p.id));
+    if (error) { resEl.innerHTML='<span style="color:#f05c6a;">✗ '+esc(error.message)+'</span>'; return; }
+    resEl.innerHTML='<span style="color:#22d3a0;">✓ Approved '+pending.length+' users</span>';
+    dbgLog('✓ Approved all pending: ' + pending.length + ' users', 'ok');
+    if (typeof showAlert==='function') showAlert('✓ Approved '+pending.length+' users','success');
+    await dbgLoadAllData(); dbgRenderUsersTable(_dbgAllProfiles);
+}
+
 async function dbgInspectUser() {
-    const q = (document.getElementById('dbgInspectEmail')?.value || '').trim();
-    if (!q) { showAlert('Enter email or username', 'error'); return; }
-    dbgLog('', 'dim');
-    dbgLog('[ INSPECT ] ' + q, 'head');
-    let profile = null;
-    const { data: byEmail } = await sbClient.from('profiles').select('*').eq('email', q).maybeSingle();
-    if (byEmail) profile = byEmail;
-    if (!profile) {
-        const { data: byU } = await sbClient.from('profiles').select('*').ilike('username', q).maybeSingle();
-        if (byU) profile = byU;
-    }
-    if (!profile) { dbgLog('  ✗ Not found: ' + q, 'err'); showAlert('User not found', 'error'); return; }
-    const fields = ['id','username','email','role','approved','onboarded','account_goal','created_at'];
-    fields.forEach(f => dbgLog('  ' + f.padEnd(14) + ': ' + (profile[f] !== undefined ? profile[f] : '—'), profile[f] ? 'dim' : 'warn'));
-    // Check trades
-    const { data: trades } = await sbClient.from('trades').select('id').eq('user_id', profile.id);
-    dbgLog('  trades        : ' + (trades?.length || 0), 'info');
-    // Check investor record
-    const { data: invRec } = await sbClient.from('investor_portal_investors').select('*').eq('email', profile.email || '').maybeSingle();
-    if (invRec) {
-        dbgLog('  investor record: YES — linked to Account #' + invRec.linked_account + ', mode=' + invRec.mode, 'ok');
-    } else {
-        dbgLog('  investor record: none', 'dim');
-    }
-    showAlert('✓ Inspect complete — see log', 'success');
+    const q = (document.getElementById('dbgInspectInput')?.value||'').trim();
+    const el = document.getElementById('dbgInspectResult');
+    if (!q) { el.innerHTML='<span style="color:#f5a623;">Enter email or username</span>'; return; }
+    if (!_dbgAllProfiles.length) await dbgLoadAllData();
+    const lc = q.toLowerCase();
+    const p = _dbgAllProfiles.find(x => (x.email||'').toLowerCase()===lc || (x.username||'').toLowerCase()===lc);
+    if (!p) { el.innerHTML='<span style="color:#f05c6a;">User not found: '+esc(q)+'</span>'; return; }
+    const tc = _dbgAllTrades.filter(t=>t.user_id===p.id).length;
+    const pc = _dbgAllPayouts.filter(t=>t.user_id===p.id).length;
+    const inv = _dbgAllInvestors.find(i => (i.email||'').toLowerCase() === (p.email||'').toLowerCase());
+    const lines = [
+        ['id: '+p.id, 'dim'],
+        ['username: '+(p.username||'—'), 'info'],
+        ['email: '+(p.email||'⚠ MISSING'), p.email?'ok':'err'],
+        ['role: '+(p.role||'—'), 'info'],
+        ['approved: '+p.approved, p.approved?'ok':'err'],
+        ['onboarded: '+p.onboarded, 'dim'],
+        ['account_goal: '+(p.account_goal||'—'), 'dim'],
+        ['trades: '+tc, 'dim'],
+        ['payouts: '+pc, 'dim'],
+        ['investor record: '+(inv ? 'YES — mode='+inv.mode+' acct=#'+inv.linked_account : 'none'), inv?'ok':'dim'],
+        ['created: '+(p.created_at?new Date(p.created_at).toLocaleString():'—'), 'dim'],
+    ];
+    el.innerHTML = lines.map(l=>`<div class="dl-${l[1]}">${esc(l[0])}</div>`).join('');
 }
 
-// ── Refresh session ──
-async function dbgRefreshSession() {
+async function dbgRefreshMySession() {
+    const el = document.getElementById('dbgRefreshResult');
     await loadProfile();
     updateSidebarRole();
-    updateAllViews();
-    showAlert('✓ Session refreshed', 'success');
-    dbgLog('✓ Session refreshed — profile reloaded from DB', 'ok');
-    if (currentProfile) {
-        dbgLog('  role     : ' + (currentProfile.role || '—'), 'info');
-        dbgLog('  email    : ' + (currentProfile.email || '⚠ missing'), currentProfile.email ? 'ok' : 'warn');
-        dbgLog('  approved : ' + currentProfile.approved, currentProfile.approved ? 'ok' : 'warn');
-    }
+    if (typeof updateAllViews === 'function') updateAllViews();
+    el.innerHTML = '<span style="color:#22d3a0;">✓ Session refreshed — role: ' + esc(currentProfile?.role||'—') + '</span>';
+    dbgLog('✓ Session refreshed', 'ok');
+    if (typeof showAlert==='function') showAlert('✓ Session refreshed','success');
+}
+
+async function dbgCleanTestData() {
+    const el = document.getElementById('dbgCleanResult');
+    let cleaned = 0;
+    try {
+        const { data: td } = await sbClient.from('trades').delete().eq('notes','__DBG_TEST__').select('id');
+        cleaned += (td||[]).length;
+        const { data: pd } = await sbClient.from('payouts').delete().eq('payout_type','__DBG_TEST__').select('id');
+        cleaned += (pd||[]).length;
+        const { data: id } = await sbClient.from('investor_portal_investors').delete().eq('name','__DBG_TEST__').select('id');
+        cleaned += (id||[]).length;
+        const { data: md } = await sbClient.from('investor_mode_requests').delete().eq('message','__DBG_TEST__').select('id');
+        cleaned += (md||[]).length;
+        el.innerHTML = '<span style="color:#22d3a0;">✓ Cleaned '+cleaned+' test record(s)</span>';
+        dbgLog('✓ Test data cleaned: '+cleaned+' records removed','ok');
+    } catch(e) { el.innerHTML='<span style="color:#f05c6a;">✗ '+esc(e.message)+'</span>'; }
 }
 
 

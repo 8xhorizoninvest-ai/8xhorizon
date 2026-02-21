@@ -1671,18 +1671,30 @@
                     <div id="ipWarnL2" class="ip-warn l2" style="display:none;">
                         <div class="ip-warn-icon">⚠️</div>
                         <div class="ip-warn-body">
-                            <strong>Your account balance is running low.</strong>
-                            <span>Switching to Conservative mode is recommended. Your account manager has been alerted.</span>
+                            <strong>⚠️ Approaching the Fail Line — Immediate Action Needed.</strong>
+                            <span>Your account is nearing $47,500 — the fail line. If balance reaches this level the account is terminated. Conservative mode has been recommended.</span>
                         </div>
                         <button class="btn" style="background:rgba(240,130,60,0.15);color:#f0873c;border:1px solid rgba(240,130,60,0.4);padding:0.4rem 0.875rem;font-size:0.8rem;flex-shrink:0;" onclick="ipOpenModeModal('conservative')">Send Request Now</button>
                     </div>
                     <div id="ipWarnL3" class="ip-warn l3" style="display:none;">
                         <div class="ip-warn-icon">🔴</div>
                         <div class="ip-warn-body">
-                            <strong>Your account manager is actively monitoring your account.</strong>
-                            <span>No action is needed from you right now. We'll be in touch shortly.</span>
+                            <strong>🚨 CRITICAL — Account on the Fail Line. Trading has been paused.</strong>
+                            <span>Your account balance has dropped critically close to $47,500. Your account manager is actively monitoring and will contact you shortly.</span>
                         </div>
                         <div class="ip-monitor-badge"><span class="ip-pulse-dot"></span> Monitoring Active</div>
+                    </div>
+                    <!-- BLOWN / TERMINATED banner — full takeover -->
+                    <div id="ipWarnL4" style="display:none;position:relative;z-index:10;background:linear-gradient(135deg,rgba(240,92,106,0.18),rgba(180,30,40,0.22));border:2px solid rgba(240,92,106,0.6);border-radius:16px;padding:2.5rem 2rem;text-align:center;margin-bottom:1.5rem;box-shadow:0 0 60px rgba(240,92,106,0.25);">
+                        <div style="font-size:3rem;margin-bottom:0.75rem;filter:drop-shadow(0 0 16px rgba(240,92,106,0.8));">🛑</div>
+                        <div style="font-size:1.35rem;font-weight:800;color:var(--danger);letter-spacing:-0.02em;margin-bottom:0.5rem;">Account Terminated</div>
+                        <div style="color:#f5a0a8;font-size:0.95rem;max-width:420px;margin:0 auto 1.25rem;line-height:1.7;">
+                            The linked trading account has reached the <strong style="color:var(--danger);">$47,500 fail line</strong> and has been terminated in line with the prop firm rules. Your funds are protected — your account manager will be in contact regarding next steps.
+                        </div>
+                        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(240,92,106,0.15);border:1px solid rgba(240,92,106,0.4);border-radius:8px;padding:0.5rem 1.25rem;color:var(--danger);font-size:0.82rem;font-weight:700;">
+                            <span style="width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;animation:pulse-dot 1.2s infinite;"></span>
+                            Account Manager Notified
+                        </div>
                     </div>
 
                     <!-- Hero card -->
@@ -2222,16 +2234,28 @@ async function checkSession() {
     const journalUserId = params.get('journal');
     if (journalUserId) { loadPublicJournal(journalUserId); return; }
 
+    // ── Step 1: Check for an existing session immediately (handles every page refresh) ──
     let sessionHandled = false;
-
-    // Listen for auth changes (sign in / sign out / token refresh)
-    sbClient.auth.onAuthStateChange(async (event, session) => {
-        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session) {
-            if (sessionHandled) return;
+    try {
+        const { data: { session } } = await sbClient.auth.getSession();
+        if (session) {
             sessionHandled = true;
             currentUser = session.user;
             await ensureProfile(session);
             routeUser();
+        }
+    } catch(e) { console.error('Session check error:', e); }
+
+    // ── Step 2: Listen for future auth changes (login, logout, token refresh) ──
+    sbClient.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session && !sessionHandled) {
+            sessionHandled = true;
+            currentUser = session.user;
+            await ensureProfile(session);
+            routeUser();
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+            currentUser = session.user;
+            // Token silently refreshed — no re-render needed
         } else if (event === 'SIGNED_OUT') {
             sessionHandled = false;
             currentUser = null;
@@ -2240,19 +2264,7 @@ async function checkSession() {
         }
     });
 
-    // Immediately check existing session (handles page refresh)
-    try {
-        const { data: { session } } = await sbClient.auth.getSession();
-        if (session && !sessionHandled) {
-            sessionHandled = true;
-            currentUser = session.user;
-            await ensureProfile(session);
-            routeUser();
-            return;
-        }
-    } catch(e) { console.error('Session check error:', e); }
-
-    // No session at all — show login
+    // ── Step 3: No session found — show login ──
     if (!sessionHandled) {
         const as = document.getElementById('authScreen');
         if (as) { as.style.display = ''; as.classList.remove('hidden'); }
@@ -4149,8 +4161,9 @@ function tmplDesc(name) {
 const IP_PA_START    = 50000;
 const IP_PA_GOAL     = 4600;   // profit target
 const IP_WARN_L1_BAL = 48500;  // 3% drop → yellow
-const IP_WARN_L2_BAL = 47500;  // 5% drop → orange
-const IP_WARN_L3_BAL = 46000;  // 8% drop → red
+const IP_WARN_L2_BAL = 47500;  // 5% drop → orange — DANGER ZONE (fail line)
+const IP_WARN_L3_BAL = 46000;  // 8% drop → red — near blown
+const IP_FAIL_LINE   = 47500;  // actual fail line — account blown if balance hits this
 
 // ── State ──
 let ipInvestors      = [];
@@ -4174,9 +4187,10 @@ function ipCyclePct(masterPnl) {
 }
 function ipWarningLevel(masterPnl) {
     const bal = IP_PA_START + masterPnl;
-    if (bal <= IP_WARN_L3_BAL) return 3;
-    if (bal <= IP_WARN_L2_BAL) return 2;
-    if (bal <= IP_WARN_L1_BAL) return 1;
+    if (bal <= IP_FAIL_LINE) return 4;  // AT or BELOW fail line — account blown
+    if (bal <= IP_WARN_L3_BAL) return 3; // near blown — red alert
+    if (bal <= IP_WARN_L2_BAL) return 2; // approaching danger — orange
+    if (bal <= IP_WARN_L1_BAL) return 1; // drawdown — yellow
     return 0;
 }
 function fmtPnl(n) {
@@ -4197,7 +4211,7 @@ function ipModeBadgeHtml(mode) {
     return `<span class="ip-mode-badge ${cls}">${label}</span>`;
 }
 function ipWarnDot(level) {
-    return ['🟢','🟡','🟠','🔴'][level] || '🟢';
+    return ['🟢','🟡','🟠','🔴','💀'][level] || '🟢';
 }
 
 // ── Trade filtering by mode ──
@@ -4551,11 +4565,21 @@ function ipRenderInvestorView(inv, isAdminPreview) {
     const warnLevel = ipWarningLevel(masterPnl);
 
     // ── Warning banners ──
-    ['ipWarnL1','ipWarnL2','ipWarnL3'].forEach((id, i) => {
+    const isBlown = warnLevel === 4;
+    ['ipWarnL1','ipWarnL2','ipWarnL3','ipWarnL4'].forEach((id, i) => {
         const bannerEl = el(id);
         if (bannerEl) bannerEl.style.display = (warnLevel === i+1) ? 'flex' : 'none';
     });
-    // Level 2: auto-create urgent admin notification (once per session)
+    // ipWarnL4 is a div not flex — override display
+    const l4 = el('ipWarnL4');
+    if (l4) l4.style.display = isBlown ? 'block' : 'none';
+
+    // Hide all interactive elements when blown — show terminated state only
+    ['ipInvHeader','ipProgressSection','ipEquitySection','ipTradeSection','ipModeBadge','ipModeReqBtn','ipPendingBadge'].forEach(id => {
+        const e2 = el(id); if (e2) e2.style.display = isBlown ? 'none' : '';
+    });
+
+    // Level 2+: auto-create urgent admin notification (once per session)
     if (warnLevel >= 2 && !isAdminPreview) {
         ipAutoUrgentNotify(inv);
     }

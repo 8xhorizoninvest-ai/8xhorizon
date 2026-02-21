@@ -7418,12 +7418,12 @@ document.addEventListener('click', function(e) {
 
 <script>
 // ── ADMIN MESSAGE MODAL ──
-let _ipMsgTarget = null;
+window._ipMsgTarget = null;
 
 function ipOpenMessageModal() {
     const inv = window.currentInvestorRecord;
     if (!inv || !inv.email) { showAlert('No investor email on file.', 'error'); return; }
-    _ipMsgTarget = inv;
+    window._ipMsgTarget = inv;
     const modal = document.getElementById('ipMessageModal');
     document.getElementById('ipMsgTargetName').textContent = (inv.name || inv.email) + ' · ' + inv.email;
     document.getElementById('ipMsgSubject').value = '';
@@ -7436,7 +7436,7 @@ function ipOpenMessageModal() {
 function ipOpenMessageModalFor(idx) {
     const inv = ipInvestors[idx];
     if (!inv || !inv.email) { showAlert('No email on file for this investor.', 'error'); return; }
-    _ipMsgTarget = inv;
+    window._ipMsgTarget = inv;
     document.getElementById('ipMsgTargetName').textContent = (inv.name || inv.email) + ' · ' + inv.email;
     document.getElementById('ipMsgSubject').value = '';
     document.getElementById('ipMsgBody').value = '';
@@ -7477,32 +7477,36 @@ function ipMsgQuick(type) {
 }
 
 async function ipSendAdminMessage() {
-    if (!ipInitEmailJS()) { showAlert('⚙️ EmailJS not configured.', 'error'); return; }
     const inv = window._ipMsgTarget || window.currentInvestorRecord;
-    if (!inv?.email) { showAlert('No investor email.', 'error'); return; }
+    if (!inv?.email) { showAlert('No investor email found.', 'error'); return; }
 
     const subject = document.getElementById('ipMsgSubject').value.trim();
     const body    = document.getElementById('ipMsgBody').value.trim();
     if (!subject) { ipMsgShowFeedback('Please enter a subject.', 'warn'); return; }
-    if (!body)    { ipMsgShowFeedback('Please enter a message.', 'warn'); return; }
+    if (!body)    { ipMsgShowFeedback('Please write a message.', 'warn'); return; }
 
     const btn = document.getElementById('ipMsgSendBtn');
     btn.disabled = true;
     btn.innerHTML = '<span style="animation:spin 0.7s linear infinite;display:inline-block;">↻</span> Sending…';
 
     try {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_MSG_TEMPLATE_ID, {
+        // Always re-init to be safe
+        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+        const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_MSG_TEMPLATE_ID, {
             to_email:      inv.email,
             to_name:       inv.name || inv.email.split('@')[0],
             admin_subject: subject,
             admin_message: body,
         });
+        console.log('[EmailJS] Message sent:', result);
         ipMsgShowFeedback('✅ Message sent to ' + (inv.name || inv.email), 'ok');
         showAlert('✅ Message sent to ' + (inv.name || inv.email), 'success');
         setTimeout(ipCloseMessageModal, 2000);
     } catch(err) {
-        console.error('EmailJS message error:', err);
-        ipMsgShowFeedback('✗ Failed to send. Check EmailJS config.', 'err');
+        console.error('[EmailJS] Message failed:', err);
+        const reason = err?.text || err?.message || JSON.stringify(err);
+        ipMsgShowFeedback('✗ Failed: ' + reason, 'err');
+        showAlert('Email failed: ' + reason, 'error');
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<span>📨</span> Send Message';

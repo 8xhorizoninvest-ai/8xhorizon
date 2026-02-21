@@ -10,6 +10,9 @@
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* ══════════════════════════════════════
+           THEME SYSTEM — default: Midnight Blue
+           ══════════════════════════════════════ */
         :root {
             --bg: #0a0e1a;
             --bg-card: #0f1629;
@@ -37,6 +40,213 @@
             --shadow: 0 4px 24px rgba(0,0,0,0.4);
             --shadow-glow: 0 0 40px rgba(59,126,248,0.15);
         }
+
+        /* ── THEME: Aurora (White + Purple + Sky) ── */
+        [data-theme="aurora"] {
+            --bg: #f0f4ff;
+            --bg-card: #ffffff;
+            --bg-elevated: #eef1fb;
+            --bg-hover: #e4eaff;
+            --border: rgba(139,92,246,0.18);
+            --border-glow: rgba(139,92,246,0.45);
+            --text: #1a1040;
+            --text-muted: #6b5fa8;
+            --text-dim: #a89fd4;
+            --accent: #7c3aed;
+            --accent-glow: rgba(124,58,237,0.25);
+            --accent-hover: #6d28d9;
+            --success: #059669;
+            --success-glow: rgba(5,150,105,0.2);
+            --danger: #dc2626;
+            --danger-glow: rgba(220,38,38,0.15);
+            --warning: #d97706;
+            --warning-glow: rgba(217,119,6,0.15);
+            --purple: #7c3aed;
+            --cyan: #0284c7;
+            --gold: #b45309;
+            --shadow: 0 4px 24px rgba(124,58,237,0.12);
+            --shadow-glow: 0 0 40px rgba(124,58,237,0.18);
+        }
+
+        /* ── THEME: Cosmic (Deep Purple + Violet) ── */
+        [data-theme="cosmic"] {
+            --bg: #0d0720;
+            --bg-card: #130a2e;
+            --bg-elevated: #1e1040;
+            --bg-hover: #261550;
+            --border: rgba(167,139,250,0.15);
+            --border-glow: rgba(167,139,250,0.4);
+            --text: #ede9ff;
+            --text-muted: #9d86e9;
+            --text-dim: #4a3882;
+            --accent: #a855f7;
+            --accent-glow: rgba(168,85,247,0.3);
+            --accent-hover: #c084fc;
+            --success: #34d399;
+            --success-glow: rgba(52,211,153,0.2);
+            --danger: #f87171;
+            --danger-glow: rgba(248,113,113,0.2);
+            --warning: #fbbf24;
+            --warning-glow: rgba(251,191,36,0.2);
+            --purple: #c084fc;
+            --cyan: #22d3ee;
+            --gold: #fcd34d;
+            --shadow: 0 4px 24px rgba(0,0,0,0.6);
+            --shadow-glow: 0 0 40px rgba(168,85,247,0.2);
+        }
+
+        /* ── THEME: Ocean (Sky Blue + Teal) ── */
+        [data-theme="ocean"] {
+            --bg: #020c18;
+            --bg-card: #041525;
+            --bg-elevated: #082035;
+            --bg-hover: #0c2a42;
+            --border: rgba(14,165,233,0.15);
+            --border-glow: rgba(14,165,233,0.4);
+            --text: #e0f4ff;
+            --text-muted: #5da8cc;
+            --text-dim: #235470;
+            --accent: #0ea5e9;
+            --accent-glow: rgba(14,165,233,0.28);
+            --accent-hover: #38bdf8;
+            --success: #2dd4bf;
+            --success-glow: rgba(45,212,191,0.2);
+            --danger: #fb7185;
+            --danger-glow: rgba(251,113,133,0.2);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245,158,11,0.2);
+            --purple: #818cf8;
+            --cyan: #22d3ee;
+            --gold: #fbbf24;
+            --shadow: 0 4px 24px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 40px rgba(14,165,233,0.18);
+        }
+
+        /* ── THEME: Ember (Dark + Orange + Red) ── */
+        [data-theme="ember"] {
+            --bg: #0f0a04;
+            --bg-card: #1a1008;
+            --bg-elevated: #251805;
+            --bg-hover: #2e2008;
+            --border: rgba(251,146,60,0.15);
+            --border-glow: rgba(251,146,60,0.4);
+            --text: #fff5e8;
+            --text-muted: #c28a55;
+            --text-dim: #6b4520;
+            --accent: #f97316;
+            --accent-glow: rgba(249,115,22,0.28);
+            --accent-hover: #fb923c;
+            --success: #86efac;
+            --success-glow: rgba(134,239,172,0.2);
+            --danger: #fca5a5;
+            --danger-glow: rgba(252,165,165,0.2);
+            --warning: #fcd34d;
+            --warning-glow: rgba(252,211,77,0.2);
+            --purple: #c084fc;
+            --cyan: #67e8f9;
+            --gold: #fde68a;
+            --shadow: 0 4px 24px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 40px rgba(249,115,22,0.15);
+        }
+
+        /* ══════ THEME SWITCHER WIDGET ══════ */
+        #themeSwitcherBtn {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 8000;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px var(--accent-glow), 0 0 0 3px rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #themeSwitcherBtn:hover { transform: scale(1.1); box-shadow: 0 6px 30px var(--accent-glow); }
+
+        #themeSwitcherPanel {
+            position: fixed;
+            bottom: 5.5rem;
+            right: 1.5rem;
+            z-index: 8000;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 1.25rem;
+            width: 260px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+            transform: scale(0.9) translateY(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        #themeSwitcherPanel.open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+        .ts-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        .ts-themes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+        }
+        .ts-theme-btn {
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 0.7rem 0.5rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.18s;
+            background: var(--bg-elevated);
+            position: relative;
+            overflow: hidden;
+        }
+        .ts-theme-btn:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.25); }
+        .ts-theme-btn.active { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+        .ts-theme-btn.active::after { content:'✓'; position:absolute; top:4px; right:6px; font-size:0.6rem; color:var(--accent); font-weight:800; }
+        .ts-swatch { display: flex; gap: 3px; }
+        .ts-swatch span { width: 10px; height: 10px; border-radius: 50%; display: block; }
+        .ts-label { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-align: center; }
+
+        /* ══ AURORA (light) component overrides ══ */
+        [data-theme="aurora"] body { background: #f0f4ff; }
+        [data-theme="aurora"] .sidebar { background: #ffffff; border-right-color: rgba(139,92,246,0.15); }
+        [data-theme="aurora"] .sidebar-logo h2 { background: linear-gradient(135deg, #1a1040, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        [data-theme="aurora"] .nav-item { color: #4b4080; }
+        [data-theme="aurora"] .nav-item:hover, [data-theme="aurora"] .nav-item.active { background: rgba(124,58,237,0.08); color: #7c3aed; }
+        [data-theme="aurora"] .topbar { background: rgba(240,244,255,0.95); border-bottom-color: rgba(139,92,246,0.15); }
+        [data-theme="aurora"] .table-card, [data-theme="aurora"] .form-card { background: #ffffff; border-color: rgba(139,92,246,0.12); }
+        [data-theme="aurora"] th { background: rgba(124,58,237,0.05); color: #4b4080; }
+        [data-theme="aurora"] .hero { background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 50%, #0284c7 100%); }
+        [data-theme="aurora"] .logout-btn { background: rgba(220,38,38,0.08); color: #dc2626; border-color: rgba(220,38,38,0.2); }
+        [data-theme="aurora"] .logout-btn:hover { background: rgba(220,38,38,0.15); }
+        [data-theme="aurora"] .sidebar-footer { border-top-color: rgba(139,92,246,0.12); }
+        [data-theme="aurora"] .user-chip { background: rgba(124,58,237,0.06); border-color: rgba(139,92,246,0.12); }
+        [data-theme="aurora"] .nav-label { color: #a89fd4; }
+        [data-theme="aurora"] .page-title { color: #1a1040; }
+        [data-theme="aurora"] .icon-btn { background: rgba(124,58,237,0.08); color: #7c3aed; border-color: rgba(139,92,246,0.2); }
+        [data-theme="aurora"] .metric-card { background: #fff; border-color: rgba(139,92,246,0.12); color: #1a1040; }
+        [data-theme="aurora"] .card-title { color: #1a1040; }
+        [data-theme="aurora"] #themeSwitcherPanel { box-shadow: 0 12px 40px rgba(124,58,237,0.15), 0 0 0 1px rgba(139,92,246,0.15); }
+        /* ════════════════════════════════════════ */
 
         body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh; }
 
@@ -6500,6 +6710,102 @@ async function dbgCleanTestData() {
 }
 
 
+</script>
+
+<!-- ══════════════════════════════════════════
+     THEME SWITCHER
+══════════════════════════════════════════ -->
+<button id="themeSwitcherBtn" onclick="toggleThemePanel()" title="Change theme">🎨</button>
+
+<div id="themeSwitcherPanel">
+    <div class="ts-title">🎨 Choose Theme</div>
+    <div class="ts-themes">
+        <button class="ts-theme-btn active" data-t="default" onclick="setTheme('default',this)">
+            <div class="ts-swatch">
+                <span style="background:#3b7ef8;"></span>
+                <span style="background:#9b6ffa;"></span>
+                <span style="background:#22d3a0;"></span>
+            </div>
+            <div class="ts-label">Midnight</div>
+        </button>
+        <button class="ts-theme-btn" data-t="aurora" onclick="setTheme('aurora',this)">
+            <div class="ts-swatch">
+                <span style="background:#7c3aed;"></span>
+                <span style="background:#0284c7;"></span>
+                <span style="background:#e0e7ff;"></span>
+            </div>
+            <div class="ts-label">Aurora</div>
+        </button>
+        <button class="ts-theme-btn" data-t="cosmic" onclick="setTheme('cosmic',this)">
+            <div class="ts-swatch">
+                <span style="background:#a855f7;"></span>
+                <span style="background:#c084fc;"></span>
+                <span style="background:#22d3ee;"></span>
+            </div>
+            <div class="ts-label">Cosmic</div>
+        </button>
+        <button class="ts-theme-btn" data-t="ocean" onclick="setTheme('ocean',this)">
+            <div class="ts-swatch">
+                <span style="background:#0ea5e9;"></span>
+                <span style="background:#2dd4bf;"></span>
+                <span style="background:#818cf8;"></span>
+            </div>
+            <div class="ts-label">Ocean</div>
+        </button>
+        <button class="ts-theme-btn" data-t="ember" onclick="setTheme('ember',this)" style="grid-column:1/-1;">
+            <div class="ts-swatch">
+                <span style="background:#f97316;"></span>
+                <span style="background:#ef4444;"></span>
+                <span style="background:#fbbf24;"></span>
+            </div>
+            <div class="ts-label">Ember</div>
+        </button>
+    </div>
+    <div style="margin-top:0.9rem;padding-top:0.75rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:0.62rem;color:var(--text-muted);">Theme saved automatically</span>
+        <button onclick="toggleThemePanel()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.75rem;">✕ Close</button>
+    </div>
+</div>
+
+<script>
+// ── Theme Switcher ──
+function setTheme(name, btn) {
+    document.documentElement.setAttribute('data-theme', name === 'default' ? '' : name);
+    localStorage.setItem('mj-theme', name);
+    document.querySelectorAll('.ts-theme-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    // Update switcher button glow to match accent
+    const style = getComputedStyle(document.documentElement);
+    const accent = style.getPropertyValue('--accent').trim();
+    document.getElementById('themeSwitcherBtn').style.background = accent || '#3b7ef8';
+}
+
+function toggleThemePanel() {
+    document.getElementById('themeSwitcherPanel').classList.toggle('open');
+}
+
+// Close panel when clicking outside
+document.addEventListener('click', function(e) {
+    const panel = document.getElementById('themeSwitcherPanel');
+    const btn   = document.getElementById('themeSwitcherBtn');
+    if (panel && !panel.contains(e.target) && e.target !== btn) {
+        panel.classList.remove('open');
+    }
+});
+
+// Load saved theme on startup
+(function() {
+    const saved = localStorage.getItem('mj-theme') || 'default';
+    document.documentElement.setAttribute('data-theme', saved === 'default' ? '' : saved);
+    // Mark active button
+    window.addEventListener('DOMContentLoaded', function() {
+        const activeBtn = document.querySelector(`.ts-theme-btn[data-t="${saved}"]`);
+        if (activeBtn) {
+            document.querySelectorAll('.ts-theme-btn').forEach(b => b.classList.remove('active'));
+            activeBtn.classList.add('active');
+        }
+    });
+})();
 </script>
 </body>
 </html>

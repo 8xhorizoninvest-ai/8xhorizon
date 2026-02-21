@@ -717,6 +717,122 @@
         }
         .ref-table tr:hover td { background: var(--bg-secondary); }
         .ref-table tr.active-row td { background: rgba(59,130,246,0.06); }
+
+        /* ═══ INVESTMENT TRACKER ═══ */
+        .tracker-section { margin-top: 2rem; }
+        .tracker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        @media (max-width: 900px) { .tracker-grid { grid-template-columns: 1fr; } }
+
+        .tracker-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 600px) { .tracker-form-grid { grid-template-columns: 1fr; } }
+
+        .milestone-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+
+        .milestone-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .milestone-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+        .milestone-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .milestone-card.past::before { background: var(--text-tertiary); }
+        .milestone-card.today::before { background: var(--accent); }
+        .milestone-card.soon::before { background: var(--success); }
+        .milestone-card.future::before { background: var(--border-hover); }
+
+        .ms-period { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-secondary); margin-bottom: 0.3rem; }
+        .ms-date { font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.15rem; line-height: 1.2; }
+        .ms-rel { font-size: 0.65rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
+        .ms-val { font-family: 'JetBrains Mono', monospace; font-size: 1.125rem; font-weight: 800; color: var(--success); }
+        .ms-profit { font-size: 0.65rem; color: var(--text-secondary); margin-top: 0.15rem; }
+        .ms-badge { display: inline-block; font-size: 0.5rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 4px; margin-top: 0.35rem; text-transform: uppercase; letter-spacing: 0.07em; }
+        .ms-badge.past { background: rgba(100,116,139,0.1); color: var(--text-secondary); }
+        .ms-badge.now { background: rgba(59,130,246,0.1); color: var(--accent); }
+        .ms-badge.coming { background: rgba(16,185,129,0.1); color: var(--success); }
+
+        /* COMPARE ROWS */
+        .compare-block { display: flex; flex-direction: column; gap: 0.625rem; margin-bottom: 1.25rem; }
+        .compare-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 1rem; border-radius: 10px; border: 1.5px solid;
+            gap: 1rem; flex-wrap: wrap;
+        }
+        .compare-row.projected { border-color: rgba(59,130,246,0.25); background: rgba(59,130,246,0.04); }
+        .compare-row.actual-pos { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.04); }
+        .compare-row.actual-neg { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.04); }
+        .compare-row.beat { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.07); }
+        .compare-row.missed { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.07); }
+        .cr-label { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); }
+        .cr-val { font-family: 'JetBrains Mono', monospace; font-size: 1.0625rem; font-weight: 800; white-space: nowrap; }
+
+        /* TRADE LOG TABLE */
+        .trade-log-table { width: 100%; border-collapse: collapse; min-width: 520px; }
+        .trade-log-table th { text-align: left; padding: 0.625rem 1rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); background: var(--bg-secondary); border-bottom: 2px solid var(--border); white-space: nowrap; }
+        .trade-log-table td { padding: 0.625rem 1rem; font-size: 0.8125rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .trade-log-table tr:hover td { background: rgba(59,130,246,0.03); }
+        .trade-log-table input, .trade-log-table select { padding: 0.3rem 0.6rem; border: 1.5px solid var(--border); border-radius: 7px; font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-primary); background: var(--bg-secondary); outline: none; width: 100%; transition: border-color 0.15s; }
+        .trade-log-table input:focus, .trade-log-table select:focus { border-color: var(--accent); background: var(--bg-primary); }
+        .trade-log-table input[type="number"] { -moz-appearance: textfield; }
+        .trade-log-table input[type="number"]::-webkit-outer-spin-button,
+        .trade-log-table input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .del-btn { background: rgba(239,68,68,0.08); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); border-radius: 7px; padding: 0.25rem 0.6rem; font-size: 0.7rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+        .del-btn:hover { background: rgba(239,68,68,0.15); }
+        .add-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: rgba(59,130,246,0.08); color: var(--accent); border: 1.5px solid rgba(59,130,246,0.25); border-radius: 9px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .add-btn:hover { background: rgba(59,130,246,0.15); }
+        .log-summary { display: flex; gap: 1.5rem; flex-wrap: wrap; padding: 0.875rem 1.25rem; background: var(--bg-secondary); border-top: 1px solid var(--border); font-size: 0.8125rem; }
+        .log-sum-item { display: flex; flex-direction: column; gap: 0.1rem; }
+        .log-sum-val { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 0.9375rem; }
+        .log-sum-lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
+
+        /* STAT TILES */
+        .stat-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+        .stat-tile { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; text-align: center; }
+        .st-val { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.2rem; }
+        .st-lbl { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
+        .st-sub { font-size: 0.6rem; color: var(--text-tertiary); margin-top: 0.1rem; }
+        .st-val.pos { color: var(--success); }
+        .st-val.neg { color: var(--danger); }
+        .st-val.gold { color: var(--gold); }
+        .st-val.blue { color: var(--accent); }
+        .st-val.purple { color: var(--purple); }
+
+        /* SECTION DIVIDER */
+        .sec-div { display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1.25rem; }
+        .sec-div h3 { font-size: 1.125rem; font-weight: 800; white-space: nowrap; }
+        .sec-div-line { flex: 1; height: 1px; background: var(--border); }
+
+        /* EMPTY STATE */
+        .tracker-empty { text-align: center; padding: 3rem 2rem; color: var(--text-secondary); }
+        .tracker-empty .em-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+        .tracker-empty .em-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.375rem; }
+
+        /* ═══ MOBILE IMPROVEMENTS ═══ */
+        @media (max-width: 768px) {
+            .top-bar { padding: 0.875rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
+            .page-title { font-size: 1.125rem; }
+            .container { padding: 1rem; }
+            .main-grid { grid-template-columns: 1fr; }
+            .live-stats { grid-template-columns: repeat(3, 1fr); }
+            .scenario-cards { grid-template-columns: 1fr; }
+            .result-grid { grid-template-columns: 1fr 1fr; }
+            .rh-value { font-size: 2rem; }
+            .milestone-grid { grid-template-columns: repeat(2, 1fr); }
+            .stat-tiles { grid-template-columns: repeat(2, 1fr); }
+            .log-summary { gap: 0.875rem; }
+        }
+        @media (max-width: 480px) {
+            .live-stats { grid-template-columns: repeat(2, 1fr); }
+            .tracker-form-grid { grid-template-columns: 1fr; }
+            .milestone-grid { grid-template-columns: repeat(2, 1fr); }
+            .stat-tiles { grid-template-columns: repeat(2, 1fr); }
+            .compare-row { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+            .top-bar > div:last-child { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -1061,6 +1177,132 @@
                 <strong>Important:</strong> This calculator is a personal modelling tool only — not financial advice, and not a guarantee of any returns. All reference figures (119.23% monthly, 370.81% total, 71.7% win rate, $20,585 profit) are historical data points used as inputs. Past performance does not guarantee future results. Trading involves risk of loss, including loss of principal. Projections are mathematical scenarios only and should be used for planning purposes, not as a basis for financial decisions. Always consult a qualified financial advisor before investing.
             </div>
         </div>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- INVESTMENT TRACKER — Compare Projected vs Actual   -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <div class="tracker-section">
+
+          <div class="sec-div">
+            <h3>💰 Investment Tracker &amp; Projection Comparator</h3>
+            <div class="sec-div-line"></div>
+          </div>
+
+          <div class="alert alert-info" style="font-size:0.85rem;">
+            <strong>How to use:</strong> Enter your investment amount + start/end date. See <strong>exact calendar dates</strong> for every milestone. Log what you <em>actually</em> earned and compare it to the projection.
+          </div>
+
+          <!-- INPUT FORM -->
+          <div class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header">
+              <span class="card-title">⚙️ Your Investment Details</span>
+              <button class="add-btn" onclick="runTracker()" style="font-size:0.75rem;padding:0.35rem 0.875rem;">▶ Calculate</button>
+            </div>
+            <div class="card-body">
+              <div class="tracker-form-grid">
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label">💵 Investment Amount (USD)</label>
+                  <div class="input-with-prefix">
+                    <span class="input-prefix-label">$</span>
+                    <input type="number" id="trInvest" value="1000" min="1" step="100" oninput="runTracker()">
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label">📈 Monthly Return Rate (%)</label>
+                  <div class="input-with-prefix">
+                    <span class="input-prefix-label">%</span>
+                    <input type="number" id="trRate" value="119.23" step="0.1" oninput="runTracker()">
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label">📅 Trade Start Date (From)</label>
+                  <input type="date" id="trFrom" class="form-input" style="padding:0.65rem 1rem" oninput="runTracker()">
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label">📅 Trade End Date (To)</label>
+                  <input type="date" id="trTo" class="form-input" style="padding:0.65rem 1rem" oninput="runTracker()">
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label">💸 Performance Fee (%)</label>
+                  <div class="input-with-prefix">
+                    <span class="input-prefix-label">%</span>
+                    <input type="number" id="trFee" value="30" min="0" max="100" step="1" oninput="runTracker()">
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label">✅ Actual Amount You Got ($)</label>
+                  <div class="input-with-prefix">
+                    <span class="input-prefix-label">$</span>
+                    <input type="number" id="trActual" placeholder="Enter what you really made..." oninput="runTracker()">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RESULTS (hidden until calculated) -->
+          <div id="trackerResults" style="display:none">
+
+            <!-- STAT TILES -->
+            <div class="stat-tiles" id="trStatTiles"></div>
+
+            <!-- PROJECTION MILESTONES -->
+            <div class="sec-div" style="margin-top:0">
+              <h3 style="font-size:0.9375rem">📅 Exact Projection Dates — From Your Start Date</h3>
+              <div class="sec-div-line"></div>
+            </div>
+            <div class="milestone-grid" id="trMilestones"></div>
+
+            <!-- PROJECTED vs ACTUAL -->
+            <div class="tracker-grid">
+              <div class="card">
+                <div class="card-header"><span class="card-title">📊 Projected vs Actual Comparison</span></div>
+                <div class="card-body">
+                  <div class="compare-block" id="trCompare"></div>
+                  <div id="trActualPanel" style="display:none">
+                    <div id="trActualRows"></div>
+                  </div>
+                  <div id="trActualEmpty" style="font-size:0.8125rem;color:var(--text-secondary);font-style:italic">Enter your actual amount above to compare against projection.</div>
+                </div>
+              </div>
+
+              <!-- TRADE LOG -->
+              <div class="card">
+                <div class="card-header" style="flex-wrap:wrap;gap:0.5rem">
+                  <span class="card-title">📋 Trade Log</span>
+                  <button class="add-btn" onclick="addTrade()">+ Add Trade</button>
+                </div>
+                <div style="overflow-x:auto">
+                  <table class="trade-log-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Profit ($)</th>
+                        <th>Fee ($)</th>
+                        <th>Net ($)</th>
+                        <th>Note</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="tradeBody">
+                      <tr id="trNoTrades"><td colspan="7" style="text-align:center;color:var(--text-tertiary);font-size:0.75rem;padding:1.5rem 1rem">No trades logged. Click "+ Add Trade" to start.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="log-summary" id="trLogSummary" style="display:none"></div>
+              </div>
+            </div>
+
+          </div><!-- end trackerResults -->
+
+          <div id="trackerEmpty" class="tracker-empty">
+            <div class="em-icon">💰</div>
+            <div class="em-title">Enter Your Investment Details Above</div>
+            <p style="font-size:0.8125rem">Fill in amount, dates and monthly return rate to see exact projection dates and compare with your actual results.</p>
+          </div>
+
+        </div><!-- end tracker-section -->
 
     </div><!-- end container -->
 
@@ -1409,6 +1651,268 @@ function drawScenarios(invest, months, fee) {
 
 calc();
 window.addEventListener('resize', calc);
-</script>
+
+// ══════════════════════════════════════════════════════
+//  INVESTMENT TRACKER & PROJECTION COMPARATOR
+// ══════════════════════════════════════════════════════
+
+let tradeCounter = 0;
+let tradeRows = [];
+
+// Set default dates on load
+(function initTrackerDates() {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const future = new Date(today);
+    future.setMonth(future.getMonth() + 6);
+    const futureStr = future.toISOString().split('T')[0];
+    document.getElementById('trFrom').value = todayStr;
+    document.getElementById('trTo').value   = futureStr;
+})();
+
+function tfmt(n, decimals = 2) {
+    if (isNaN(n)) return '—';
+    return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+function fmtDate2(d) {
+    return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+}
+function relDate(d) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const diff = Math.round((d - today) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Tomorrow';
+    if (diff === -1) return 'Yesterday';
+    if (diff < 0) return Math.abs(diff) + ' days ago';
+    if (diff < 7) return 'In ' + diff + ' days';
+    if (diff < 30) return 'In ' + Math.round(diff/7) + ' week' + (Math.round(diff/7)>1?'s':'');
+    if (diff < 365) return 'In ' + Math.round(diff/30) + ' month' + (Math.round(diff/30)>1?'s':'');
+    return 'In ' + (diff/365).toFixed(1) + ' years';
+}
+function addCalendarMonths(date, months) {
+    const d = new Date(date);
+    d.setMonth(d.getMonth() + months);
+    return d;
+}
+function calendarMonthsBetween(a, b) {
+    return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()) + (b.getDate() >= a.getDate() ? 0 : -1);
+}
+
+function runTracker() {
+    const invest  = parseFloat(document.getElementById('trInvest').value) || 0;
+    const rate    = parseFloat(document.getElementById('trRate').value)   || 0;
+    const fromVal = document.getElementById('trFrom').value;
+    const toVal   = document.getElementById('trTo').value;
+    const fee     = parseFloat(document.getElementById('trFee').value)    || 0;
+    const actual  = parseFloat(document.getElementById('trActual').value);
+
+    if (!invest || !rate || !fromVal || !toVal) {
+        document.getElementById('trackerResults').style.display = 'none';
+        document.getElementById('trackerEmpty').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('trackerResults').style.display = 'block';
+    document.getElementById('trackerEmpty').style.display = 'none';
+
+    const fromDate = new Date(fromVal + 'T00:00:00');
+    const toDate   = new Date(toVal   + 'T00:00:00');
+    const today    = new Date(); today.setHours(0,0,0,0);
+
+    const monthsTotal = Math.max(1, calendarMonthsBetween(fromDate, toDate));
+    const monthlyDecimal = rate / 100;
+
+    // ── Compute projected value for period ──
+    let balance = invest;
+    for (let m = 0; m < monthsTotal; m++) {
+        const gross = balance * monthlyDecimal;
+        const feeAmt = gross > 0 ? gross * (fee / 100) : 0;
+        balance += (gross - feeAmt);
+    }
+    const projectedValue  = balance;
+    const projectedProfit = projectedValue - invest;
+    const dailyAvg = (projectedProfit / monthsTotal) / 22;
+    const weeklyAvg = (projectedProfit / monthsTotal) / 4.33;
+
+    // ── STAT TILES ──
+    document.getElementById('trStatTiles').innerHTML = `
+        <div class="stat-tile"><div class="st-val blue">${tfmt(invest)}</div><div class="st-lbl">Invested</div></div>
+        <div class="stat-tile"><div class="st-val gold">${tfmt(projectedValue)}</div><div class="st-lbl">Proj. End Value</div><div class="st-sub">${monthsTotal} month${monthsTotal!==1?'s':''}</div></div>
+        <div class="stat-tile"><div class="st-val pos">${tfmt(projectedProfit)}</div><div class="st-lbl">Proj. Profit</div></div>
+        <div class="stat-tile"><div class="st-val purple">${((projectedProfit/invest)*100).toFixed(1)}%</div><div class="st-lbl">Total ROI</div></div>
+        <div class="stat-tile"><div class="st-val pos">${tfmt(dailyAvg, 2)}</div><div class="st-lbl">Avg / Day</div><div class="st-sub">22 trading days/mo</div></div>
+        <div class="stat-tile"><div class="st-val pos">${tfmt(weeklyAvg, 2)}</div><div class="st-lbl">Avg / Week</div></div>
+        <div class="stat-tile"><div class="st-val blue">${tfmt(projectedProfit/monthsTotal)}</div><div class="st-lbl">Avg / Month</div></div>
+        <div class="stat-tile"><div class="st-val gold">${rate}%</div><div class="st-lbl">Monthly Rate</div><div class="st-sub">After ${fee}% fee</div></div>`;
+
+    // ── MILESTONE CARDS ──
+    const milestones = [
+        { label: '1 Month',   mo: 1  },
+        { label: '2 Months',  mo: 2  },
+        { label: '3 Months',  mo: 3  },
+        { label: '6 Months',  mo: 6  },
+        { label: '9 Months',  mo: 9  },
+        { label: '1 Year',    mo: 12 },
+        { label: '18 Months', mo: 18 },
+        { label: '2 Years',   mo: 24 },
+    ];
+
+    let mHtml = '';
+    milestones.forEach(m => {
+        const mDate = addCalendarMonths(fromDate, m.mo);
+        let bal = invest;
+        for (let i = 0; i < m.mo; i++) {
+            const g = bal * monthlyDecimal;
+            const f = g > 0 ? g * (fee/100) : 0;
+            bal += (g - f);
+        }
+        const profit = bal - invest;
+        const isPast   = mDate < today;
+        const isToday  = mDate.toDateString() === today.toDateString();
+        const isWithin = mDate <= toDate;
+        const cls = isPast ? 'past' : (isToday ? 'today' : (m.mo <= monthsTotal ? 'soon' : 'future'));
+        const badge = isPast ? '<span class="ms-badge past">Past</span>' : isToday ? '<span class="ms-badge now">Today!</span>' : '<span class="ms-badge coming">Upcoming</span>';
+        const outNote = !isWithin ? '<div style="font-size:0.55rem;color:var(--warning);margin-top:0.2rem">⚠️ Beyond end date</div>' : '';
+        mHtml += `<div class="milestone-card ${cls}">
+            <div class="ms-period">${m.label}</div>
+            <div class="ms-date">${fmtDate2(mDate)}</div>
+            <div class="ms-rel">${relDate(mDate)}</div>
+            <div class="ms-val">${tfmt(bal)}</div>
+            <div class="ms-profit">+${tfmt(profit)} profit</div>
+            ${badge}${outNote}
+        </div>`;
+    });
+    document.getElementById('trMilestones').innerHTML = mHtml;
+
+    // ── PROJECTED vs ACTUAL ──
+    let compareHtml = `
+        <div class="compare-row projected">
+            <span class="cr-label">📊 Projected End Value (${monthsTotal} months)</span>
+            <span class="cr-val" style="color:var(--accent)">${tfmt(projectedValue)}</span>
+        </div>
+        <div class="compare-row projected">
+            <span class="cr-label">📈 Projected Total Profit</span>
+            <span class="cr-val" style="color:var(--accent)">+${tfmt(projectedProfit)}</span>
+        </div>
+        <div class="compare-row projected">
+            <span class="cr-label">📅 Period: ${fmtDate2(fromDate)} → ${fmtDate2(toDate)}</span>
+            <span class="cr-val" style="color:var(--text-secondary);font-size:0.875rem">${monthsTotal} months</span>
+        </div>`;
+    document.getElementById('trCompare').innerHTML = compareHtml;
+
+    if (!isNaN(actual)) {
+        const actualProfit = actual - invest;
+        const diff         = actual - projectedValue;
+        const diffPct      = projectedProfit !== 0 ? ((actualProfit - projectedProfit) / Math.abs(projectedProfit) * 100) : 0;
+        const beat         = diff >= 0;
+        document.getElementById('trActualPanel').style.display = 'block';
+        document.getElementById('trActualEmpty').style.display  = 'none';
+        document.getElementById('trActualRows').innerHTML = `
+            <div class="compare-row ${actualProfit >= 0 ? 'actual-pos' : 'actual-neg'}" style="margin-top:0.875rem">
+                <span class="cr-label">✅ Actual End Value (What You Got)</span>
+                <span class="cr-val" style="color:${actualProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">${tfmt(actual)}</span>
+            </div>
+            <div class="compare-row ${actualProfit >= 0 ? 'actual-pos' : 'actual-neg'}">
+                <span class="cr-label">💵 Your Actual Profit</span>
+                <span class="cr-val" style="color:${actualProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">${actualProfit >= 0 ? '+' : '-'}${tfmt(actualProfit)}</span>
+            </div>
+            <div class="compare-row ${beat ? 'beat' : 'missed'}">
+                <span class="cr-label">${beat ? '🟢 BEAT PROJECTION' : '🔴 MISSED PROJECTION'} — vs Forecast</span>
+                <span class="cr-val" style="color:${beat ? 'var(--success)' : 'var(--danger)'}">${beat ? '+' : ''}${tfmt(diff)} (${diffPct >= 0 ? '+' : ''}${diffPct.toFixed(1)}%)</span>
+            </div>`;
+    } else {
+        document.getElementById('trActualPanel').style.display = 'none';
+        document.getElementById('trActualEmpty').style.display = 'block';
+    }
+
+    renderTradeLog();
+}
+
+function addTrade() {
+    const id = ++tradeCounter;
+    const today = new Date().toISOString().split('T')[0];
+    const noRow = document.getElementById('trNoTrades');
+    if (noRow) noRow.remove();
+    const tr = document.createElement('tr');
+    tr.id = 'tr-row-' + id;
+    tr.innerHTML = `
+        <td><input type="date" value="${today}" onchange="calcTradeFee(${id})"></td>
+        <td>
+          <select onchange="calcTradeFee(${id})" style="min-width:90px">
+            <option value="win">✅ Win</option>
+            <option value="loss">❌ Loss</option>
+            <option value="be">➡️ B/E</option>
+          </select>
+        </td>
+        <td><input type="number" id="tr-profit-${id}" placeholder="0.00" step="0.01" oninput="calcTradeFee(${id})" style="width:90px"></td>
+        <td id="tr-fee-${id}" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--danger)">—</td>
+        <td id="tr-net-${id}" style="font-family:'JetBrains Mono',monospace;font-weight:700">—</td>
+        <td><input type="text" placeholder="Notes..." style="min-width:100px"></td>
+        <td><button class="del-btn" onclick="deleteTrade(${id})">✕</button></td>`;
+    document.getElementById('tradeBody').appendChild(tr);
+    tradeRows.push(id);
+    renderTradeLog();
+}
+
+function calcTradeFee(id) {
+    const profitEl = document.getElementById('tr-profit-' + id);
+    const feeEl    = document.getElementById('tr-fee-' + id);
+    const netEl    = document.getElementById('tr-net-' + id);
+    const profit   = parseFloat(profitEl?.value) || 0;
+    const fee      = parseFloat(document.getElementById('trFee').value) || 0;
+    const feeAmt   = profit > 0 ? profit * (fee / 100) : 0;
+    const net      = profit - feeAmt;
+    if (feeEl) { feeEl.textContent = feeAmt > 0 ? '-' + tfmt(feeAmt) : '—'; }
+    if (netEl) {
+        netEl.textContent = profit !== 0 ? (net >= 0 ? '+' : '') + tfmt(net) : '—';
+        netEl.style.color = net >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
+    renderTradeLog();
+}
+
+function deleteTrade(id) {
+    const row = document.getElementById('tr-row-' + id);
+    if (row) row.remove();
+    tradeRows = tradeRows.filter(r => r !== id);
+    if (!document.querySelectorAll('#tradeBody tr:not(#trNoTrades)').length) {
+        document.getElementById('tradeBody').innerHTML =
+            '<tr id="trNoTrades"><td colspan="7" style="text-align:center;color:var(--text-tertiary);font-size:0.75rem;padding:1.5rem 1rem">No trades logged. Click "+ Add Trade" to start.</td></tr>';
+    }
+    renderTradeLog();
+}
+
+function renderTradeLog() {
+    const fee   = parseFloat(document.getElementById('trFee').value) || 0;
+    const rows  = document.querySelectorAll('#tradeBody tr:not(#trNoTrades)');
+    let totalGross = 0, totalFee = 0, totalNet = 0, wins = 0, losses = 0;
+    rows.forEach(row => {
+        const profitInput = row.querySelector('input[type="number"]');
+        const typeSelect  = row.querySelector('select');
+        if (!profitInput || !typeSelect) return;
+        const gross = parseFloat(profitInput.value) || 0;
+        const feeAmt = gross > 0 ? gross * (fee/100) : 0;
+        const net = gross - feeAmt;
+        totalGross += gross; totalFee += feeAmt; totalNet += net;
+        if (typeSelect.value === 'win') wins++;
+        if (typeSelect.value === 'loss') losses++;
+    });
+    const sumEl = document.getElementById('trLogSummary');
+    if (rows.length > 0) {
+        sumEl.style.display = 'flex';
+        sumEl.innerHTML = `
+            <div class="log-sum-item"><div class="log-sum-val">${rows.length}</div><div class="log-sum-lbl">Trades</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--success)">${wins}</div><div class="log-sum-lbl">Wins</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--danger)">${losses}</div><div class="log-sum-lbl">Losses</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--success)">${rows.length>0?Math.round(wins/rows.length*100):0}%</div><div class="log-sum-lbl">Win Rate</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:${totalGross>=0?'var(--success)':'var(--danger)'}">${totalGross>=0?'+':''}${tfmt(totalGross)}</div><div class="log-sum-lbl">Gross P&L</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--danger)">-${tfmt(totalFee)}</div><div class="log-sum-lbl">Fees</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:${totalNet>=0?'var(--success)':'var(--danger)'}">${totalNet>=0?'+':''}${tfmt(totalNet)}</div><div class="log-sum-lbl">Net P&L</div></div>`;
+    } else {
+        sumEl.style.display = 'none';
+    }
+}
+
+// Auto-run tracker on load
+runTracker();
 </body>
 </html>

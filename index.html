@@ -120,7 +120,23 @@
         .user-role { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
         .user-role.admin { color: var(--gold); }
         .user-role.investor { color: var(--purple); }
-        .user-role.investor { color: var(--gold); }
+
+        /* ── INVESTOR MODE: CSS-level block on all trader pages ── */
+        body.role-investor #traderNavMain,
+        body.role-investor #traderNavActions { display: none !important; }
+
+        body.role-investor .page#overviewPage,
+        body.role-investor .page#cyclePerformancePage,
+        body.role-investor .page#templatesPage,
+        body.role-investor .page#accountsPage,
+        body.role-investor .page#analyticsPage,
+        body.role-investor .page#riskMonitorPage,
+        body.role-investor .page#addTradePage,
+        body.role-investor .page#logPayoutPage,
+        body.role-investor .page#tradeLogPage,
+        body.role-investor .page#deleteDataPage,
+        body.role-investor .page#shareJournalPage,
+        body.role-investor .page#psychologyPage { display: none !important; }
         .nav-section { margin-bottom: 1.5rem; }
         .nav-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); padding: 0 0.75rem; margin-bottom: 0.5rem; }
         .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.75rem; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; font-weight: 500; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2px; }
@@ -2526,30 +2542,36 @@ function showDashboard() {
         || currentUser?.email?.split('@')[0]?.replace(/@propfarmpro\.app$/, '')
         || 'Trader';
 
-    const initials = displayName.substring(0, 2).toUpperCase();
+    const initials  = displayName.substring(0, 2).toUpperCase();
     const isAdmin    = currentProfile?.role === 'admin';
     const isInvestor = currentProfile?.role === 'investor';
 
     document.getElementById('userAvatar').textContent = initials;
-    document.getElementById('userName').textContent = displayName;
-    document.getElementById('heroName').textContent = displayName;
+    document.getElementById('userName').textContent   = displayName;
+    document.getElementById('heroName').textContent   = displayName;
 
-    // Update nav visibility FIRST before navigating
+    // Always enforce nav visibility based on role
     updateSidebarRole();
-    document.getElementById('adminNavItem').style.display = isAdmin ? 'flex' : 'none';
 
     populateDropdowns();
     setTodayDates();
     buildContractEditor();
 
-    // Investors land directly on Investor Portal — they don't see trader pages
-    if (isFirstShow && isInvestor) {
+    if (isInvestor) {
+        // Investors ONLY see Investor Portal — always redirect, every time
+        // Make sure trader pages are hidden even if somehow active
+        document.querySelectorAll('.page.active').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item.active').forEach(n => n.classList.remove('active'));
         navigateTo('investorPortal');
     } else {
         loadDashboardData();
+        // Restore overview as active if no page is active
+        if (!document.querySelector('.page.active')) {
+            navigateTo('overview');
+        }
     }
 
-    // Only show onboarding for new non-admin, non-investor users
+    // Onboarding: only for new regular users
     if (isFirstShow && !isAdmin && !isInvestor && !currentProfile?.onboarded) {
         setTimeout(() => startOnboarding(), 800);
     }
@@ -2588,10 +2610,9 @@ async function loadDashboardData() {
 
 // ─── Sidebar role chip — call this any time role may have changed ───
 function updateSidebarRole() {
-    const role = currentProfile?.role || 'user';
+    const role       = currentProfile?.role || 'user';
     const isAdmin    = role === 'admin';
     const isInvestor = role === 'investor';
-    const isTrader   = !isInvestor; // admins also get trader nav
 
     let label, cls;
     if (isAdmin)         { label = '👑 Admin';    cls = 'user-role admin'; }
@@ -2601,10 +2622,10 @@ function updateSidebarRole() {
     const roleEl = document.getElementById('userRole');
     if (roleEl) { roleEl.textContent = label; roleEl.className = cls; }
 
-    // Trader nav sections: only visible for admins + regular users, NOT pure investors
+    // Trader nav sections: hidden for pure investors
+    const showTrader = isAdmin || !isInvestor;
     const traderMain    = document.getElementById('traderNavMain');
     const traderActions = document.getElementById('traderNavActions');
-    const showTrader    = isAdmin || (!isInvestor);
     if (traderMain)    traderMain.style.display    = showTrader ? '' : 'none';
     if (traderActions) traderActions.style.display = showTrader ? '' : 'none';
 
@@ -2612,13 +2633,16 @@ function updateSidebarRole() {
     const invNavSection = document.getElementById('investorNavSection');
     if (invNavSection) invNavSection.style.display = (isAdmin || isInvestor) ? '' : 'none';
 
-    // Admin + debug items
+    // Admin-only items
     const adminNav = document.getElementById('adminNavItem');
     if (adminNav) adminNav.style.display = isAdmin ? 'flex' : 'none';
     const dbgNav = document.getElementById('debugNavItem');
     if (dbgNav) dbgNav.style.display = isAdmin ? 'flex' : 'none';
 
-    // Settings: everyone gets it
+    // Add CSS body class so investor can never accidentally see trader pages
+    document.body.classList.toggle('role-investor', isInvestor);
+    document.body.classList.toggle('role-admin', isAdmin);
+    document.body.classList.toggle('role-user', !isAdmin && !isInvestor);
 }
 
 async function refreshData() {
@@ -3465,15 +3489,24 @@ const PAGE_TITLES = {
 
 function navigateTo(page) {
     if (page === 'debugPanel') { openDebugPanel(); return; }
+
+    // INVESTOR GUARD — pure investors can only access investorPortal and settings
+    const isInvestor = currentProfile?.role === 'investor';
+    const investorAllowed = ['investorPortal', 'settings'];
+    if (isInvestor && !investorAllowed.includes(page)) {
+        // Silently redirect to their portal
+        page = 'investorPortal';
+    }
+
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const el = document.getElementById(page + 'Page');
     if (el) el.classList.add('active');
     document.getElementById('pageTitle').textContent = PAGE_TITLES[page] || page;
-    if (page === 'adminPanel') loadAdminData();
-    if (page === 'shareJournal') updateShareJournalPage();
-    if (page === 'psychology') updatePsychPage();
+    if (page === 'adminPanel')     loadAdminData();
+    if (page === 'shareJournal')   updateShareJournalPage();
+    if (page === 'psychology')     updatePsychPage();
     if (page === 'investorPortal') updateInvestorPortalPage();
     if (window.innerWidth <= 1024) closeSidebar();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3481,6 +3514,15 @@ function navigateTo(page) {
 
 document.querySelectorAll('.nav-item[data-page]').forEach(item => {
     item.addEventListener('click', () => navigateTo(item.dataset.page));
+});
+
+// Close investor user-search dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dd     = document.getElementById('ipUserDropdown');
+    const search = document.getElementById('ipUserSearch');
+    if (dd && !dd.contains(e.target) && e.target !== search) {
+        dd.style.display = 'none';
+    }
 });
 
 function toggleSidebar() {
@@ -4690,23 +4732,37 @@ async function ipSearchUsers() {
     if (!q) { dd.style.display = 'none'; return; }
     const matches = ipAllProfilesCache.filter(p =>
         (p.email||'').toLowerCase().includes(q) || (p.username||'').toLowerCase().includes(q)
-    ).slice(0,8);
-    if (!matches.length) { dd.style.display = 'none'; return; }
+    ).slice(0, 8);
+    if (!matches.length) {
+        dd.style.display = 'block';
+        dd.innerHTML = '<div style="padding:0.75rem 1rem;color:var(--text-muted);font-size:0.85rem;">No users found — try different search</div>';
+        return;
+    }
     dd.style.display = 'block';
-    dd.innerHTML = matches.map(p => `
-        <div onclick="ipSelectUser(${JSON.stringify(p.id)},${JSON.stringify(p.email||'')},${JSON.stringify(p.username||p.email||'')})"
-             style="padding:0.625rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"
-             onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+    dd.innerHTML = matches.map(p => {
+        const hasEmail = p.email && !p.email.startsWith('uid:');
+        return `<div class="ip-user-option"
+                     data-uid="${(p.id||'').replace(/"/g,'')}"
+                     data-email="${(p.email||'').replace(/"/g,'&quot;')}"
+                     data-name="${(p.username||p.email||'').replace(/"/g,'&quot;')}"
+                     style="padding:0.625rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
             <span>
-                <strong style="font-size:0.875rem;">${p.username||'(no username)'}</strong>
-                <br>
-                <span style="font-size:0.75rem;color:${p.email ? 'var(--text-muted)' : 'var(--warning)'};">
-                    ${p.email || '⚠ no email — run Debug > Sync Emails first'}
+                <strong style="font-size:0.875rem;">${p.username || '(no username)'}</strong><br>
+                <span style="font-size:0.75rem;color:${hasEmail ? 'var(--text-muted)' : 'var(--warning)'};">
+                    ${hasEmail ? p.email : '⚠ no email — run Debug Panel → Sync Emails'}
                 </span>
             </span>
-            <span style="font-size:0.7rem;color:var(--text-muted);">${p.role||'user'}</span>
-        </div>
-    `).join('');
+            <span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:8px;background:var(--bg-elevated);color:var(--text-muted);">${p.role||'user'}</span>
+        </div>`;
+    }).join('');
+    // Attach click handlers via JS (not inline onclick — avoids JSON escaping bugs)
+    dd.querySelectorAll('.ip-user-option').forEach(el => {
+        el.addEventListener('mouseenter', () => el.style.background = 'var(--bg-hover)');
+        el.addEventListener('mouseleave', () => el.style.background = '');
+        el.addEventListener('click', () => {
+            ipSelectUser(el.dataset.uid, el.dataset.email, el.dataset.name);
+        });
+    });
 }
 
 function ipSelectUser(id, email, name) {

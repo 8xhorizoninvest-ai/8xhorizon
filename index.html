@@ -1409,7 +1409,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">User Email</label>
-                            <input type="email" class="form-input" id="roleUserEmail" placeholder="trader@example.com">
+                            <input type="text" class="form-input" id="roleUserEmail" placeholder="trader@example.com or username">
                         </div>
                         <div class="form-group">
                             <label class="form-label">New Role</label>
@@ -1904,6 +1904,12 @@ async function ensureProfile(session) {
             currentProfile = data;
         } catch(e) { console.error('Profile create error:', e); }
         window._pendingUsername = null;
+    } else if (!currentProfile.email && session.user.email && !session.user.email.includes('@propfarmpro.app')) {
+        // Update email in profiles if missing (important for role lookups)
+        try {
+            await sbClient.from('profiles').update({ email: session.user.email }).eq('id', currentUser.id);
+            currentProfile.email = session.user.email;
+        } catch(e) {}
     }
 }
 
@@ -2770,10 +2776,15 @@ async function quickToggleRole(userId, currentRole, email) {
 async function quickSetInvestor(userId, currentRole, email) {
     const newRole = currentRole === 'investor' ? 'user' : 'investor';
     const msg = newRole === 'investor'
-        ? `Grant investor access to ${email}?\n\nThey will see the Investor Portal tab with their linked PA account.`
+        ? `Grant investor access to ${email}?\n\nThey will see the Investor Portal tab with their linked PA account.\n\nNote: If this user signed in via Google, make sure their email matches what you'll use in the Add Investor form.`
         : `Remove investor role from ${email}? They'll become a regular user.`;
     if (!confirm(msg)) return;
-    const { error } = await sbClient.from('profiles').update({ role: newRole, approved: true }).eq('id', userId);
+    const updates = { role: newRole, approved: true };
+    // Also store the email in the profiles table so role lookup works
+    if (newRole === 'investor' && email && !email.includes('@propfarmpro.app')) {
+        updates.email = email;
+    }
+    const { error } = await sbClient.from('profiles').update(updates).eq('id', userId);
     if (error) { showAlert('Role update failed: ' + error.message, 'error'); return; }
     showAlert(`✓ ${email} is now ${newRole}`, 'success');
     // If this is the logged-in user, refresh their sidebar too
@@ -2782,14 +2793,40 @@ async function quickSetInvestor(userId, currentRole, email) {
 }
 
 async function updateUserRole() {
-    const email = document.getElementById('roleUserEmail').value.trim();
+    const emailOrUsername = document.getElementById('roleUserEmail').value.trim();
     const role = document.getElementById('roleUserRole').value;
-    if (!email) { showAlert('Enter a user email', 'error'); return; }
-    const { data: profile, error: fe } = await sbClient.from('profiles').select('id').eq('email', email).single();
-    if (fe || !profile) { showAlert('User not found. They must sign up first.', 'error'); return; }
-    const { error } = await sbClient.from('profiles').update({ role }).eq('id', profile.id);
+    if (!emailOrUsername) { showAlert('Enter a user email or username', 'error'); return; }
+
+    // Try to find profile by email first, then by username
+    let profile = null;
+    const { data: byEmail } = await sbClient.from('profiles').select('id,email').eq('email', emailOrUsername).maybeSingle();
+    if (byEmail) {
+        profile = byEmail;
+    } else {
+        // Try by username (case-insensitive)
+        const { data: byUsername } = await sbClient.from('profiles').select('id,email').ilike('username', emailOrUsername).maybeSingle();
+        if (byUsername) profile = byUsername;
+    }
+
+    // If still not found, try searching admin cached profiles for partial match
+    if (!profile && adminAllProfiles.length) {
+        const lc = emailOrUsername.toLowerCase();
+        const found = adminAllProfiles.find(p =>
+            (p.email||'').toLowerCase() === lc ||
+            (p.username||'').toLowerCase() === lc
+        );
+        if (found) profile = found;
+    }
+
+    if (!profile) { showAlert('User not found. Make sure they have signed up and check the exact email/username.', 'error'); return; }
+
+    const updates = { role };
+    // When setting investor role, also ensure they are approved
+    if (role === 'investor' || role === 'admin') updates.approved = true;
+
+    const { error } = await sbClient.from('profiles').update(updates).eq('id', profile.id);
     if (error) { showAlert('Failed: ' + error.message, 'error'); return; }
-    showAlert(`✓ ${email} role updated to ${role}`, 'success');
+    showAlert(`✓ ${emailOrUsername} role updated to ${role}`, 'success');
     document.getElementById('roleUserEmail').value = '';
     // If this is the logged-in user, refresh their sidebar too
     if (currentUser && profile.id === currentUser.id) { await loadProfile(); updateSidebarRole(); }
@@ -4562,7 +4599,16 @@ async function ipAddInvestor() {
         if (uid) {
             const { data: prof } = await sbClient.from('profiles').select('role').eq('id', uid).single();
             if (prof && prof.role !== 'admin') {
-                await sbClient.from('profiles').update({ role:'investor', approved:true }).eq('id', uid);
+                // Grant investor role + store email so future lookups work
+                const profileUpdate = { role:'investor', approved:true };
+                if (email && !email.includes('@propfarmpro.app')) profileUpdate.email = email;
+                await sbClient.from('profiles').update(profileUpdate).eq('id', uid);
+            }
+        } else if (email) {
+            // Try to find by email even if uid not selected
+            const { data: profByEmail } = await sbClient.from('profiles').select('id,role').eq('email', email).maybeSingle();
+            if (profByEmail && profByEmail.role !== 'admin') {
+                await sbClient.from('profiles').update({ role:'investor', approved:true }).eq('id', profByEmail.id);
             }
         }
     } catch(_) {}

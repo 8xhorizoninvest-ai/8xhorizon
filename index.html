@@ -1534,7 +1534,7 @@
                         </div>
                         <div class="table-wrap">
                             <table>
-                                <thead><tr><th>Name</th><th>Email</th><th>Entry</th><th>Mode</th><th>Current Value</th><th>Progress</th><th>Warning</th><th>Actions</th></tr></thead>
+                                <thead><tr><th>Name</th><th>Email</th><th>Linked Account</th><th>Entry</th><th>Mode</th><th>Current Value</th><th>Progress</th><th>Warning</th><th>Actions</th></tr></thead>
                                 <tbody id="ipInvestorTableBody"></tbody>
                             </table>
                         </div>
@@ -2861,8 +2861,8 @@ async function handleTradeSubmit(e) {
         if (error) throw error;
         showAlert('✓ ' + trades.length + ' trade(s) logged!', 'success');
         resetTradeForm();
+        navigateTo('overview');
         await loadDashboardData();
-        setTimeout(() => navigateTo('overview'), 1200);
     } catch (err) {
         showAlert('Failed: ' + (err.message || 'Unknown error'), 'error');
     } finally { setBtnLoadingCustom('tradeSubmit', false); }
@@ -3663,6 +3663,7 @@ function navigateTo(page) {
     if (el) el.classList.add('active');
     document.getElementById('pageTitle').textContent = PAGE_TITLES[page] || page;
     if (page === 'adminPanel')     loadAdminData();
+    if (page === 'overview')       updateAllViews();
     if (page === 'shareJournal')   updateShareJournalPage();
     if (page === 'psychology')     updatePsychPage();
     if (page === 'investorPortal') updateInvestorPortalPage();
@@ -4372,7 +4373,7 @@ function ipRenderAdmin() {
     const tbody = el('ipInvestorTableBody');
     if (!tbody) return;
     if (!ipInvestors.length) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">No investors yet. Add one below.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted);">No investors yet. Add one below.</td></tr>';
         return;
     }
     const wlColors = ['','rgba(245,166,35,0.06)','rgba(240,130,60,0.08)','rgba(240,92,106,0.1)'];
@@ -4387,9 +4388,15 @@ function ipRenderAdmin() {
         const mode  = inv.mode || 'conservative';
         const hasPending = ipModeRequests.some(r => r.investor_id === inv.id && r.status === 'pending');
         const rowStyle = wl > 0 ? `background:${wlColors[wl]};outline:1px solid ${wlBorder[wl]};` : '';
+        const accNum  = inv.linked_account;
+        const nick    = accNum ? getNickname(parseInt(accNum)) : null;
+        const accLabel = accNum
+            ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--cyan);">#${accNum}</span>${nick ? `<br><span style="font-size:0.72rem;color:var(--text-muted);">${nick}</span>` : ''}`
+            : `<span style="color:var(--text-dim);font-size:0.8rem;">— none —</span>`;
         return `<tr style="${rowStyle}">
             <td><strong>${inv.name || '—'}</strong></td>
             <td style="color:var(--text-muted);font-size:0.82rem;">${inv.email || '—'}</td>
+            <td>${accLabel}</td>
             <td style="font-family:'JetBrains Mono',monospace;">${fmtCurrency(entry)}</td>
             <td>${ipModeBadgeHtml(mode)}${hasPending ? ' <span style="font-size:0.7rem;color:var(--warning);">⏳</span>' : ''}</td>
             <td style="font-family:'JetBrains Mono',monospace;color:${dv>=payout?'var(--gold)':dv>=entry?'var(--success)':'var(--danger)'};">${fmtCurrency(dv)}</td>
@@ -4526,8 +4533,8 @@ function ipRenderInvestorView(inv, isAdminPreview) {
     const mode    = inv.mode || 'conservative';
     const mult    = ipMultiplier(entry, payout);
 
-    // Filter trades by mode
-    const trades = ipGetTradesForInvestor(inv)
+    // Use all trades from the linked account for value calculation
+    const trades = ipGetAllTradesForAccount(inv.linked_account)
         .sort((a,b) => new Date(a.trade_date) - new Date(b.trade_date));
 
     const masterPnl = trades.reduce((s,t) => s + parseFloat(t.pnl||0), 0);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prop Farm Pro — Supabase Edition</title>
+    <title>My Journal</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -490,7 +490,7 @@
     <div class="public-topbar">
         <div class="public-brand">
             <span class="logo">🌾</span>
-            <h2>Prop Farm Pro</h2>
+            <h2>My Journal</h2>
         </div>
         <div style="display:flex;align-items:center;gap:0.75rem;">
             <span class="public-badge">📖 Public Journal</span>
@@ -523,7 +523,7 @@
     <div class="auth-box">
         <div class="auth-logo">
             <span class="logo-icon">🌾</span>
-            <h1>Prop Farm Pro</h1>
+            <h1>My Journal</h1>
             <p>Sign in to your trading dashboard</p>
         </div>
 
@@ -576,7 +576,7 @@
       <div class="onboard-progress" id="onboardProgress"></div>
       <div class="onboard-step active" id="onboardStep0">
         <div class="onboard-emoji">🌾</div>
-        <div class="onboard-title">Welcome to Prop Farm Pro!</div>
+        <div class="onboard-title">Welcome to My Journal!</div>
         <div class="onboard-sub">Set up your trader profile — only takes a minute.</div>
         <div class="form-group">
           <label class="form-label">Username <span style="color:var(--text-muted);font-size:0.8rem;">(your public trading name)</span></label>
@@ -1646,100 +1646,137 @@
                 <div id="ipInvestorSection" style="display:none;">
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap');
-                        .ip-root { font-family:'Syne','Space Grotesk',sans-serif; position:relative; z-index:1; }
-                        #ipParticleCanvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; opacity:0.4; }
-                        /* 3D tilt */
-                        .ip-tilt { transform-style:preserve-3d; transition:transform 0.15s ease,box-shadow 0.3s ease; will-change:transform; }
-                        .ip-tilt:hover { box-shadow:0 28px 70px rgba(0,0,0,0.55),0 0 50px rgba(74,142,255,0.1) !important; }
-                        /* Hero */
-                        .ip-hero2 { background:linear-gradient(145deg,#070c1a 0%,#0a1120 50%,#060b18 100%); border:1px solid rgba(255,255,255,0.09); border-radius:24px; padding:2.25rem 2.5rem; margin-bottom:1.25rem; position:relative; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,0.65),inset 0 1px 0 rgba(255,255,255,0.07); }
-                        .ip-hero2::before { content:''; position:absolute; top:-100px; right:-80px; width:380px; height:380px; background:radial-gradient(circle,rgba(74,142,255,0.11) 0%,transparent 65%); pointer-events:none; }
-                        .ip-hero2::after  { content:''; position:absolute; bottom:-70px; left:-50px; width:280px; height:280px; background:radial-gradient(circle,rgba(167,139,250,0.07) 0%,transparent 65%); pointer-events:none; }
-                        .ip-hero2-inner { position:relative; z-index:2; display:flex; gap:2.5rem; align-items:center; flex-wrap:wrap; }
-                        /* Ring */
-                        .ip-ring-wrap { flex-shrink:0; position:relative; width:160px; height:160px; }
+
+                        /* ═══ ROOT ═══ */
+                        .ip-root { font-family:'Space Grotesk',sans-serif; position:relative; z-index:1; }
+                        #ipParticleCanvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; opacity:0.35; }
+
+                        /* ═══ HERO — full-width split layout ═══ */
+                        .ip-hero2 {
+                            background: linear-gradient(135deg, #07091a 0%, #0c1226 50%, #070b1e 100%);
+                            border: 1px solid rgba(255,255,255,0.08);
+                            border-radius: 24px;
+                            padding: 0;
+                            margin-bottom: 1.25rem;
+                            position: relative;
+                            overflow: hidden;
+                            box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+                        }
+                        .ip-hero2::before { content:''; position:absolute; top:-120px; right:-100px; width:500px; height:500px; background:radial-gradient(circle,rgba(74,142,255,0.09) 0%,transparent 60%); pointer-events:none; z-index:0; }
+                        .ip-hero2::after  { content:''; position:absolute; bottom:-80px; left:-60px; width:350px; height:350px; background:radial-gradient(circle,rgba(167,139,250,0.06) 0%,transparent 60%); pointer-events:none; z-index:0; }
+
+                        /* ─── top section inside hero ─── */
+                        .ip-hero2-top {
+                            position: relative; z-index: 2;
+                            display: grid;
+                            grid-template-columns: auto 1fr auto;
+                            gap: 2rem;
+                            align-items: center;
+                            padding: 2rem 2.5rem;
+                        }
+                        @media(max-width:800px){ .ip-hero2-top{ grid-template-columns:1fr; gap:1.5rem; padding:1.5rem; } }
+
+                        /* ─── ring (left col) ─── */
+                        .ip-ring-wrap { flex-shrink:0; position:relative; width:130px; height:130px; }
+                        @media(max-width:800px){ .ip-ring-wrap{ margin:0 auto; } }
                         .ip-ring-svg { transform:rotate(-90deg); }
-                        .ip-ring-track { fill:none; stroke:rgba(255,255,255,0.05); stroke-width:10; }
+                        .ip-ring-track { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:10; }
                         .ip-ring-fill  { fill:none; stroke-width:10; stroke-linecap:round; stroke-dasharray:439.8; stroke-dashoffset:439.8; transition:stroke-dashoffset 2s cubic-bezier(0.4,0,0.2,1),stroke 0.5s ease; filter:drop-shadow(0 0 8px currentColor); }
                         .ip-ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
-                        .ip-ring-pct { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; line-height:1; }
-                        .ip-ring-sub { font-size:0.58rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:0.3rem; }
-                        /* Value */
-                        .ip-hero2-main { flex:1; min-width:200px; }
-                        .ip-eyebrow { font-size:0.62rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:#4a8eff; margin-bottom:0.5rem; }
-                        .ip-value-display { font-family:'Syne',sans-serif; font-size:clamp(2.2rem,5vw,3.8rem); font-weight:800; letter-spacing:-0.04em; line-height:1; margin-bottom:0.75rem; }
-                        .ip-meta-row { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem; }
-                        .ip-gain-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.3rem 0.75rem; border-radius:20px; font-size:0.82rem; font-weight:700; background:rgba(46,204,154,0.12); border:1px solid rgba(46,204,154,0.3); color:#2ecc9a; }
+                        .ip-ring-pct { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; line-height:1; }
+                        .ip-ring-sub { font-size:0.52rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:0.35rem; }
+
+                        /* ─── centre col ─── */
+                        .ip-hero2-main {}
+                        .ip-eyebrow { font-size:0.6rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#4a8eff; margin-bottom:0.5rem; }
+                        .ip-value-display { font-family:'Syne',sans-serif; font-size:clamp(2rem,5vw,3.4rem); font-weight:800; letter-spacing:-0.04em; line-height:1; margin-bottom:0.65rem; }
+                        .ip-meta-row { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.9rem; }
+                        .ip-gain-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.28rem 0.7rem; border-radius:20px; font-size:0.78rem; font-weight:700; background:rgba(46,204,154,0.12); border:1px solid rgba(46,204,154,0.3); color:#2ecc9a; }
                         .ip-gain-badge.neg { background:rgba(240,92,106,0.12); border-color:rgba(240,92,106,0.3); color:#f05c6a; }
-                        /* KPIs */
-                        .ip-hero2-kpis { display:flex; flex-direction:column; gap:1rem; flex-shrink:0; }
-                        .ip-kpi { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0.875rem 1.25rem; text-align:right; min-width:120px; }
-                        .ip-kpi-lbl { font-size:0.6rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:0.35rem; }
-                        .ip-kpi-val { font-family:'JetBrains Mono',monospace; font-size:1.1rem; font-weight:700; }
-                        /* Progress bar */
-                        .ip-progress2 { margin-top:1.25rem; }
-                        .ip-progress2-labels { display:flex; justify-content:space-between; font-size:0.7rem; font-weight:700; color:rgba(255,255,255,0.28); margin-bottom:0.5rem; }
-                        .ip-progress2-track { height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:visible; position:relative; }
-                        .ip-progress2-fill { height:100%; border-radius:3px; transition:width 2s cubic-bezier(0.4,0,0.2,1); background:linear-gradient(90deg,#4a8eff 0%,#a78bfa 55%,#f0c040 100%); box-shadow:0 0 14px rgba(74,142,255,0.5); position:relative; }
-                        .ip-progress2-fill::after { content:''; position:absolute; right:-5px; top:50%; transform:translateY(-50%); width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 0 10px rgba(255,255,255,0.9); }
-                        /* Stats */
-                        .ip-stats2 { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.25rem; }
+
+                        /* ─── right col: KPI pills ─── */
+                        .ip-hero2-kpis { display:flex; flex-direction:column; gap:0.75rem; min-width:130px; }
+                        @media(max-width:800px){ .ip-hero2-kpis{ flex-direction:row; flex-wrap:wrap; } }
+                        .ip-kpi { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0.75rem 1.1rem; text-align:right; }
+                        @media(max-width:800px){ .ip-kpi{ flex:1; min-width:120px; text-align:left; } }
+                        .ip-kpi-lbl { font-size:0.56rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:0.3rem; }
+                        .ip-kpi-val { font-family:'JetBrains Mono',monospace; font-size:1rem; font-weight:700; }
+
+                        /* ─── progress bar strip (bottom of hero) ─── */
+                        .ip-hero2-footer {
+                            position:relative; z-index:2;
+                            border-top:1px solid rgba(255,255,255,0.06);
+                            padding:1rem 2.5rem 1.25rem;
+                            background:rgba(0,0,0,0.15);
+                        }
+                        @media(max-width:800px){ .ip-hero2-footer{ padding:1rem 1.5rem 1.25rem; } }
+                        .ip-progress2 {}
+                        .ip-progress2-labels { display:flex; justify-content:space-between; align-items:center; font-size:0.68rem; font-weight:700; color:rgba(255,255,255,0.3); margin-bottom:0.5rem; }
+                        .ip-progress2-track { height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; position:relative; }
+                        .ip-progress2-fill { height:100%; border-radius:4px; transition:width 2s cubic-bezier(0.4,0,0.2,1); background:linear-gradient(90deg,#4a8eff 0%,#a78bfa 55%,#f0c040 100%); box-shadow:0 0 12px rgba(74,142,255,0.5); }
+                        .ip-progress2-pct { font-size:0.68rem; font-weight:700; color:rgba(255,255,255,0.4); margin-top:0.4rem; text-align:right; }
+                        /* ═══ STATS GRID ═══ */
+                        .ip-stats2 { display:grid; grid-template-columns:repeat(4,1fr); gap:0.875rem; margin-bottom:1.25rem; }
                         @media(max-width:900px){ .ip-stats2{grid-template-columns:repeat(2,1fr);} }
-                        .ip-stat2 { background:linear-gradient(145deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.09); border-radius:20px; padding:1.4rem 1.5rem; position:relative; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.4); transition:border-color 0.3s,transform 0.25s,box-shadow 0.3s; cursor:default; }
-                        .ip-stat2:hover { border-color:rgba(255,255,255,0.2); transform:translateY(-4px); box-shadow:0 16px 50px rgba(0,0,0,0.5),0 0 30px rgba(74,142,255,0.06); }
-                        .ip-stat2::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); }
-                        .ip-stat2::after { content:''; position:absolute; bottom:0; left:0; right:0; height:60px; background:linear-gradient(to top,rgba(74,142,255,0.03),transparent); pointer-events:none; }
-                        .ip-stat2-icon { font-size:1.5rem; margin-bottom:0.75rem; display:block; filter:drop-shadow(0 0 6px rgba(74,142,255,0.3)); }
-                        .ip-stat2-val { font-family:'JetBrains Mono',monospace; font-size:1.4rem; font-weight:700; margin-bottom:0.35rem; letter-spacing:-0.02em; }
-                        .ip-stat2-lbl { font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.28); }
-                        .ip-stat2-glow { position:absolute; bottom:-20px; right:-20px; width:90px; height:90px; border-radius:50%; opacity:0.1; pointer-events:none; transition:opacity 0.3s; }
-                        .ip-stat2:hover .ip-stat2-glow { opacity:0.2; }
-                        /* Chart */
-                        .ip-chart-card { background:linear-gradient(160deg,#060b19,#0a1020); border:1px solid rgba(255,255,255,0.08); border-radius:22px; overflow:hidden; margin-bottom:1.25rem; box-shadow:0 12px 50px rgba(0,0,0,0.5); }
-                        .ip-chart-head { display:flex; align-items:center; justify-content:space-between; padding:1.35rem 1.75rem; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.01); }
-                        .ip-chart-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; letter-spacing:-0.01em; }
-                        .ip-legend-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:4px; box-shadow:0 0 6px currentColor; }
-                        /* Journey */
-                        .ip-journey-card { background:linear-gradient(145deg,#060b18,#080e1c); border:1px solid rgba(255,255,255,0.08); border-radius:22px; padding:1.5rem 1.75rem; margin-bottom:1.25rem; box-shadow:0 8px 40px rgba(0,0,0,0.4); }
-                        .ip-journey-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
-                        .ip-journey-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
-                        .ip-ms-track { display:flex; align-items:flex-start; gap:0; overflow-x:auto; padding-bottom:0.5rem; }
-                        .ip-ms-node { display:flex; flex-direction:column; align-items:center; flex-shrink:0; min-width:60px; position:relative; }
-                        .ip-ms-line { position:absolute; top:14px; left:calc(50% + 14px); width:calc(100% - 14px); height:2px; }
-                        .ip-ms-dot { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; border:2px solid; transition:all 0.3s; position:relative; z-index:1; }
-                        .ip-ms-dot.done  { background:rgba(46,204,154,0.2); border-color:#2ecc9a; color:#2ecc9a; box-shadow:0 0 14px rgba(46,204,154,0.5); }
-                        .ip-ms-dot.now   { background:rgba(74,142,255,0.25); border-color:#4a8eff; color:#4a8eff; box-shadow:0 0 20px rgba(74,142,255,0.7); animation:ms-pulse 1.8s ease infinite; }
+                        .ip-stat2 { background:linear-gradient(145deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:1.25rem 1.4rem; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:border-color 0.3s,transform 0.25s,box-shadow 0.3s; }
+                        .ip-stat2:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,0.4); }
+                        .ip-stat2::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent); }
+                        .ip-stat2-icon { font-size:1.3rem; margin-bottom:0.6rem; display:block; }
+                        .ip-stat2-val { font-family:'JetBrains Mono',monospace; font-size:1.3rem; font-weight:700; margin-bottom:0.25rem; letter-spacing:-0.02em; }
+                        .ip-stat2-lbl { font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.28); }
+                        .ip-stat2-glow { position:absolute; bottom:-20px; right:-20px; width:80px; height:80px; border-radius:50%; opacity:0.1; pointer-events:none; }
+                        .ip-stat2:hover .ip-stat2-glow { opacity:0.18; }
+                        /* ═══ CHART CARD ═══ */
+                        .ip-chart-card { background:linear-gradient(160deg,#060b19,#0a1020); border:1px solid rgba(255,255,255,0.08); border-radius:22px; overflow:hidden; margin-bottom:1.25rem; box-shadow:0 10px 40px rgba(0,0,0,0.45); }
+                        .ip-chart-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+                        .ip-chart-title { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; letter-spacing:-0.01em; }
+                        .ip-chart-body { padding:1.25rem 1.5rem; }
+                        .ip-legend-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:4px; }
+                        /* ═══ TWO-COL ROW ═══ */
+                        .ip-two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.25rem; }
+                        @media(max-width:800px){ .ip-two-col{ grid-template-columns:1fr; } }
+                        /* ═══ JOURNEY ═══ */
+                        .ip-journey-card { background:linear-gradient(145deg,#060b18,#080e1c); border:1px solid rgba(255,255,255,0.08); border-radius:22px; padding:1.4rem 1.5rem; box-shadow:0 6px 30px rgba(0,0,0,0.35); }
+                        .ip-journey-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; }
+                        .ip-journey-title { font-family:'Syne',sans-serif; font-size:0.88rem; font-weight:700; }
+                        .ip-ms-track { display:flex; align-items:flex-start; gap:0; overflow-x:auto; padding-bottom:0.5rem; scrollbar-width:none; }
+                        .ip-ms-track::-webkit-scrollbar { display:none; }
+                        .ip-ms-node { display:flex; flex-direction:column; align-items:center; flex-shrink:0; min-width:56px; position:relative; }
+                        .ip-ms-line { position:absolute; top:14px; left:calc(50% + 14px); width:calc(100% - 14px); height:2px; z-index:0; }
+                        .ip-ms-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.62rem; font-weight:800; border:2px solid; transition:all 0.3s; position:relative; z-index:1; }
+                        .ip-ms-dot.done  { background:rgba(46,204,154,0.2); border-color:#2ecc9a; color:#2ecc9a; box-shadow:0 0 12px rgba(46,204,154,0.45); }
+                        .ip-ms-dot.now   { background:rgba(74,142,255,0.2); border-color:#4a8eff; color:#4a8eff; box-shadow:0 0 18px rgba(74,142,255,0.65); animation:ms-pulse 1.8s ease infinite; }
                         .ip-ms-dot.pend  { background:transparent; border-color:rgba(255,255,255,0.1); color:rgba(255,255,255,0.18); }
-                        .ip-ms-dot.goal  { background:rgba(240,192,64,0.2); border-color:#f0c040; color:#f0c040; box-shadow:0 0 20px rgba(240,192,64,0.5); }
-                        @keyframes ms-pulse { 0%,100%{box-shadow:0 0 14px rgba(74,142,255,0.5)} 50%{box-shadow:0 0 28px rgba(74,142,255,0.9)} }
-                        .ip-ms-label { font-size:0.58rem; font-weight:700; margin-top:0.45rem; color:rgba(255,255,255,0.28); white-space:nowrap; font-family:'JetBrains Mono',monospace; text-align:center; }
+                        .ip-ms-dot.goal  { background:rgba(240,192,64,0.2); border-color:#f0c040; color:#f0c040; box-shadow:0 0 18px rgba(240,192,64,0.45); }
+                        @keyframes ms-pulse { 0%,100%{box-shadow:0 0 12px rgba(74,142,255,0.45)} 50%{box-shadow:0 0 26px rgba(74,142,255,0.85)} }
+                        .ip-ms-label { font-size:0.55rem; font-weight:700; margin-top:0.4rem; color:rgba(255,255,255,0.25); white-space:nowrap; font-family:'JetBrains Mono',monospace; text-align:center; }
                         .ip-ms-label.done { color:#2ecc9a; } .ip-ms-label.now { color:#4a8eff; } .ip-ms-label.goal { color:#f0c040; }
-                        /* Sessions */
-                        .ip-sessions-card { background:linear-gradient(160deg,#060b18,#080e1d); border:1px solid rgba(255,255,255,0.08); border-radius:22px; overflow:hidden; margin-bottom:1.25rem; box-shadow:0 8px 40px rgba(0,0,0,0.4); }
-                        .ip-sessions-head { display:flex; justify-content:space-between; align-items:center; padding:1.35rem 1.75rem; border-bottom:1px solid rgba(255,255,255,0.06); }
-                        .ip-sessions-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
-                        /* Alerts */
-                        .ip-alert2 { border-radius:18px; padding:1.1rem 1.5rem; margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; flex-wrap:wrap; position:relative; overflow:hidden; }
+                        /* ═══ SESSIONS ═══ */
+                        .ip-sessions-card { background:linear-gradient(160deg,#060b18,#080e1d); border:1px solid rgba(255,255,255,0.08); border-radius:22px; overflow:hidden; margin-bottom:1.25rem; box-shadow:0 6px 30px rgba(0,0,0,0.35); }
+                        .ip-sessions-head { display:flex; justify-content:space-between; align-items:center; padding:1.1rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+                        .ip-sessions-title { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; }
+                        /* ═══ ALERTS ═══ */
+                        .ip-alert2 { border-radius:16px; padding:0.9rem 1.25rem; margin-bottom:0.875rem; display:flex; align-items:flex-start; gap:0.875rem; flex-wrap:wrap; position:relative; overflow:hidden; }
                         .ip-alert2::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:2px 0 0 2px; }
                         .ip-alert2.l1 { background:rgba(245,166,35,0.06); border:1px solid rgba(245,166,35,0.18); } .ip-alert2.l1::before { background:#f5a623; }
                         .ip-alert2.l2 { background:rgba(240,100,50,0.08); border:1px solid rgba(240,100,50,0.22); } .ip-alert2.l2::before { background:#f06432; }
                         .ip-alert2.l3 { background:rgba(240,92,106,0.08); border:1px solid rgba(240,92,106,0.25); } .ip-alert2.l3::before { background:#f05c6a; }
-                        .ip-alert2-icon { font-size:1.4rem; flex-shrink:0; }
-                        .ip-alert2-title { font-size:0.875rem; font-weight:700; margin-bottom:0.25rem; }
-                        .ip-alert2-text  { font-size:0.8rem; color:rgba(255,255,255,0.45); line-height:1.6; }
-                        /* Terminated */
-                        .ip-terminated2 { border-radius:24px; padding:3.5rem 2rem; text-align:center; margin-bottom:1.25rem; background:linear-gradient(160deg,#0f0507,#140608,#0a0204); border:1px solid rgba(240,92,106,0.28); box-shadow:0 0 80px rgba(240,92,106,0.1),inset 0 1px 0 rgba(240,92,106,0.08); position:relative; overflow:hidden; }
-                        .ip-terminated2::before { content:''; position:absolute; top:-100px; left:50%; transform:translateX(-50%); width:400px; height:300px; background:radial-gradient(ellipse,rgba(240,92,106,0.14) 0%,transparent 70%); pointer-events:none; }
-                        /* Mode badges */
-                        .ip-mode-badge { display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.75rem; border-radius:12px; font-size:0.75rem; font-weight:700; border:1px solid; }
+                        .ip-alert2-icon { font-size:1.3rem; flex-shrink:0; }
+                        .ip-alert2-title { font-size:0.82rem; font-weight:700; margin-bottom:0.2rem; }
+                        .ip-alert2-text  { font-size:0.76rem; color:rgba(255,255,255,0.45); line-height:1.55; }
+                        /* ═══ TERMINATED ═══ */
+                        .ip-terminated2 { border-radius:24px; padding:3rem 2rem; text-align:center; margin-bottom:1.25rem; background:linear-gradient(160deg,#0f0507,#140608,#0a0204); border:1px solid rgba(240,92,106,0.28); box-shadow:0 0 60px rgba(240,92,106,0.1),inset 0 1px 0 rgba(240,92,106,0.08); position:relative; overflow:hidden; }
+                        .ip-terminated2::before { content:''; position:absolute; top:-100px; left:50%; transform:translateX(-50%); width:400px; height:300px; background:radial-gradient(ellipse,rgba(240,92,106,0.12) 0%,transparent 70%); pointer-events:none; }
+                        /* ═══ BADGES ═══ */
+                        .ip-mode-badge { display:inline-flex; align-items:center; gap:0.35rem; padding:0.22rem 0.65rem; border-radius:10px; font-size:0.7rem; font-weight:700; border:1px solid; }
                         .ip-mode-badge.conservative { background:rgba(46,204,154,0.1); color:#2ecc9a; border-color:rgba(46,204,154,0.3); }
                         .ip-mode-badge.base { background:rgba(167,139,250,0.12); color:#a78bfa; border-color:rgba(167,139,250,0.35); }
                         .ip-mode-badge.pending { background:rgba(245,166,35,0.1); color:#f5a623; border-color:rgba(245,166,35,0.3); }
                         .ip-pulse-dot { width:8px; height:8px; border-radius:50%; background:#f05c6a; display:inline-block; animation:dot-pulse 1.2s ease infinite; }
-                        .ip-monitor-badge { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.8rem; font-weight:700; }
+                        .ip-monitor-badge { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.78rem; font-weight:700; }
                         @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
-                        /* Modal */
-                        #ipModeModal { position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:9000; display:flex; align-items:center; justify-content:center; padding:1rem; }
+                        /* ═══ MODAL ═══ */
+                        #ipModeModal { position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:9000; display:flex; align-items:center; justify-content:center; padding:1rem; }
                         .ip-modal-card { background:#0c1525; border:1px solid rgba(255,255,255,0.1); border-radius:24px; padding:2rem; width:100%; max-width:420px; box-shadow:0 40px 100px rgba(0,0,0,0.6); animation:slideDown 0.25s ease; }
                         .ip-mode-opt { padding:1rem 1.25rem; border:2px solid rgba(255,255,255,0.07); border-radius:12px; cursor:pointer; transition:all 0.2s; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.875rem; }
                         .ip-mode-opt:hover { border-color:rgba(255,255,255,0.18); background:rgba(255,255,255,0.03); }
@@ -1792,10 +1829,12 @@
                         </div>
 
                         <!-- HERO -->
-                        <div class="ip-hero2 ip-tilt" id="ipInvHeader">
-                            <div class="ip-hero2-inner">
+                        <div class="ip-hero2" id="ipInvHeader">
+                            <!-- top row: ring | value | KPIs -->
+                            <div class="ip-hero2-top">
+                                <!-- ring -->
                                 <div class="ip-ring-wrap">
-                                    <svg class="ip-ring-svg" width="160" height="160" viewBox="0 0 160 160">
+                                    <svg class="ip-ring-svg" width="130" height="130" viewBox="0 0 160 160">
                                         <circle class="ip-ring-track" cx="80" cy="80" r="70"/>
                                         <circle class="ip-ring-fill" id="ipRingFill" cx="80" cy="80" r="70" stroke="#4a8eff"/>
                                     </svg>
@@ -1804,31 +1843,21 @@
                                         <div class="ip-ring-sub">to payout</div>
                                     </div>
                                 </div>
+                                <!-- value + actions -->
                                 <div class="ip-hero2-main">
                                     <div class="ip-eyebrow">Your Account Value</div>
                                     <div class="ip-value-display" id="ipDisplayValue">$—</div>
                                     <div class="ip-meta-row">
                                         <span class="ip-gain-badge" id="ipCycleGainBadge">+0.00%</span>
-                                        <span style="font-size:0.72rem;color:rgba(255,255,255,0.28);">this cycle</span>
+                                        <span style="font-size:0.68rem;color:rgba(255,255,255,0.28);">this cycle</span>
                                         <span id="ipModeBadge" class="ip-mode-badge conservative">🛡 Conservative</span>
                                     </div>
-                                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                                        <button id="ipModeReqBtn" class="btn" style="padding:0.35rem 0.875rem;font-size:0.78rem;font-weight:700;background:rgba(74,142,255,0.1);color:#4a8eff;border:1px solid rgba(74,142,255,0.28);border-radius:8px;font-family:'Syne',sans-serif;" onclick="ipOpenModeModal()">↕ Request Strategy Change</button>
+                                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+                                        <button id="ipModeReqBtn" class="btn" style="padding:0.3rem 0.8rem;font-size:0.75rem;font-weight:700;background:rgba(74,142,255,0.1);color:#4a8eff;border:1px solid rgba(74,142,255,0.28);border-radius:8px;" onclick="ipOpenModeModal()">↕ Request Strategy Change</button>
                                         <span id="ipPendingBadge" style="display:none;" class="ip-mode-badge pending">⏳ Pending Review</span>
                                     </div>
-                                    <div class="ip-progress2">
-                                        <div class="ip-progress2-labels">
-                                            <span id="ipInvProgLeft2">—</span>
-                                            <span id="ipInvProgRight" style="color:#f0c040;">—</span>
-                                        </div>
-                                        <div class="ip-progress2-track">
-                                            <div class="ip-progress2-fill" id="ipInvProgFill" style="width:0%;"></div>
-                                        </div>
-                                        <div style="display:flex;justify-content:flex-end;margin-top:0.4rem;">
-                                            <span id="ipInvProgPct" style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.28);">0%</span>
-                                        </div>
-                                    </div>
                                 </div>
+                                <!-- KPI pills -->
                                 <div class="ip-hero2-kpis">
                                     <div class="ip-kpi">
                                         <div class="ip-kpi-lbl">Entry</div>
@@ -1840,46 +1869,79 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- STATS -->
-                        <div class="ip-stats2" id="ipProgressSection">
-                            <div class="ip-stat2 ip-tilt"><span class="ip-stat2-icon">📈</span><div class="ip-stat2-val" id="ipStatBest" style="color:#2ecc9a;">—</div><div class="ip-stat2-lbl">Best Session</div><div class="ip-stat2-glow" style="background:#2ecc9a;"></div></div>
-                            <div class="ip-stat2 ip-tilt"><span class="ip-stat2-icon">📉</span><div class="ip-stat2-val" id="ipStatWorst" style="color:#f05c6a;">—</div><div class="ip-stat2-lbl">Worst Session</div><div class="ip-stat2-glow" style="background:#f05c6a;"></div></div>
-                            <div class="ip-stat2 ip-tilt"><span class="ip-stat2-icon">📊</span><div class="ip-stat2-val" id="ipStatSessions" style="color:#4a8eff;">—</div><div class="ip-stat2-lbl">Total Sessions</div><div class="ip-stat2-glow" style="background:#4a8eff;"></div></div>
-                            <div class="ip-stat2 ip-tilt"><span class="ip-stat2-icon">🎯</span><div class="ip-stat2-val" id="ipStatWinRate" style="color:#a78bfa;">—</div><div class="ip-stat2-lbl">Win Rate</div><div class="ip-stat2-glow" style="background:#a78bfa;"></div></div>
-                        </div>
-
-                        <!-- EQUITY CHART -->
-                        <div class="ip-chart-card ip-tilt" id="ipEquitySection">
-                            <div class="ip-chart-head">
-                                <div class="ip-chart-title">Portfolio Equity Curve</div>
-                                <div style="display:flex;gap:1rem;align-items:center;">
-                                    <span style="font-size:0.72rem;color:rgba(255,255,255,0.3);"><span class="ip-legend-dot" style="background:#f0c040;"></span>Your Value</span>
-                                    <span style="font-size:0.72rem;color:rgba(255,255,255,0.2);"><span class="ip-legend-dot" style="background:rgba(255,255,255,0.25);"></span>Target Path</span>
+                            <!-- progress footer -->
+                            <div class="ip-hero2-footer">
+                                <div class="ip-progress2">
+                                    <div class="ip-progress2-labels">
+                                        <span id="ipInvProgLeft2">Entry</span>
+                                        <span id="ipInvProgPct" style="color:rgba(255,255,255,0.5);">0% to payout</span>
+                                        <span id="ipInvProgRight" style="color:#f0c040;">Target</span>
+                                    </div>
+                                    <div class="ip-progress2-track">
+                                        <div class="ip-progress2-fill" id="ipInvProgFill" style="width:0%;"></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div style="padding:1.25rem 1.5rem;">
-                                <div style="position:relative;height:240px;"><canvas id="ipEquityChart"></canvas></div>
+                        </div>
+
+                        <!-- EQUITY CHART — full width -->
+                        <div class="ip-chart-card" id="ipEquitySection">
+                            <div class="ip-chart-head">
+                                <div class="ip-chart-title">📈 Portfolio Equity Curve</div>
+                                <div style="display:flex;gap:1.25rem;align-items:center;">
+                                    <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:flex;align-items:center;gap:0.3rem;"><span class="ip-legend-dot" style="background:#f0c040;box-shadow:0 0 6px rgba(240,192,64,0.6);"></span>Your Value</span>
+                                    <span style="font-size:0.7rem;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:0.3rem;"><span class="ip-legend-dot" style="background:rgba(255,255,255,0.2);"></span>Target Path</span>
+                                </div>
+                            </div>
+                            <div class="ip-chart-body">
+                                <div style="position:relative;height:230px;"><canvas id="ipEquityChart"></canvas></div>
                             </div>
                         </div>
 
-                        <!-- JOURNEY / MILESTONES -->
-                        <div class="ip-journey-card ip-tilt" id="ipMilestonesSection">
-                            <div class="ip-journey-head">
-                                <div class="ip-journey-title">🚀 Your Journey</div>
-                                <span id="ipMilestonesLabel" style="font-size:0.72rem;color:rgba(255,255,255,0.28);">Value checkpoints</span>
+                        <!-- TWO COL: journey + session summary -->
+                        <div class="ip-two-col">
+                            <!-- JOURNEY / MILESTONES -->
+                            <div class="ip-journey-card" id="ipMilestonesSection">
+                                <div class="ip-journey-head">
+                                    <div class="ip-journey-title">🚀 Your Journey</div>
+                                    <span id="ipMilestonesLabel" style="font-size:0.68rem;color:rgba(255,255,255,0.28);">Value checkpoints</span>
+                                </div>
+                                <div class="ip-ms-track" id="ipMilestoneChips"></div>
                             </div>
-                            <div class="ip-ms-track" id="ipMilestoneChips"></div>
+
+                            <!-- QUICK STATS MINI -->
+                            <div class="ip-journey-card">
+                                <div class="ip-journey-head">
+                                    <div class="ip-journey-title">⚡ Quick Stats</div>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.875rem 1rem;">
+                                        <div style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);margin-bottom:0.35rem;">Best Session</div>
+                                        <div id="ipStatBest" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#2ecc9a;">—</div>
+                                    </div>
+                                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.875rem 1rem;">
+                                        <div style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);margin-bottom:0.35rem;">Worst Session</div>
+                                        <div id="ipStatWorst" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#f05c6a;">—</div>
+                                    </div>
+                                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.875rem 1rem;">
+                                        <div style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);margin-bottom:0.35rem;">Total Sessions</div>
+                                        <div id="ipStatSessions" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#4a8eff;">—</div>
+                                    </div>
+                                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.875rem 1rem;">
+                                        <div style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);margin-bottom:0.35rem;">Win Rate</div>
+                                        <div id="ipStatWinRate" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#a78bfa;">—</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- SESSION HISTORY -->
                         <div class="ip-sessions-card" id="ipTradeSection">
                             <div class="ip-sessions-head">
                                 <div class="ip-sessions-title">Session History</div>
-                                <span id="ipTradeCount" style="font-size:0.72rem;color:rgba(255,255,255,0.28);">0 sessions</span>
+                                <span id="ipTradeCount" style="font-size:0.68rem;color:rgba(255,255,255,0.28);">0 sessions</span>
                             </div>
-                            <div style="max-height:420px;overflow-y:auto;" id="ipTradeBody"></div>
+                            <div style="max-height:400px;overflow-y:auto;" id="ipTradeBody"></div>
                         </div>
 
                     </div>
@@ -1937,7 +1999,7 @@
     <div style="display:flex;align-items:center;gap:0.875rem;">
       <span style="font-size:1.6rem;filter:drop-shadow(0 0 10px rgba(59,126,248,0.7));">🔧</span>
       <div>
-        <div style="font-size:1.1rem;font-weight:700;letter-spacing:-0.01em;">Prop Farm Pro — Full Debug Panel</div>
+        <div style="font-size:1.1rem;font-weight:700;letter-spacing:-0.01em;">My Journal — Full Debug Panel</div>
         <div style="font-size:0.72rem;color:#7a8bb5;">Every feature tested in real-time. Admin eyes only.</div>
       </div>
     </div>
@@ -4762,7 +4824,7 @@ function ipRenderInvestorView(inv, isAdminPreview) {
     if (l4) l4.style.display = isBlown ? 'block' : 'none';
 
     // Hide all interactive elements when blown — show terminated state only
-    ['ipInvHeader','ipProgressSection','ipEquitySection','ipTradeSection','ipModeBadge','ipModeReqBtn','ipPendingBadge'].forEach(id => {
+    ['ipInvHeader','ipEquitySection','ipMilestonesSection','ipTradeSection','ipModeBadge','ipModeReqBtn','ipPendingBadge'].forEach(id => {
         const e2 = el(id); if (e2) e2.style.display = isBlown ? 'none' : '';
     });
 
@@ -4909,10 +4971,11 @@ function ipRenderInvestorView(inv, isAdminPreview) {
 
         if (ipEquityChartObj) { ipEquityChartObj.destroy(); ipEquityChartObj = null; }
         const chartCanvas = ctx.getContext('2d');
-        // Gold gradient fill
-        const grad = chartCanvas.createLinearGradient(0, 0, 0, 240);
-        grad.addColorStop(0,   'rgba(240,192,64,0.25)');
-        grad.addColorStop(0.6, 'rgba(240,192,64,0.05)');
+        // Gold gradient fill — use canvas actual height
+        const canvasHeight = ctx.clientHeight || 230;
+        const grad = chartCanvas.createLinearGradient(0, 0, 0, canvasHeight);
+        grad.addColorStop(0,   'rgba(240,192,64,0.28)');
+        grad.addColorStop(0.5, 'rgba(240,192,64,0.07)');
         grad.addColorStop(1,   'rgba(240,192,64,0)');
 
         ipEquityChartObj = new Chart(ctx, {
@@ -4936,39 +4999,46 @@ function ipRenderInvestorView(inv, isAdminPreview) {
                     {
                         label: 'Target Path',
                         data: benchData,
-                        borderColor: 'rgba(255,255,255,0.12)',
+                        borderColor: 'rgba(255,255,255,0.15)',
                         backgroundColor: 'transparent',
                         fill: false, tension: 0,
                         pointRadius: 0, borderWidth: 1.5,
-                        borderDash: [6, 4],
+                        borderDash: [5, 4],
                         yAxisID: 'y'
                     }
                 ]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 800, easing: 'easeOutQuart' },
                 interaction: { mode:'index', intersect:false },
                 plugins: {
                     legend: { display:false },
                     tooltip: {
-                        backgroundColor: 'rgba(8,14,28,0.95)',
-                        borderColor: 'rgba(255,255,255,0.1)',
+                        backgroundColor: 'rgba(6,11,25,0.97)',
+                        borderColor: 'rgba(240,192,64,0.3)',
                         borderWidth: 1,
-                        titleColor: 'rgba(255,255,255,0.6)',
+                        titleColor: 'rgba(255,255,255,0.55)',
                         bodyColor: '#f0c040',
-                        padding: 10,
+                        padding: 12,
+                        cornerRadius: 12,
+                        titleFont: { family:'Space Grotesk', weight:'600', size:11 },
+                        bodyFont: { family:'JetBrains Mono', size:12 },
                         callbacks: {
-                            label: c => c.dataset.label === 'Target Path' ? null : ` Value: ${fmtCurrency(c.raw)}`
+                            title: items => items[0].label,
+                            label: c => c.dataset.label === 'Target Path' ? null : ` ${fmtCurrency(c.raw)}`
                         }
                     }
                 },
                 scales: {
-                    x: { ticks:{ color:'rgba(255,255,255,0.2)', maxTicksLimit:6, font:{size:10,family:"'JetBrains Mono'"} }, grid:{ color:'rgba(255,255,255,0.03)' } },
+                    x: { ticks:{ color:'rgba(255,255,255,0.22)', maxTicksLimit:6, font:{size:10,family:"'JetBrains Mono'"} }, grid:{ color:'rgba(255,255,255,0.04)' }, border:{ display:false } },
                     y: {
-                        min: Math.min(0, entry * 0.95),
-                        max: payout * 1.03,
-                        ticks:{ color:'rgba(240,192,64,0.6)', font:{size:10,family:"'JetBrains Mono'"}, callback: v => '$' + v.toFixed(0) },
-                        grid:{ color:'rgba(255,255,255,0.04)' }
+                        min: Math.min(entry * 0.97, Math.min(...dvData) * 0.97),
+                        max: payout * 1.05,
+                        ticks:{ color:'rgba(240,192,64,0.55)', font:{size:10,family:"'JetBrains Mono'"}, callback: v => '$' + v.toFixed(0) },
+                        grid:{ color:'rgba(255,255,255,0.04)' },
+                        border:{ display:false }
                     }
                 }
             }

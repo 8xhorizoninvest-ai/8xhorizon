@@ -1855,141 +1855,285 @@
                 <!-- ── INVESTOR VIEW ── -->
                 <div id="ipInvestorSection" style="display:none;">
                     <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap');
+                        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap');
 
-                        /* ═══ ROOT ═══ */
-                        .ip-root { font-family:'Space Grotesk',sans-serif; position:relative; z-index:1; }
-                        #ipParticleCanvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; opacity:0.35; }
+                        /* ═══════════════════════════
+                           BENTO INVESTOR DASHBOARD
+                           ═══════════════════════════ */
+                        .ipv { font-family: 'Space Grotesk', sans-serif; }
 
-                        /* ═══ HERO — full-width split layout ═══ */
-                        .ip-hero2 {
-                            background: linear-gradient(135deg, #07091a 0%, #0c1226 50%, #070b1e 100%);
+                        /* ─── TOPBAR BANNER ─── */
+                        .ipv-banner {
+                            position: relative;
+                            border-radius: 20px;
+                            overflow: hidden;
+                            margin-bottom: 1rem;
+                            padding: 2rem 2rem 1.5rem;
+                            background: linear-gradient(120deg, #0d1b3e 0%, #12204a 40%, #0f1535 100%);
+                            border: 1px solid rgba(74,142,255,0.2);
+                            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+                        }
+                        .ipv-banner::before {
+                            content: '';
+                            position: absolute;
+                            top: 0; left: 0; right: 0; bottom: 0;
+                            background:
+                                radial-gradient(ellipse 60% 80% at 90% 50%, rgba(74,142,255,0.12) 0%, transparent 65%),
+                                radial-gradient(ellipse 40% 60% at 10% 100%, rgba(167,139,250,0.1) 0%, transparent 60%);
+                            pointer-events: none;
+                        }
+                        .ipv-banner-inner {
+                            position: relative; z-index: 1;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            gap: 1rem;
+                            flex-wrap: wrap;
+                        }
+                        .ipv-banner-left {}
+                        .ipv-label {
+                            font-size: 0.6rem;
+                            font-weight: 700;
+                            letter-spacing: 0.2em;
+                            text-transform: uppercase;
+                            color: #4a8eff;
+                            margin-bottom: 0.4rem;
+                        }
+                        .ipv-value {
+                            font-family: 'Syne', sans-serif;
+                            font-size: clamp(2.4rem, 6vw, 4rem);
+                            font-weight: 800;
+                            line-height: 1;
+                            letter-spacing: -0.04em;
+                            color: #fff;
+                            margin-bottom: 0.6rem;
+                        }
+                        .ipv-badges {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            flex-wrap: wrap;
+                        }
+                        .ipv-gain {
+                            padding: 0.25rem 0.7rem;
+                            border-radius: 20px;
+                            font-size: 0.78rem;
+                            font-weight: 700;
+                            background: rgba(46,204,154,0.15);
+                            border: 1px solid rgba(46,204,154,0.35);
+                            color: #2ecc9a;
+                        }
+                        .ipv-gain.neg { background:rgba(240,92,106,0.12); border-color:rgba(240,92,106,0.35); color:#f05c6a; }
+                        .ip-mode-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.25rem 0.65rem; border-radius:20px; font-size:0.72rem; font-weight:700; border:1px solid; }
+                        .ip-mode-badge.conservative { background:rgba(46,204,154,0.1); color:#2ecc9a; border-color:rgba(46,204,154,0.35); }
+                        .ip-mode-badge.base { background:rgba(167,139,250,0.12); color:#a78bfa; border-color:rgba(167,139,250,0.4); }
+                        .ip-mode-badge.pending { background:rgba(245,166,35,0.1); color:#f5a623; border-color:rgba(245,166,35,0.35); }
+                        .ipv-banner-right {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                            align-items: flex-end;
+                        }
+                        @media(max-width:600px){ .ipv-banner-right{ align-items:flex-start; } }
+                        .ipv-kpipair {
+                            display: flex;
+                            gap: 0.75rem;
+                        }
+                        .ipv-kpi {
+                            background: rgba(255,255,255,0.05);
                             border: 1px solid rgba(255,255,255,0.08);
-                            border-radius: 24px;
-                            padding: 0;
-                            margin-bottom: 1.25rem;
+                            border-radius: 12px;
+                            padding: 0.7rem 1rem;
+                            min-width: 90px;
+                            text-align: center;
+                        }
+                        .ipv-kpi-lbl { font-size: 0.55rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 0.3rem; }
+                        .ipv-kpi-val { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; }
+
+                        /* ─── PROGRESS ROW ─── */
+                        .ipv-prog-row {
+                            position: relative; z-index: 1;
+                            margin-top: 1.4rem;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.4rem;
+                        }
+                        .ipv-prog-labels {
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 0.68rem;
+                            font-weight: 700;
+                            color: rgba(255,255,255,0.35);
+                        }
+                        .ipv-prog-labels span:last-child { color: #f0c040; }
+                        .ipv-prog-track {
+                            height: 10px;
+                            background: rgba(255,255,255,0.07);
+                            border-radius: 5px;
+                            overflow: hidden;
+                            position: relative;
+                        }
+                        .ipv-prog-fill {
+                            height: 100%;
+                            border-radius: 5px;
+                            background: linear-gradient(90deg, #4a8eff 0%, #a78bfa 55%, #f0c040 100%);
+                            box-shadow: 0 0 14px rgba(74,142,255,0.55);
+                            transition: width 2s cubic-bezier(0.4,0,0.2,1);
+                        }
+                        .ipv-prog-pct { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.4); text-align: center; }
+
+                        /* ─── BENTO GRID ─── */
+                        .ipv-bento {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr 1fr 1fr;
+                            grid-template-rows: auto;
+                            gap: 0.875rem;
+                            margin-bottom: 1rem;
+                        }
+                        @media(max-width:900px){ .ipv-bento{ grid-template-columns:1fr 1fr; } }
+                        @media(max-width:500px){ .ipv-bento{ grid-template-columns:1fr; } }
+
+                        /* stat cell */
+                        .ipv-cell {
+                            background: rgba(255,255,255,0.03);
+                            border: 1px solid rgba(255,255,255,0.08);
+                            border-radius: 16px;
+                            padding: 1.1rem 1.25rem;
                             position: relative;
                             overflow: hidden;
-                            box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+                            transition: transform 0.2s, border-color 0.2s;
                         }
-                        .ip-hero2::before { content:''; position:absolute; top:-120px; right:-100px; width:500px; height:500px; background:radial-gradient(circle,rgba(74,142,255,0.09) 0%,transparent 60%); pointer-events:none; z-index:0; }
-                        .ip-hero2::after  { content:''; position:absolute; bottom:-80px; left:-60px; width:350px; height:350px; background:radial-gradient(circle,rgba(167,139,250,0.06) 0%,transparent 60%); pointer-events:none; z-index:0; }
+                        .ipv-cell:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+                        .ipv-cell-icon { font-size: 1.1rem; margin-bottom: 0.5rem; display: block; }
+                        .ipv-cell-val { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.2rem; }
+                        .ipv-cell-lbl { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.28); }
+                        .ipv-cell-accent { position: absolute; bottom: -10px; right: -10px; width: 55px; height: 55px; border-radius: 50%; opacity: 0.12; }
 
-                        /* ─── top section inside hero ─── */
-                        .ip-hero2-top {
-                            position: relative; z-index: 2;
-                            display: grid;
-                            grid-template-columns: auto 1fr auto;
-                            gap: 2rem;
+                        /* ─── CHART CARD ─── */
+                        .ipv-chart-card {
+                            background: rgba(6,11,25,0.95);
+                            border: 1px solid rgba(255,255,255,0.08);
+                            border-radius: 20px;
+                            overflow: hidden;
+                            margin-bottom: 1rem;
+                            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+                        }
+                        .ipv-chart-header {
+                            display: flex;
                             align-items: center;
-                            padding: 2rem 2.5rem;
+                            justify-content: space-between;
+                            padding: 1rem 1.4rem;
+                            border-bottom: 1px solid rgba(255,255,255,0.06);
+                            background: rgba(255,255,255,0.015);
                         }
-                        @media(max-width:800px){ .ip-hero2-top{ grid-template-columns:1fr; gap:1.5rem; padding:1.5rem; } }
+                        .ipv-chart-title { font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.85); }
+                        .ipv-chart-legend { display:flex; gap:1rem; align-items:center; }
+                        .ipv-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:3px; }
+                        .ipv-chart-body { padding: 1.25rem; position: relative; height: 260px; }
 
-                        /* ─── ring (left col) ─── */
-                        .ip-ring-wrap { flex-shrink:0; position:relative; width:130px; height:130px; }
-                        @media(max-width:800px){ .ip-ring-wrap{ margin:0 auto; } }
-                        .ip-ring-svg { transform:rotate(-90deg); }
-                        .ip-ring-track { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:10; }
-                        .ip-ring-fill  { fill:none; stroke-width:10; stroke-linecap:round; stroke-dasharray:439.8; stroke-dashoffset:439.8; transition:stroke-dashoffset 2s cubic-bezier(0.4,0,0.2,1),stroke 0.5s ease; filter:drop-shadow(0 0 8px currentColor); }
-                        .ip-ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
-                        .ip-ring-pct { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; line-height:1; }
-                        .ip-ring-sub { font-size:0.52rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:0.35rem; }
-
-                        /* ─── centre col ─── */
-                        .ip-hero2-main {}
-                        .ip-eyebrow { font-size:0.6rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#4a8eff; margin-bottom:0.5rem; }
-                        .ip-value-display { font-family:'Syne',sans-serif; font-size:clamp(2rem,5vw,3.4rem); font-weight:800; letter-spacing:-0.04em; line-height:1; margin-bottom:0.65rem; }
-                        .ip-meta-row { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.9rem; }
-                        .ip-gain-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.28rem 0.7rem; border-radius:20px; font-size:0.78rem; font-weight:700; background:rgba(46,204,154,0.12); border:1px solid rgba(46,204,154,0.3); color:#2ecc9a; }
-                        .ip-gain-badge.neg { background:rgba(240,92,106,0.12); border-color:rgba(240,92,106,0.3); color:#f05c6a; }
-
-                        /* ─── right col: KPI pills ─── */
-                        .ip-hero2-kpis { display:flex; flex-direction:column; gap:0.75rem; min-width:130px; }
-                        @media(max-width:800px){ .ip-hero2-kpis{ flex-direction:row; flex-wrap:wrap; } }
-                        .ip-kpi { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0.75rem 1.1rem; text-align:right; }
-                        @media(max-width:800px){ .ip-kpi{ flex:1; min-width:120px; text-align:left; } }
-                        .ip-kpi-lbl { font-size:0.56rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:0.3rem; }
-                        .ip-kpi-val { font-family:'JetBrains Mono',monospace; font-size:1rem; font-weight:700; }
-
-                        /* ─── progress bar strip (bottom of hero) ─── */
-                        .ip-hero2-footer {
-                            position:relative; z-index:2;
-                            border-top:1px solid rgba(255,255,255,0.06);
-                            padding:1rem 2.5rem 1.25rem;
-                            background:rgba(0,0,0,0.15);
+                        /* ─── BOTTOM GRID ─── */
+                        .ipv-bottom {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 0.875rem;
+                            margin-bottom: 1rem;
                         }
-                        @media(max-width:800px){ .ip-hero2-footer{ padding:1rem 1.5rem 1.25rem; } }
-                        .ip-progress2 {}
-                        .ip-progress2-labels { display:flex; justify-content:space-between; align-items:center; font-size:0.68rem; font-weight:700; color:rgba(255,255,255,0.3); margin-bottom:0.5rem; }
-                        .ip-progress2-track { height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; position:relative; }
-                        .ip-progress2-fill { height:100%; border-radius:4px; transition:width 2s cubic-bezier(0.4,0,0.2,1); background:linear-gradient(90deg,#4a8eff 0%,#a78bfa 55%,#f0c040 100%); box-shadow:0 0 12px rgba(74,142,255,0.5); }
-                        .ip-progress2-pct { font-size:0.68rem; font-weight:700; color:rgba(255,255,255,0.4); margin-top:0.4rem; text-align:right; }
-                        /* ═══ STATS GRID ═══ */
-                        .ip-stats2 { display:grid; grid-template-columns:repeat(4,1fr); gap:0.875rem; margin-bottom:1.25rem; }
-                        @media(max-width:900px){ .ip-stats2{grid-template-columns:repeat(2,1fr);} }
-                        .ip-stat2 { background:linear-gradient(145deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:1.25rem 1.4rem; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:border-color 0.3s,transform 0.25s,box-shadow 0.3s; }
-                        .ip-stat2:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,0.4); }
-                        .ip-stat2::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent); }
-                        .ip-stat2-icon { font-size:1.3rem; margin-bottom:0.6rem; display:block; }
-                        .ip-stat2-val { font-family:'JetBrains Mono',monospace; font-size:1.3rem; font-weight:700; margin-bottom:0.25rem; letter-spacing:-0.02em; }
-                        .ip-stat2-lbl { font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.28); }
-                        .ip-stat2-glow { position:absolute; bottom:-20px; right:-20px; width:80px; height:80px; border-radius:50%; opacity:0.1; pointer-events:none; }
-                        .ip-stat2:hover .ip-stat2-glow { opacity:0.18; }
-                        /* ═══ CHART CARD ═══ */
-                        .ip-chart-card { background:linear-gradient(160deg,#060b19,#0a1020); border:1px solid rgba(255,255,255,0.08); border-radius:22px; overflow:hidden; margin-bottom:1.25rem; box-shadow:0 10px 40px rgba(0,0,0,0.45); }
-                        .ip-chart-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.06); }
-                        .ip-chart-title { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; letter-spacing:-0.01em; }
-                        .ip-chart-body { padding:1.25rem 1.5rem; }
-                        .ip-legend-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:4px; }
-                        /* ═══ TWO-COL ROW ═══ */
-                        .ip-two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.25rem; }
-                        @media(max-width:800px){ .ip-two-col{ grid-template-columns:1fr; } }
-                        /* ═══ JOURNEY ═══ */
-                        .ip-journey-card { background:linear-gradient(145deg,#060b18,#080e1c); border:1px solid rgba(255,255,255,0.08); border-radius:22px; padding:1.4rem 1.5rem; box-shadow:0 6px 30px rgba(0,0,0,0.35); }
-                        .ip-journey-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; }
-                        .ip-journey-title { font-family:'Syne',sans-serif; font-size:0.88rem; font-weight:700; }
-                        .ip-ms-track { display:flex; align-items:flex-start; gap:0; overflow-x:auto; padding-bottom:0.5rem; scrollbar-width:none; }
-                        .ip-ms-track::-webkit-scrollbar { display:none; }
-                        .ip-ms-node { display:flex; flex-direction:column; align-items:center; flex-shrink:0; min-width:56px; position:relative; }
-                        .ip-ms-line { position:absolute; top:14px; left:calc(50% + 14px); width:calc(100% - 14px); height:2px; z-index:0; }
-                        .ip-ms-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.62rem; font-weight:800; border:2px solid; transition:all 0.3s; position:relative; z-index:1; }
-                        .ip-ms-dot.done  { background:rgba(46,204,154,0.2); border-color:#2ecc9a; color:#2ecc9a; box-shadow:0 0 12px rgba(46,204,154,0.45); }
-                        .ip-ms-dot.now   { background:rgba(74,142,255,0.2); border-color:#4a8eff; color:#4a8eff; box-shadow:0 0 18px rgba(74,142,255,0.65); animation:ms-pulse 1.8s ease infinite; }
-                        .ip-ms-dot.pend  { background:transparent; border-color:rgba(255,255,255,0.1); color:rgba(255,255,255,0.18); }
-                        .ip-ms-dot.goal  { background:rgba(240,192,64,0.2); border-color:#f0c040; color:#f0c040; box-shadow:0 0 18px rgba(240,192,64,0.45); }
-                        @keyframes ms-pulse { 0%,100%{box-shadow:0 0 12px rgba(74,142,255,0.45)} 50%{box-shadow:0 0 26px rgba(74,142,255,0.85)} }
-                        .ip-ms-label { font-size:0.55rem; font-weight:700; margin-top:0.4rem; color:rgba(255,255,255,0.25); white-space:nowrap; font-family:'JetBrains Mono',monospace; text-align:center; }
-                        .ip-ms-label.done { color:#2ecc9a; } .ip-ms-label.now { color:#4a8eff; } .ip-ms-label.goal { color:#f0c040; }
-                        /* ═══ SESSIONS ═══ */
-                        .ip-sessions-card { background:linear-gradient(160deg,#060b18,#080e1d); border:1px solid rgba(255,255,255,0.08); border-radius:22px; overflow:hidden; margin-bottom:1.25rem; box-shadow:0 6px 30px rgba(0,0,0,0.35); }
-                        .ip-sessions-head { display:flex; justify-content:space-between; align-items:center; padding:1.1rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.06); }
-                        .ip-sessions-title { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; }
-                        /* ═══ ALERTS ═══ */
-                        .ip-alert2 { border-radius:16px; padding:0.9rem 1.25rem; margin-bottom:0.875rem; display:flex; align-items:flex-start; gap:0.875rem; flex-wrap:wrap; position:relative; overflow:hidden; }
-                        .ip-alert2::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:2px 0 0 2px; }
-                        .ip-alert2.l1 { background:rgba(245,166,35,0.06); border:1px solid rgba(245,166,35,0.18); } .ip-alert2.l1::before { background:#f5a623; }
-                        .ip-alert2.l2 { background:rgba(240,100,50,0.08); border:1px solid rgba(240,100,50,0.22); } .ip-alert2.l2::before { background:#f06432; }
-                        .ip-alert2.l3 { background:rgba(240,92,106,0.08); border:1px solid rgba(240,92,106,0.25); } .ip-alert2.l3::before { background:#f05c6a; }
-                        .ip-alert2-icon { font-size:1.3rem; flex-shrink:0; }
-                        .ip-alert2-title { font-size:0.82rem; font-weight:700; margin-bottom:0.2rem; }
-                        .ip-alert2-text  { font-size:0.76rem; color:rgba(255,255,255,0.45); line-height:1.55; }
-                        /* ═══ TERMINATED ═══ */
-                        .ip-terminated2 { border-radius:24px; padding:3rem 2rem; text-align:center; margin-bottom:1.25rem; background:linear-gradient(160deg,#0f0507,#140608,#0a0204); border:1px solid rgba(240,92,106,0.28); box-shadow:0 0 60px rgba(240,92,106,0.1),inset 0 1px 0 rgba(240,92,106,0.08); position:relative; overflow:hidden; }
-                        .ip-terminated2::before { content:''; position:absolute; top:-100px; left:50%; transform:translateX(-50%); width:400px; height:300px; background:radial-gradient(ellipse,rgba(240,92,106,0.12) 0%,transparent 70%); pointer-events:none; }
-                        /* ═══ BADGES ═══ */
-                        .ip-mode-badge { display:inline-flex; align-items:center; gap:0.35rem; padding:0.22rem 0.65rem; border-radius:10px; font-size:0.7rem; font-weight:700; border:1px solid; }
-                        .ip-mode-badge.conservative { background:rgba(46,204,154,0.1); color:#2ecc9a; border-color:rgba(46,204,154,0.3); }
-                        .ip-mode-badge.base { background:rgba(167,139,250,0.12); color:#a78bfa; border-color:rgba(167,139,250,0.35); }
-                        .ip-mode-badge.pending { background:rgba(245,166,35,0.1); color:#f5a623; border-color:rgba(245,166,35,0.3); }
-                        .ip-pulse-dot { width:8px; height:8px; border-radius:50%; background:#f05c6a; display:inline-block; animation:dot-pulse 1.2s ease infinite; }
-                        .ip-monitor-badge { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.78rem; font-weight:700; }
-                        @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
-                        /* ═══ MODAL ═══ */
-                        #ipModeModal { position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:9000; display:flex; align-items:center; justify-content:center; padding:1rem; }
+                        @media(max-width:750px){ .ipv-bottom{ grid-template-columns:1fr; } }
+
+                        /* ring progress card */
+                        .ipv-ring-card {
+                            background: rgba(255,255,255,0.025);
+                            border: 1px solid rgba(255,255,255,0.08);
+                            border-radius: 20px;
+                            padding: 1.4rem;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 1rem;
+                        }
+                        .ipv-ring-wrap { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+                        .ipv-ring-svg { transform: rotate(-90deg); }
+                        .ipv-ring-track { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:12; }
+                        .ipv-ring-fill { fill:none; stroke-width:12; stroke-linecap:round; stroke-dasharray:345.4; stroke-dashoffset:345.4; transition:stroke-dashoffset 2s cubic-bezier(0.4,0,0.2,1),stroke 0.5s; filter:drop-shadow(0 0 6px currentColor); }
+                        .ipv-ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+                        .ipv-ring-pct { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; line-height:1; }
+                        .ipv-ring-sub { font-size:0.5rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:0.3rem; }
+                        .ipv-ring-info { text-align:center; }
+                        .ipv-ring-title { font-size:0.72rem; font-weight:700; color:rgba(255,255,255,0.55); margin-bottom:0.5rem; }
+                        .ipv-ring-actions { display:flex; flex-direction:column; gap:0.4rem; width:100%; }
+
+                        /* milestone track */
+                        .ipv-ms-card {
+                            background: rgba(255,255,255,0.025);
+                            border: 1px solid rgba(255,255,255,0.08);
+                            border-radius: 20px;
+                            padding: 1.4rem;
+                        }
+                        .ipv-ms-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; }
+                        .ipv-ms-title { font-size:0.85rem; font-weight:700; }
+                        .ipv-ms-sub { font-size:0.62rem; color:rgba(255,255,255,0.3); }
+                        .ipv-ms-track { display:flex; align-items:flex-start; overflow-x:auto; padding-bottom:0.4rem; scrollbar-width:none; gap:0; }
+                        .ipv-ms-track::-webkit-scrollbar { display:none; }
+                        .ipv-ms-node { display:flex; flex-direction:column; align-items:center; flex-shrink:0; min-width:52px; position:relative; }
+                        .ipv-ms-line { position:absolute; top:13px; left:calc(50% + 13px); width:calc(100% - 13px); height:2px; z-index:0; }
+                        .ipv-ms-dot { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:800; border:2px solid; position:relative; z-index:1; transition:all 0.3s; }
+                        .ipv-ms-dot.done  { background:rgba(46,204,154,0.2); border-color:#2ecc9a; color:#2ecc9a; box-shadow:0 0 10px rgba(46,204,154,0.4); }
+                        .ipv-ms-dot.now   { background:rgba(74,142,255,0.2); border-color:#4a8eff; color:#4a8eff; box-shadow:0 0 16px rgba(74,142,255,0.6); animation:msP 1.8s ease infinite; }
+                        .ipv-ms-dot.pend  { background:transparent; border-color:rgba(255,255,255,0.1); color:rgba(255,255,255,0.18); }
+                        .ipv-ms-dot.goal  { background:rgba(240,192,64,0.2); border-color:#f0c040; color:#f0c040; box-shadow:0 0 14px rgba(240,192,64,0.4); }
+                        @keyframes msP { 0%,100%{box-shadow:0 0 10px rgba(74,142,255,0.4)} 50%{box-shadow:0 0 24px rgba(74,142,255,0.8)} }
+                        .ipv-ms-lbl { font-size:0.5rem; font-weight:700; margin-top:0.35rem; color:rgba(255,255,255,0.22); white-space:nowrap; font-family:'JetBrains Mono',monospace; }
+                        .ipv-ms-lbl.done { color:#2ecc9a; } .ipv-ms-lbl.now { color:#4a8eff; } .ipv-ms-lbl.goal { color:#f0c040; }
+
+                        /* ─── SESSIONS ─── */
+                        .ipv-sessions {
+                            background: rgba(255,255,255,0.02);
+                            border: 1px solid rgba(255,255,255,0.07);
+                            border-radius: 20px;
+                            overflow: hidden;
+                            margin-bottom: 1rem;
+                        }
+                        .ipv-sessions-head {
+                            display: flex; justify-content:space-between; align-items:center;
+                            padding: 1rem 1.4rem;
+                            border-bottom: 1px solid rgba(255,255,255,0.06);
+                            background: rgba(255,255,255,0.01);
+                        }
+                        .ipv-sessions-title { font-size:0.85rem; font-weight:700; }
+
+                        /* ─── ALERT BANNERS ─── */
+                        .ipv-alert { display:none; align-items:center; gap:0.875rem; flex-wrap:wrap; border-radius:14px; padding:0.85rem 1.1rem; margin-bottom:0.875rem; position:relative; overflow:hidden; }
+                        .ipv-alert.show { display:flex; }
+                        .ipv-alert.l1 { background:rgba(245,166,35,0.07); border:1px solid rgba(245,166,35,0.2); }
+                        .ipv-alert.l2 { background:rgba(240,100,50,0.08); border:1px solid rgba(240,100,50,0.25); }
+                        .ipv-alert.l3 { background:rgba(240,92,106,0.09); border:1px solid rgba(240,92,106,0.28); }
+                        .ipv-alert-stripe { position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:2px 0 0 2px; }
+                        .ipv-alert.l1 .ipv-alert-stripe { background:#f5a623; }
+                        .ipv-alert.l2 .ipv-alert-stripe { background:#f06432; }
+                        .ipv-alert.l3 .ipv-alert-stripe { background:#f05c6a; }
+                        .ipv-alert-body { flex:1; min-width:160px; }
+                        .ipv-alert-title { font-size:0.8rem; font-weight:700; margin-bottom:0.15rem; }
+                        .ipv-alert-text { font-size:0.73rem; color:rgba(255,255,255,0.42); line-height:1.5; }
+
+                        /* ─── TERMINATED ─── */
+                        .ipv-terminated {
+                            display:none; text-align:center;
+                            border-radius:20px; padding:3rem 2rem; margin-bottom:1rem;
+                            background: linear-gradient(160deg,#100408,#160509);
+                            border: 1px solid rgba(240,92,106,0.25);
+                            box-shadow: 0 0 60px rgba(240,92,106,0.08);
+                        }
+                        .ipv-terminated.show { display:block; }
+
+                        /* ─── PULSE DOT ─── */
+                        .ipv-pulse { width:8px; height:8px; border-radius:50%; background:#f05c6a; display:inline-block; animation:pdot 1.2s ease infinite; }
+                        @keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
+
+                        /* ─── MODAL ─── */
+                        #ipModeModal { position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); z-index:9000; display:flex; align-items:center; justify-content:center; padding:1rem; }
                         .ip-modal-card { background:#0c1525; border:1px solid rgba(255,255,255,0.1); border-radius:24px; padding:2rem; width:100%; max-width:420px; box-shadow:0 40px 100px rgba(0,0,0,0.6); animation:slideDown 0.25s ease; }
                         .ip-mode-opt { padding:1rem 1.25rem; border:2px solid rgba(255,255,255,0.07); border-radius:12px; cursor:pointer; transition:all 0.2s; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.875rem; }
-                        .ip-mode-opt:hover { border-color:rgba(255,255,255,0.18); background:rgba(255,255,255,0.03); }
+                        .ip-mode-opt:hover { border-color:rgba(255,255,255,0.2); background:rgba(255,255,255,0.03); }
                         .ip-mode-opt.selected-cons { border-color:#2ecc9a; background:rgba(46,204,154,0.07); }
                         .ip-mode-opt.selected-base { border-color:#a78bfa; background:rgba(167,139,250,0.07); }
                         .ip-mode-opt-icon { font-size:1.5rem; flex-shrink:0; }
@@ -1997,164 +2141,180 @@
                         .ip-mode-opt-sub { font-size:0.78rem; color:rgba(255,255,255,0.35); margin-top:0.15rem; }
                     </style>
 
-                    <!-- Particle canvas -->
-                    <canvas id="ipParticleCanvas"></canvas>
+                    <canvas id="ipParticleCanvas" style="display:none;"></canvas>
 
-                    <div class="ip-root">
+                    <div class="ipv">
 
-                        <!-- ALERTS -->
-                        <div id="ipWarnL1" class="ip-alert2 l1" style="display:none;">
-                            <div class="ip-alert2-icon">📉</div>
-                            <div style="flex:1;min-width:180px;">
-                                <div class="ip-alert2-title" style="color:#f5c842;">Drawdown Period Detected</div>
-                                <div class="ip-alert2-text">Your portfolio is experiencing a drawdown. Consider switching to Conservative strategy to protect your position.</div>
+                        <!-- ALERT BANNERS -->
+                        <div id="ipWarnL1" class="ipv-alert l1">
+                            <div class="ipv-alert-stripe"></div>
+                            <span style="font-size:1.2rem;">📉</span>
+                            <div class="ipv-alert-body">
+                                <div class="ipv-alert-title" style="color:#f5c842;">Drawdown Period Detected</div>
+                                <div class="ipv-alert-text">Your portfolio is experiencing a drawdown. Consider switching to Conservative strategy.</div>
                             </div>
-                            <button class="btn" style="flex-shrink:0;padding:0.4rem 1rem;font-size:0.78rem;font-weight:700;background:rgba(245,166,35,0.12);color:#f5c842;border:1px solid rgba(245,166,35,0.3);border-radius:8px;" onclick="ipOpenModeModal('conservative')">Request Conservative</button>
+                            <button class="btn" style="flex-shrink:0;padding:0.35rem 0.9rem;font-size:0.75rem;font-weight:700;background:rgba(245,166,35,0.12);color:#f5c842;border:1px solid rgba(245,166,35,0.3);border-radius:8px;" onclick="ipOpenModeModal('conservative')">Switch →</button>
                         </div>
-                        <div id="ipWarnL2" class="ip-alert2 l2" style="display:none;">
-                            <div class="ip-alert2-icon">⚠️</div>
-                            <div style="flex:1;min-width:180px;">
-                                <div class="ip-alert2-title" style="color:#f07a42;">Elevated Risk — Action Recommended</div>
-                                <div class="ip-alert2-text">Your account value has declined significantly. Your account manager has been alerted. A strategy switch is strongly advised.</div>
+                        <div id="ipWarnL2" class="ipv-alert l2">
+                            <div class="ipv-alert-stripe"></div>
+                            <span style="font-size:1.2rem;">⚠️</span>
+                            <div class="ipv-alert-body">
+                                <div class="ipv-alert-title" style="color:#f07a42;">Elevated Risk — Action Recommended</div>
+                                <div class="ipv-alert-text">Your account value has declined significantly. Your account manager has been alerted.</div>
                             </div>
-                            <button class="btn" style="flex-shrink:0;padding:0.4rem 1rem;font-size:0.78rem;font-weight:700;background:rgba(240,100,50,0.12);color:#f07a42;border:1px solid rgba(240,100,50,0.3);border-radius:8px;" onclick="ipOpenModeModal('conservative')">Act Now</button>
+                            <button class="btn" style="flex-shrink:0;padding:0.35rem 0.9rem;font-size:0.75rem;font-weight:700;background:rgba(240,100,50,0.12);color:#f07a42;border:1px solid rgba(240,100,50,0.3);border-radius:8px;" onclick="ipOpenModeModal('conservative')">Act Now</button>
                         </div>
-                        <div id="ipWarnL3" class="ip-alert2 l3" style="display:none;">
-                            <div class="ip-alert2-icon">🔴</div>
-                            <div style="flex:1;min-width:180px;">
-                                <div class="ip-alert2-title" style="color:#f05c6a;">Critical — Portfolio Under Review</div>
-                                <div class="ip-alert2-text">Trading activity has been paused. Your account manager is actively reviewing and will contact you shortly.</div>
+                        <div id="ipWarnL3" class="ipv-alert l3">
+                            <div class="ipv-alert-stripe"></div>
+                            <span style="font-size:1.2rem;">🔴</span>
+                            <div class="ipv-alert-body">
+                                <div class="ipv-alert-title" style="color:#f05c6a;">Critical — Portfolio Under Review</div>
+                                <div class="ipv-alert-text">Trading has been paused. Your account manager is actively reviewing.</div>
                             </div>
-                            <div class="ip-monitor-badge" style="flex-shrink:0;"><span class="ip-pulse-dot"></span><span style="color:#f05c6a;font-size:0.78rem;">Live Review</span></div>
+                            <span style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#f05c6a;flex-shrink:0;"><span class="ipv-pulse"></span>Live Review</span>
                         </div>
-                        <div id="ipWarnL4" class="ip-terminated2" style="display:none;">
-                            <div style="position:relative;z-index:1;">
-                                <div style="font-size:3rem;margin-bottom:1rem;filter:drop-shadow(0 0 24px rgba(240,92,106,0.7));">🛑</div>
-                                <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#f05c6a;letter-spacing:-0.02em;margin-bottom:0.6rem;">Investment Cycle Closed</div>
-                                <div style="color:rgba(245,160,168,0.75);font-size:0.9rem;max-width:400px;margin:0 auto 1.75rem;line-height:1.8;">This investment cycle has concluded. Your account manager will be reaching out to discuss your results and the path forward. Your returns have been finalised.</div>
-                                <div style="display:inline-flex;align-items:center;gap:0.6rem;background:rgba(240,92,106,0.1);border:1px solid rgba(240,92,106,0.28);border-radius:10px;padding:0.6rem 1.5rem;color:#f05c6a;font-size:0.82rem;font-weight:700;">
-                                    <span class="ip-pulse-dot"></span>Account Manager Will Be In Contact
-                                </div>
-                            </div>
+                        <div id="ipWarnL4" class="ipv-terminated">
+                            <div style="font-size:2.8rem;margin-bottom:1rem;filter:drop-shadow(0 0 20px rgba(240,92,106,0.6));">🛑</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#f05c6a;margin-bottom:0.6rem;">Investment Cycle Closed</div>
+                            <div style="color:rgba(245,160,168,0.6);font-size:0.88rem;max-width:380px;margin:0 auto 1.5rem;line-height:1.8;">This investment cycle has concluded. Your account manager will be in touch to discuss results and next steps.</div>
+                            <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(240,92,106,0.1);border:1px solid rgba(240,92,106,0.25);border-radius:10px;padding:0.5rem 1.25rem;color:#f05c6a;font-size:0.8rem;font-weight:700;"><span class="ipv-pulse"></span>Account Manager Will Be In Contact</div>
                         </div>
 
-                        <!-- HERO -->
-                        <div class="ip-hero2" id="ipInvHeader">
-                            <!-- top row: ring | value | KPIs -->
-                            <div class="ip-hero2-top">
-                                <!-- ring -->
-                                <div class="ip-ring-wrap">
-                                    <svg class="ip-ring-svg" width="130" height="130" viewBox="0 0 160 160">
-                                        <circle class="ip-ring-track" cx="80" cy="80" r="70"/>
-                                        <circle class="ip-ring-fill" id="ipRingFill" cx="80" cy="80" r="70" stroke="#4a8eff"/>
-                                    </svg>
-                                    <div class="ip-ring-center">
-                                        <div class="ip-ring-pct" id="ipRingPct" style="color:#4a8eff;">0%</div>
-                                        <div class="ip-ring-sub">to payout</div>
-                                    </div>
-                                </div>
-                                <!-- value + actions -->
-                                <div class="ip-hero2-main">
-                                    <div class="ip-eyebrow">Your Account Value</div>
-                                    <div class="ip-value-display" id="ipDisplayValue">$—</div>
-                                    <div class="ip-meta-row">
-                                        <span class="ip-gain-badge" id="ipCycleGainBadge">+0.00%</span>
-                                        <span style="font-size:0.68rem;color:rgba(255,255,255,0.28);">this cycle</span>
+                        <!-- ── TOP BANNER: value + progress ── -->
+                        <div class="ipv-banner" id="ipInvHeader">
+                            <div class="ipv-banner-inner">
+                                <div class="ipv-banner-left">
+                                    <div class="ipv-label">Your Account Value</div>
+                                    <div class="ipv-value" id="ipDisplayValue">$—</div>
+                                    <div class="ipv-badges">
+                                        <span class="ipv-gain" id="ipCycleGainBadge">+0.00%</span>
+                                        <span style="font-size:0.7rem;color:rgba(255,255,255,0.3);">this cycle</span>
                                         <span id="ipModeBadge" class="ip-mode-badge conservative">🛡 Conservative</span>
-                                    </div>
-                                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
-                                        <button id="ipModeReqBtn" class="btn" style="padding:0.3rem 0.8rem;font-size:0.75rem;font-weight:700;background:rgba(74,142,255,0.1);color:#4a8eff;border:1px solid rgba(74,142,255,0.28);border-radius:8px;" onclick="ipOpenModeModal()">↕ Request Strategy Change</button>
-                                        <span id="ipPendingBadge" style="display:none;" class="ip-mode-badge pending">⏳ Pending Review</span>
+                                        <span id="ipPendingBadge" style="display:none;" class="ip-mode-badge pending">⏳ Pending</span>
                                     </div>
                                 </div>
-                                <!-- KPI pills -->
-                                <div class="ip-hero2-kpis">
-                                    <div class="ip-kpi">
-                                        <div class="ip-kpi-lbl">Entry</div>
-                                        <div class="ip-kpi-val" id="ipEntryDisplay" style="color:rgba(255,255,255,0.65);">—</div>
+                                <div class="ipv-banner-right">
+                                    <div class="ipv-kpipair">
+                                        <div class="ipv-kpi">
+                                            <div class="ipv-kpi-lbl">Entry</div>
+                                            <div class="ipv-kpi-val" id="ipEntryDisplay" style="color:rgba(255,255,255,0.7);">—</div>
+                                        </div>
+                                        <div class="ipv-kpi">
+                                            <div class="ipv-kpi-lbl" style="color:#f0c040;">Target</div>
+                                            <div class="ipv-kpi-val" id="ipPayoutDisplay" style="color:#f0c040;">—</div>
+                                        </div>
                                     </div>
-                                    <div class="ip-kpi">
-                                        <div class="ip-kpi-lbl" style="color:#f0c040;">Payout Target</div>
-                                        <div class="ip-kpi-val" id="ipPayoutDisplay" style="color:#f0c040;">—</div>
-                                    </div>
+                                    <button id="ipModeReqBtn" class="btn" style="padding:0.35rem 0.9rem;font-size:0.75rem;font-weight:700;background:rgba(74,142,255,0.12);color:#4a8eff;border:1px solid rgba(74,142,255,0.3);border-radius:10px;" onclick="ipOpenModeModal()">↕ Request Strategy Change</button>
                                 </div>
                             </div>
-                            <!-- progress footer -->
-                            <div class="ip-hero2-footer">
-                                <div class="ip-progress2">
-                                    <div class="ip-progress2-labels">
-                                        <span id="ipInvProgLeft2">Entry</span>
-                                        <span id="ipInvProgPct" style="color:rgba(255,255,255,0.5);">0% to payout</span>
-                                        <span id="ipInvProgRight" style="color:#f0c040;">Target</span>
-                                    </div>
-                                    <div class="ip-progress2-track">
-                                        <div class="ip-progress2-fill" id="ipInvProgFill" style="width:0%;"></div>
-                                    </div>
+                            <!-- PROGRESS BAR — full width below -->
+                            <div class="ipv-prog-row" id="ipProgressSection">
+                                <div class="ipv-prog-labels">
+                                    <span id="ipInvProgLeft2">—</span>
+                                    <span id="ipInvProgPct">0% to payout</span>
+                                    <span id="ipInvProgRight">—</span>
+                                </div>
+                                <div class="ipv-prog-track">
+                                    <div class="ipv-prog-fill" id="ipInvProgFill" style="width:0%;"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- EQUITY CHART — full width -->
-                        <div class="ip-chart-card" id="ipEquitySection">
-                            <div class="ip-chart-head">
-                                <div class="ip-chart-title">📈 Portfolio Equity Curve</div>
-                                <div style="display:flex;gap:1.25rem;align-items:center;">
-                                    <span style="font-size:0.7rem;color:rgba(255,255,255,0.35);display:flex;align-items:center;gap:0.3rem;"><span class="ip-legend-dot" style="background:#f0c040;box-shadow:0 0 6px rgba(240,192,64,0.6);"></span>Your Value</span>
-                                    <span style="font-size:0.7rem;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:0.3rem;"><span class="ip-legend-dot" style="background:rgba(255,255,255,0.2);"></span>Target Path</span>
-                                </div>
+                        <!-- ── BENTO STATS (4 cells) ── -->
+                        <div class="ipv-bento">
+                            <div class="ipv-cell">
+                                <span class="ipv-cell-icon">📈</span>
+                                <div class="ipv-cell-val" id="ipStatBest" style="color:#2ecc9a;">—</div>
+                                <div class="ipv-cell-lbl">Best Session</div>
+                                <div class="ipv-cell-accent" style="background:#2ecc9a;"></div>
                             </div>
-                            <div class="ip-chart-body">
-                                <div style="position:relative;height:230px;"><canvas id="ipEquityChart"></canvas></div>
+                            <div class="ipv-cell">
+                                <span class="ipv-cell-icon">📉</span>
+                                <div class="ipv-cell-val" id="ipStatWorst" style="color:#f05c6a;">—</div>
+                                <div class="ipv-cell-lbl">Worst Session</div>
+                                <div class="ipv-cell-accent" style="background:#f05c6a;"></div>
                             </div>
-                        </div>
-
-                        <!-- TWO COL: journey + session summary -->
-                        <div class="ip-two-col">
-                            <!-- JOURNEY / MILESTONES -->
-                            <div class="ip-journey-card" id="ipMilestonesSection">
-                                <div class="ip-journey-head">
-                                    <div class="ip-journey-title">🚀 Your Journey</div>
-                                    <span id="ipMilestonesLabel" style="font-size:0.68rem;color:rgba(255,255,255,0.28);">Value checkpoints</span>
-                                </div>
-                                <div class="ip-ms-track" id="ipMilestoneChips"></div>
+                            <div class="ipv-cell">
+                                <span class="ipv-cell-icon">📊</span>
+                                <div class="ipv-cell-val" id="ipStatSessions" style="color:#4a8eff;">—</div>
+                                <div class="ipv-cell-lbl">Total Sessions</div>
+                                <div class="ipv-cell-accent" style="background:#4a8eff;"></div>
                             </div>
-
-                            <!-- QUICK STATS MINI -->
-                            <div class="ip-journey-card">
-                                <div class="ip-journey-head">
-                                    <div class="ip-journey-title">⚡ Quick Stats</div>
-                                </div>
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
-                                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.875rem 1rem;">
-                                        <div style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);margin-bottom:0.35rem;">Best Session</div>
-                                        <div id="ipStatBest" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#2ecc9a;">—</div>
-                                    </div>
-                                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.875rem 1rem;">
-                                        <div style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);margin-bottom:0.35rem;">Worst Session</div>
-                                        <div id="ipStatWorst" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#f05c6a;">—</div>
-                                    </div>
-                                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.875rem 1rem;">
-                                        <div style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);margin-bottom:0.35rem;">Total Sessions</div>
-                                        <div id="ipStatSessions" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#4a8eff;">—</div>
-                                    </div>
-                                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.875rem 1rem;">
-                                        <div style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);margin-bottom:0.35rem;">Win Rate</div>
-                                        <div id="ipStatWinRate" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#a78bfa;">—</div>
-                                    </div>
-                                </div>
+                            <div class="ipv-cell">
+                                <span class="ipv-cell-icon">🎯</span>
+                                <div class="ipv-cell-val" id="ipStatWinRate" style="color:#a78bfa;">—</div>
+                                <div class="ipv-cell-lbl">Win Rate</div>
+                                <div class="ipv-cell-accent" style="background:#a78bfa;"></div>
                             </div>
                         </div>
 
-                        <!-- SESSION HISTORY -->
-                        <div class="ip-sessions-card" id="ipTradeSection">
-                            <div class="ip-sessions-head">
-                                <div class="ip-sessions-title">Session History</div>
-                                <span id="ipTradeCount" style="font-size:0.68rem;color:rgba(255,255,255,0.28);">0 sessions</span>
+                        <!-- ── EQUITY CHART ── -->
+                        <div class="ipv-chart-card" id="ipEquitySection">
+                            <div class="ipv-chart-header">
+                                <div class="ipv-chart-title">Portfolio Equity Curve</div>
+                                <div class="ipv-chart-legend">
+                                    <span style="font-size:0.68rem;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:0.3rem;">
+                                        <span class="ipv-dot" style="background:#f0c040;box-shadow:0 0 5px rgba(240,192,64,0.7);"></span>Your Value
+                                    </span>
+                                    <span style="font-size:0.68rem;color:rgba(255,255,255,0.22);display:flex;align-items:center;gap:0.3rem;">
+                                        <span class="ipv-dot" style="background:rgba(255,255,255,0.25);"></span>Target
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ipv-chart-body">
+                                <canvas id="ipEquityChart" style="width:100%;height:100%;"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- ── BOTTOM: ring progress + milestones ── -->
+                        <div class="ipv-bottom" id="ipMilestonesSection">
+                            <!-- ring progress card -->
+                            <div class="ipv-ring-card">
+                                <div class="ipv-ring-wrap">
+                                    <svg class="ipv-ring-svg" width="120" height="120" viewBox="0 0 120 120">
+                                        <circle class="ipv-ring-track" cx="60" cy="60" r="55"/>
+                                        <circle class="ipv-ring-fill" id="ipRingFill" cx="60" cy="60" r="55" stroke="#4a8eff"/>
+                                    </svg>
+                                    <div class="ipv-ring-center">
+                                        <div class="ipv-ring-pct" id="ipRingPct" style="color:#4a8eff;">0%</div>
+                                        <div class="ipv-ring-sub">to payout</div>
+                                    </div>
+                                </div>
+                                <div class="ipv-ring-info">
+                                    <div class="ipv-ring-title">Payout Progress</div>
+                                    <div class="ipv-ring-actions">
+                                        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:0.6rem 0.875rem;display:flex;justify-content:space-between;align-items:center;width:100%;">
+                                            <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);">Entry</span>
+                                            <span style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;font-weight:700;color:rgba(255,255,255,0.7);" id="ipEntryDisplay2">—</span>
+                                        </div>
+                                        <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.2);border-radius:10px;padding:0.6rem 0.875rem;display:flex;justify-content:space-between;align-items:center;width:100%;">
+                                            <span style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(240,192,64,0.5);">Target</span>
+                                            <span style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;font-weight:700;color:#f0c040;" id="ipPayoutDisplay2">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- milestone track card -->
+                            <div class="ipv-ms-card">
+                                <div class="ipv-ms-head">
+                                    <div class="ipv-ms-title">🚀 Your Journey</div>
+                                    <span class="ipv-ms-sub" id="ipMilestonesLabel">checkpoints</span>
+                                </div>
+                                <div class="ipv-ms-track" id="ipMilestoneChips"></div>
+                            </div>
+                        </div>
+
+                        <!-- ── SESSION HISTORY ── -->
+                        <div class="ipv-sessions" id="ipTradeSection">
+                            <div class="ipv-sessions-head">
+                                <div class="ipv-sessions-title">Session History</div>
+                                <span id="ipTradeCount" style="font-size:0.68rem;color:rgba(255,255,255,0.3);">0 sessions</span>
                             </div>
                             <div style="max-height:400px;overflow-y:auto;" id="ipTradeBody"></div>
                         </div>
 
-                    </div>
+                    </div><!-- /ipv -->
                 </div><!-- /ipInvestorSection -->
 
                 <!-- Not registered -->
@@ -5025,13 +5185,16 @@ function ipRenderInvestorView(inv, isAdminPreview) {
 
     // ── Warning banners ──
     const isBlown = warnLevel === 4;
-    ['ipWarnL1','ipWarnL2','ipWarnL3','ipWarnL4'].forEach((id, i) => {
+    ['ipWarnL1','ipWarnL2','ipWarnL3'].forEach((id, i) => {
         const bannerEl = el(id);
-        if (bannerEl) bannerEl.style.display = (warnLevel === i+1) ? 'flex' : 'none';
+        if (bannerEl) {
+            if (warnLevel === i+1) bannerEl.classList.add('show');
+            else bannerEl.classList.remove('show');
+        }
     });
-    // ipWarnL4 is a div not flex — override display
+    // WarnL4 — terminated state
     const l4 = el('ipWarnL4');
-    if (l4) l4.style.display = isBlown ? 'block' : 'none';
+    if (l4) { if (isBlown) l4.classList.add('show'); else l4.classList.remove('show'); }
 
     // Hide all interactive elements when blown — show terminated state only
     ['ipInvHeader','ipEquitySection','ipMilestonesSection','ipTradeSection','ipModeBadge','ipModeReqBtn','ipPendingBadge'].forEach(id => {
@@ -5052,13 +5215,15 @@ function ipRenderInvestorView(inv, isAdminPreview) {
     }
     if (el('ipEntryDisplay'))  el('ipEntryDisplay').textContent  = fmtCurrency(entry);
     if (el('ipPayoutDisplay')) el('ipPayoutDisplay').textContent = fmtCurrency(payout);
+    if (el('ipEntryDisplay2'))  el('ipEntryDisplay2').textContent  = fmtCurrency(entry);
+    if (el('ipPayoutDisplay2')) el('ipPayoutDisplay2').textContent = fmtCurrency(payout);
 
     // Cycle % gain badge (Method 3 — same % as PA)
     const gainBadge = el('ipCycleGainBadge');
     if (gainBadge) {
         const sign = cyclePct >= 0 ? '+' : '';
         gainBadge.textContent = `${sign}${cyclePct.toFixed(2)}%`;
-        gainBadge.style.color = cyclePct >= 0 ? 'var(--success)' : 'var(--danger)';
+        gainBadge.className = cyclePct >= 0 ? 'ipv-gain' : 'ipv-gain neg';
     }
 
     // Mode badge + request button
@@ -5102,7 +5267,7 @@ function ipRenderInvestorView(inv, isAdminPreview) {
     // ── Ring progress ──
     const ring = el('ipRingFill');
     const ringPct = el('ipRingPct');
-    const CIRCUMFERENCE = 439.8;
+    const CIRCUMFERENCE = 345.4;
     if (ring && ringPct) {
         const pctClamped = Math.max(0, Math.min(100, progPct));
         const offset = CIRCUMFERENCE - (pctClamped / 100) * CIRCUMFERENCE;
@@ -5152,10 +5317,10 @@ function ipRenderInvestorView(inv, isAdminPreview) {
             const lblCls   = isGoal && passed ? 'goal' : passed ? 'done' : isCur ? 'now' : '';
             const icon     = isGoal ? (passed ? '🏆' : '★') : passed ? '✓' : isCur ? '●' : i === 0 ? '◆' : String(i);
             const lineColor = passed ? 'rgba(46,204,154,0.4)' : 'rgba(255,255,255,0.06)';
-            return `<div class="ip-ms-node" style="min-width:${i === 0 || i === 10 ? 60 : 55}px;">
-                ${i < 10 ? `<div class="ip-ms-line" style="background:${lineColor};top:14px;left:calc(50% + 14px);width:calc(100% - 0px);height:2px;position:absolute;z-index:0;"></div>` : ''}
-                <div class="ip-ms-dot ${dotCls}">${icon}</div>
-                <div class="ip-ms-label ${lblCls}">${fmtCurrency(targetDv)}</div>
+            return `<div class="ipv-ms-node" style="min-width:${i === 0 || i === 10 ? 56 : 52}px;">
+                ${i < 10 ? `<div class="ipv-ms-line" style="background:${lineColor};"></div>` : ''}
+                <div class="ipv-ms-dot ${dotCls}">${icon}</div>
+                <div class="ipv-ms-lbl ${lblCls}">${fmtCurrency(targetDv)}</div>
             </div>`;
         });
         chips.innerHTML = nodes.join('');
@@ -5391,20 +5556,25 @@ function _ipInitEffects() {
         cg.style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
     }
 
-    // ── Milestone chips — dollar values only, no "X% ·" prefix ──
+    // ── Milestone chips — dollar values only ──
     const chips = el('ipMilestoneChips');
     if (chips) {
         chips.innerHTML = Array.from({length:11}, (_, i) => {
-            // Evenly spaced: $115, $184, $253, ..., $800
             const targetDv   = entry + (payout - entry) * (i / 10);
             const isGoal     = i === 10;
             const passed     = i > 0 && masterPnl >= reqProfit(i, entry, payout, mult);
             const current    = !passed && i > 0 &&
                 masterPnl >= reqProfit(i-1, entry, payout, mult) &&
                 masterPnl < reqProfit(i, entry, payout, mult);
-            const cls = isGoal && passed ? 'goal' : passed ? 'reached' : current ? 'current' : 'pending';
-            const icon = isGoal && passed ? '🏆' : passed ? '✓' : current ? '▶' : '○';
-            return `<span class="ip-ms-chip ${cls}">${icon} ${fmtCurrency(targetDv)}</span>`;
+            const dotCls = isGoal && passed ? 'goal' : passed ? 'done' : current ? 'now' : 'pend';
+            const lblCls = isGoal && passed ? 'goal' : passed ? 'done' : current ? 'now' : '';
+            const icon = isGoal && passed ? '🏆' : passed ? '✓' : current ? '●' : i === 0 ? '◆' : String(i);
+            const lineColor = passed ? 'rgba(46,204,154,0.4)' : 'rgba(255,255,255,0.06)';
+            return `<div class="ipv-ms-node" style="min-width:${i === 0 || i === 10 ? 56 : 52}px;">
+                ${i < 10 ? `<div class="ipv-ms-line" style="background:${lineColor};"></div>` : ''}
+                <div class="ipv-ms-dot ${dotCls}">${icon}</div>
+                <div class="ipv-ms-lbl ${lblCls}">${fmtCurrency(targetDv)}</div>
+            </div>`;
         }).join('');
     }
 

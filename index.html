@@ -119,6 +119,7 @@
         .user-name { font-weight: 600; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .user-role { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
         .user-role.admin { color: var(--gold); }
+        .user-role.investor { color: var(--gold); }
         .nav-section { margin-bottom: 1.5rem; }
         .nav-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); padding: 0 0.75rem; margin-bottom: 0.5rem; }
         .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.75rem; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; font-weight: 500; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2px; }
@@ -2277,13 +2278,9 @@ function showDashboard() {
 
     document.getElementById('userAvatar').textContent = initials;
     document.getElementById('userName').textContent = displayName;
-    document.getElementById('userRole').textContent = isAdmin ? '👑 Admin' : 'Member';
-    document.getElementById('userRole').className = 'user-role' + (isAdmin ? ' admin' : '');
     document.getElementById('heroName').textContent = displayName;
+    updateSidebarRole();
     document.getElementById('adminNavItem').style.display = isAdmin ? 'flex' : 'none';
-    const isInvestorRole = isAdmin || currentProfile?.role === 'investor';
-    const invNav = document.getElementById('investorPortalNavItem');
-    if (invNav) invNav.style.display = isInvestorRole ? 'flex' : 'none';
 
     populateDropdowns();
     setTodayDates();
@@ -2328,9 +2325,26 @@ async function loadDashboardData() {
     }
 }
 
+// ─── Sidebar role chip — call this any time role may have changed ───
+function updateSidebarRole() {
+    const role = currentProfile?.role || 'user';
+    const isAdmin = role === 'admin';
+    const isInvestor = role === 'investor';
+    let label, cls;
+    if (isAdmin)         { label = '👑 Admin';    cls = 'user-role admin'; }
+    else if (isInvestor) { label = '💼 Investor'; cls = 'user-role'; }
+    else                 { label = 'Member';      cls = 'user-role'; }
+    const roleEl = document.getElementById('userRole');
+    if (roleEl) { roleEl.textContent = label; roleEl.className = cls; }
+    document.getElementById('adminNavItem').style.display = isAdmin ? 'flex' : 'none';
+    const invNav = document.getElementById('investorPortalNavItem');
+    if (invNav) invNav.style.display = (isAdmin || isInvestor) ? 'flex' : 'none';
+}
+
 async function refreshData() {
     showAlert('Syncing...', 'info');
     await loadProfile();
+    updateSidebarRole();
     await loadDashboardData();
     showAlert('✓ Data refreshed', 'success');
 }
@@ -2622,11 +2636,14 @@ function exitAdminView() {
 }
 
 async function quickToggleRole(userId, currentRole, email) {
+    // If currently admin → demote to user. If user/investor → promote to admin.
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
     if (!confirm(`Change ${email}'s role to ${newRole}?`)) return;
     const { error } = await sbClient.from('profiles').update({ role: newRole }).eq('id', userId);
     if (error) { showAlert('Role update failed: ' + error.message, 'error'); return; }
     showAlert(`✓ ${email} is now ${newRole}`, 'success');
+    // If this is the logged-in user, refresh their sidebar too
+    if (currentUser && userId === currentUser.id) { await loadProfile(); updateSidebarRole(); }
     loadAdminData();
 }
 
@@ -2639,6 +2656,8 @@ async function quickSetInvestor(userId, currentRole, email) {
     const { error } = await sbClient.from('profiles').update({ role: newRole, approved: true }).eq('id', userId);
     if (error) { showAlert('Role update failed: ' + error.message, 'error'); return; }
     showAlert(`✓ ${email} is now ${newRole}`, 'success');
+    // If this is the logged-in user, refresh their sidebar too
+    if (currentUser && userId === currentUser.id) { await loadProfile(); updateSidebarRole(); }
     loadAdminData();
 }
 
@@ -2652,6 +2671,8 @@ async function updateUserRole() {
     if (error) { showAlert('Failed: ' + error.message, 'error'); return; }
     showAlert(`✓ ${email} role updated to ${role}`, 'success');
     document.getElementById('roleUserEmail').value = '';
+    // If this is the logged-in user, refresh their sidebar too
+    if (currentUser && profile.id === currentUser.id) { await loadProfile(); updateSidebarRole(); }
     loadAdminData();
 }
 
@@ -4104,6 +4125,70 @@ async function ipUpdateProfit() {}
 async function ipSaveProfit() {}
 let ipMasterAccountNum = null;
 let ipMasterProfit = 0;
+
+// ═══════════════════════════════════════════════════════
+//  🔧 DEBUG TOOL — call window.debugDashboard() in console
+// ═══════════════════════════════════════════════════════
+window.debugDashboard = async function() {
+    console.group('🔧 PropFarm Pro — Debug Report');
+
+    // 1. Auth
+    const { data: { session } } = await sbClient.auth.getSession();
+    console.group('1️⃣  Auth / Session');
+    console.log('Session active:', !!session);
+    console.log('User id:', currentUser?.id || 'none');
+    console.log('User email:', currentUser?.email || 'none');
+    console.groupEnd();
+
+    // 2. Profile
+    console.group('2️⃣  Profile (in memory)');
+    console.log('currentProfile:', currentProfile);
+    console.log('role:', currentProfile?.role || 'MISSING');
+    console.log('approved:', currentProfile?.approved);
+    console.groupEnd();
+
+    // 3. Live DB profile
+    if (currentUser) {
+        console.group('3️⃣  Profile (live from Supabase)');
+        const { data: liveProf, error: pe } = await sbClient.from('profiles').select('*').eq('id', currentUser.id).single();
+        if (pe) console.error('Profile fetch error:', pe);
+        else console.log(liveProf);
+        console.groupEnd();
+    }
+
+    // 4. Sidebar display
+    console.group('4️⃣  Sidebar display');
+    console.log('#userRole text:', document.getElementById('userRole')?.textContent);
+    console.log('#userRole class:', document.getElementById('userRole')?.className);
+    console.log('Admin nav visible:', document.getElementById('adminNavItem')?.style.display);
+    console.log('Investor nav visible:', document.getElementById('investorPortalNavItem')?.style.display);
+    console.groupEnd();
+
+    // 5. Investor portal
+    console.group('5️⃣  Investor portal data');
+    console.log('ipInvestors count:', ipInvestors?.length || 0);
+    console.log('ipInvestors:', ipInvestors);
+    // Try live fetch
+    try {
+        const { data: ipRows, error: ipe } = await sbClient.from('investor_portal_investors').select('*');
+        if (ipe) console.error('investor_portal_investors fetch error:', ipe);
+        else console.log('DB rows:', ipRows);
+    } catch(e) { console.warn('investor_portal_investors table may not exist yet:', e.message); }
+    console.groupEnd();
+
+    // 6. Admin table profiles (if admin)
+    if (currentProfile?.role === 'admin') {
+        console.group('6️⃣  All profiles (admin view)');
+        const { data: allProfs, error: ape } = await sbClient.from('profiles').select('id, username, email, role, approved');
+        if (ape) console.error(ape); else console.table(allProfs);
+        console.groupEnd();
+    }
+
+    console.groupEnd();
+    console.log('✅ Debug complete. Check each group above for issues.');
+    return '✅ Debug complete — check the console groups above.';
+};
+console.log('%c🔧 PropFarm Debug ready — run debugDashboard() in console anytime', 'color:#3b7ef8;font-weight:bold;font-size:12px;');
 
 // ── AUTH BUTTON ALIASES (new form uses these) ──
 async function authDoLogin() { await handleLogin({ preventDefault: ()=>{} }); }

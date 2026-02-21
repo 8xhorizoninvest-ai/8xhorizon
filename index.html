@@ -2376,9 +2376,7 @@
                                     <button class="ipv-email-btn" id="ipEmailReportBtn" onclick="ipSendEmailReport()">
                                         <span>📤</span> Send Report Now
                                     </button>
-                                    <button class="ipv-email-btn" style="margin-top:0.5rem;background:linear-gradient(135deg,rgba(167,139,250,0.15),rgba(74,142,255,0.1));border-color:rgba(167,139,250,0.3);" onclick="ipOpenMessageModal()">
-                                        <span>✉️</span> Send Message
-                                    </button>
+
                                     <div class="ipv-email-schedule">
                                         <div class="ipv-email-schedule-lbl">
                                             <div style="font-weight:700;color:rgba(255,255,255,0.45);margin-bottom:1px;">Auto 5:00 PM daily</div>
@@ -3699,7 +3697,7 @@ async function approveUser(userId, email) {
                 to_email:      email,
                 to_name:       name,
                 admin_subject: '✅ Your account has been approved',
-                admin_message: 'Hi ' + name + ',\n\nGreat news — your account has been reviewed and approved. You can now log in and access your dashboard.\n\nIf you have any questions, feel free to reach out.\n\nBest regards,\nYour Account Manager',
+                admin_message: 'Great news — your account has been reviewed and approved. You can now log in and access your dashboard. If you have any questions, feel free to reach out. Best regards, Your Account Manager',
             });
             showAlert(`📧 Approval email sent to ${email}`, 'success');
         } catch(e) {
@@ -5167,6 +5165,7 @@ function ipRenderAdmin() {
             <td style="font-size:1.1rem;">${ipWarnDot(wl)}</td>
             <td style="display:flex;gap:0.35rem;flex-wrap:wrap;">
                 <button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipAdminViewAs(${idx})">👁 View</button>
+                ${inv.email ? `<button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;border-color:rgba(167,139,250,0.4);color:var(--purple);" onclick="ipOpenMessageModalFor(${idx})">✉️ Msg</button>` : ''}
                 ${hasPending ? `<button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipToggleNotifPanel()">🔔</button>` : ''}
                 <button class="btn btn-danger" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipRemoveInvestor(${idx})">✕</button>
             </td>
@@ -7098,7 +7097,7 @@ async function dbgApproveOne(userId) {
             await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_MSG_TEMPLATE_ID, {
                 to_email: prof.email, to_name: name,
                 admin_subject: '✅ Your account has been approved',
-                admin_message: 'Hi ' + name + ',\n\nYour account has been approved. You can now log in and access your dashboard.\n\nBest regards,\nYour Account Manager',
+                admin_message: 'Your account has been approved. You can now log in and access your dashboard. Best regards, Your Account Manager',
             });
         } catch(e) { console.warn('Approval email failed:', e); }
     }
@@ -7419,16 +7418,30 @@ document.addEventListener('click', function(e) {
 
 <script>
 // ── ADMIN MESSAGE MODAL ──
+let _ipMsgTarget = null;
 
 function ipOpenMessageModal() {
     const inv = window.currentInvestorRecord;
     if (!inv || !inv.email) { showAlert('No investor email on file.', 'error'); return; }
+    _ipMsgTarget = inv;
     const modal = document.getElementById('ipMessageModal');
     document.getElementById('ipMsgTargetName').textContent = (inv.name || inv.email) + ' · ' + inv.email;
     document.getElementById('ipMsgSubject').value = '';
     document.getElementById('ipMsgBody').value = '';
     document.getElementById('ipMsgFeedback').style.display = 'none';
     modal.style.display = 'flex';
+}
+
+// Called from admin investor table row
+function ipOpenMessageModalFor(idx) {
+    const inv = ipInvestors[idx];
+    if (!inv || !inv.email) { showAlert('No email on file for this investor.', 'error'); return; }
+    _ipMsgTarget = inv;
+    document.getElementById('ipMsgTargetName').textContent = (inv.name || inv.email) + ' · ' + inv.email;
+    document.getElementById('ipMsgSubject').value = '';
+    document.getElementById('ipMsgBody').value = '';
+    document.getElementById('ipMsgFeedback').style.display = 'none';
+    document.getElementById('ipMessageModal').style.display = 'flex';
 }
 
 function ipCloseMessageModal() {
@@ -7465,7 +7478,7 @@ function ipMsgQuick(type) {
 
 async function ipSendAdminMessage() {
     if (!ipInitEmailJS()) { showAlert('⚙️ EmailJS not configured.', 'error'); return; }
-    const inv = window.currentInvestorRecord;
+    const inv = window._ipMsgTarget || window.currentInvestorRecord;
     if (!inv?.email) { showAlert('No investor email.', 'error'); return; }
 
     const subject = document.getElementById('ipMsgSubject').value.trim();

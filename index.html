@@ -1414,6 +1414,7 @@
                             <label class="form-label">New Role</label>
                             <select class="form-select" id="roleUserRole">
                                 <option value="user">User (standard)</option>
+                                <option value="investor">💼 Investor (portal access)</option>
                                 <option value="admin">Admin (full access)</option>
                             </select>
                         </div>
@@ -1451,79 +1452,29 @@
                         <span class="admin-banner-icon">💼</span>
                         <div class="admin-banner-text">
                             <strong>Investor Portal — Admin Controls</strong>
-                            <span>Link a real PA account to each investor. They see a mirrored view of that account — real trades, real progress — but their $115 display value scales to $800 at goal.</span>
+                            <span>Link each investor to their own PA account. They see that account's real trades and progress — scaled so their $115 becomes $800 at goal.</span>
                         </div>
                     </div>
 
-                    <!-- Stats row -->
+                    <!-- Overview stats -->
                     <div class="metrics-grid" style="margin-bottom:1.5rem;">
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">Linked PA</span><span class="metric-icon">🔗</span></div><div class="metric-value" id="ipMasterBal" style="color:var(--accent)">—</div><div class="metric-sub" id="ipMasterBalSub">No account linked</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">PA Balance</span><span class="metric-icon">📈</span></div><div class="metric-value" id="ipMasterProfit" style="color:var(--success)">$0</div><div class="metric-sub" id="ipProfitPct">0% to $54,600 goal</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">Payout Goal</span><span class="metric-icon">🎯</span></div><div class="metric-value" style="color:var(--gold)">$54,600</div><div class="metric-sub">PA balance → $800 investor payout</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">Investors</span><span class="metric-icon">👥</span></div><div class="metric-value" id="ipInvestorCount" style="color:var(--purple)">0</div><div class="metric-sub">Registered investors</div></div>
-                    </div>
-
-                    <!-- Link master PA account -->
-                    <div class="form-card" style="margin-bottom:1.5rem;">
-                        <h3 style="margin-bottom:0.4rem;font-size:1rem;font-weight:700;">🔗 Link Master PA Account</h3>
-                        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Choose which PA account investors will mirror. Their $115 scales to $800 when this account hits <strong style="color:var(--gold)">$54,600 balance</strong> (profit of $4,600 from $50,000 start).</p>
-                        <div style="display:flex;gap:0.875rem;flex-wrap:wrap;align-items:flex-end;">
-                            <div class="form-group" style="margin-bottom:0;flex:1;min-width:180px;">
-                                <label class="form-label">Master PA Account</label>
-                                <select class="form-select" id="ipMasterAccountSelect" onchange="ipPreviewFormula()">
-                                    <option value="">— Select PA Account —</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="margin-bottom:0;min-width:160px;">
-                                <label class="form-label">Investor Entry ($)</label>
-                                <input type="number" class="form-input" id="ipDefaultEntry" placeholder="115" value="115" min="1" style="font-family:'JetBrains Mono',monospace;">
-                            </div>
-                            <div class="form-group" style="margin-bottom:0;min-width:160px;">
-                                <label class="form-label">Payout Target ($)</label>
-                                <input type="number" class="form-input" id="ipPayoutTarget" placeholder="800" value="800" min="1" style="font-family:'JetBrains Mono',monospace;">
-                            </div>
-                            <button class="btn btn-primary" style="width:auto;white-space:nowrap;" onclick="ipSaveMasterAccount()">💾 Save Settings</button>
-                        </div>
-                        <!-- Formula preview -->
-                        <div id="ipFormulaPreview" style="margin-top:1rem;padding:0.875rem 1.25rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--text-muted);display:none;">
-                            <span style="color:var(--accent);">Formula:</span> Investor Value = <span id="ipFormulaEntry" style="color:var(--gold);">$115</span> + (PA Profit × <span id="ipFormulaMultiplier" style="color:var(--purple);">0.1489</span>)
-                        </div>
-                    </div>
-
-                    <!-- Master account live progress -->
-                    <div class="card" style="margin-bottom:1.5rem;" id="ipMasterProgressCard">
-                        <div class="card-header">
-                            <div class="card-title" id="ipMasterProgressTitle">Master Account Progress</div>
-                            <div class="card-sub">$50,000 start → $54,600 goal (+ $4,600 profit)</div>
-                        </div>
-                        <div class="card-body" style="padding:1.25rem 1.5rem;">
-                            <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;">
-                                <span id="ipProgLabel">$50,000</span>
-                                <span style="color:var(--gold)">$54,600 goal</span>
-                            </div>
-                            <div style="height:12px;background:var(--bg-elevated);border-radius:6px;overflow:hidden;border:1px solid var(--border);">
-                                <div id="ipProgFill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:6px;transition:width 1.5s cubic-bezier(0.4,0,0.2,1);position:relative;">
-                                    <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);animation:shimmer 2.5s ease infinite;"></div>
-                                </div>
-                            </div>
-                            <style>@keyframes shimmer{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}</style>
-                            <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem;">
-                                <span id="ipProgPct">0.0% to goal</span>
-                                <span id="ipProgToGo">$4,600 to go</span>
-                            </div>
-                        </div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">Total Investors</span><span class="metric-icon">👥</span></div><div class="metric-value" id="ipInvestorCount" style="color:var(--purple)">0</div><div class="metric-sub">Active investor accounts</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">PA Accounts Used</span><span class="metric-icon">🔗</span></div><div class="metric-value" id="ipLinkedCount" style="color:var(--cyan)">0</div><div class="metric-sub">Linked to investors</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">At Payout Goal</span><span class="metric-icon">🏆</span></div><div class="metric-value" id="ipAtGoalCount" style="color:var(--gold)">0</div><div class="metric-sub">Investors at $800</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">Goal Per PA</span><span class="metric-icon">🎯</span></div><div class="metric-value" style="color:var(--success)">$4,600</div><div class="metric-sub">Profit triggers payout</div></div>
                     </div>
 
                     <!-- Investor list table -->
                     <div class="table-card" style="margin-bottom:1.5rem;">
                         <div class="table-header">
-                            <div><span class="card-title">Investor Accounts</span>
-                                <div style="color:var(--text-muted);font-size:0.8rem;margin-top:0.15rem;">Each investor mirrors the linked PA account with scaled values</div>
+                            <div>
+                                <span class="card-title">Investor Accounts</span>
+                                <div style="color:var(--text-muted);font-size:0.8rem;margin-top:0.15rem;">Each investor links to their own PA account</div>
                             </div>
                         </div>
                         <div class="table-wrap">
                             <table>
-                                <thead><tr><th>Name</th><th>Email</th><th>Entry $</th><th>Payout $</th><th>Multiplier</th><th>Current Value</th><th>% to Goal</th><th>Actions</th></tr></thead>
+                                <thead><tr><th>Name</th><th>Email</th><th>Linked PA</th><th>PA Profit</th><th>Entry $</th><th>Payout $</th><th>Current Value</th><th>Progress</th><th>Actions</th></tr></thead>
                                 <tbody id="ipInvestorTableBody"></tbody>
                             </table>
                         </div>
@@ -1531,14 +1482,57 @@
 
                     <!-- Add investor form -->
                     <div class="form-card" style="margin-bottom:1.5rem;">
-                        <h3 style="margin-bottom:0.4rem;font-size:1rem;font-weight:700;">➕ Register New Investor</h3>
-                        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Their Supabase account email must match exactly. Set role to Investor in the Admin Panel user table.</p>
-                        <div class="form-grid">
-                            <div class="form-group"><label class="form-label">Name / Label</label><input type="text" class="form-input" id="ipNewName" placeholder="e.g. Investor A"></div>
-                            <div class="form-group"><label class="form-label">Email Address</label><input type="email" class="form-input" id="ipNewEmail" placeholder="investor@email.com"></div>
-                            <div class="form-group"><label class="form-label">Entry Point ($)</label><input type="number" class="form-input" id="ipNewEntry" placeholder="115" min="1" style="font-family:'JetBrains Mono',monospace;"></div>
-                            <div class="form-group"><label class="form-label">Payout Target ($)</label><input type="number" class="form-input" id="ipNewPayout" placeholder="800" value="800" min="1" style="font-family:'JetBrains Mono',monospace;"></div>
+                        <h3 style="margin-bottom:0.4rem;font-size:1rem;font-weight:700;">➕ Add / Update Investor</h3>
+                        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Search by email or username, pick their PA account, set entry and payout amounts. The investor must already have the <strong style="color:var(--gold);">Investor</strong> role set in the Admin Panel.</p>
+
+                        <div class="form-grid" style="margin-bottom:1rem;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Search User (email or username)</label>
+                                <div style="position:relative;">
+                                    <input type="text" class="form-input" id="ipUserSearch" placeholder="Start typing..." oninput="ipSearchUsers()" autocomplete="off">
+                                    <div id="ipUserDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg-elevated);border:1px solid var(--border-glow);border-radius:var(--radius-sm);z-index:200;max-height:180px;overflow-y:auto;margin-top:2px;box-shadow:var(--shadow);"></div>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Selected</label>
+                                <div id="ipSelectedUser" style="padding:0.75rem 1rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--text-muted);min-height:44px;display:flex;align-items:center;gap:0.5rem;">
+                                    <span>No user selected</span>
+                                </div>
+                                <input type="hidden" id="ipSelectedUserId">
+                                <input type="hidden" id="ipSelectedUserEmail">
+                                <input type="hidden" id="ipSelectedUserName">
+                            </div>
                         </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Link to PA Account</label>
+                                <select class="form-select" id="ipLinkAccountSelect" onchange="ipPreviewFormula()">
+                                    <option value="">— Select PA Account —</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Entry Amount ($)</label>
+                                <input type="number" class="form-input" id="ipNewEntry" placeholder="115" value="115" min="1" oninput="ipPreviewFormula()" style="font-family:'JetBrains Mono',monospace;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Payout Target ($)</label>
+                                <input type="number" class="form-input" id="ipNewPayout" placeholder="800" value="800" min="1" oninput="ipPreviewFormula()" style="font-family:'JetBrains Mono',monospace;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Display Name (optional)</label>
+                                <input type="text" class="form-input" id="ipNewName" placeholder="e.g. Bryan, Catty...">
+                            </div>
+                        </div>
+
+                        <!-- Live formula preview -->
+                        <div id="ipFormulaPreview" style="margin-bottom:1rem;padding:0.875rem 1.25rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px solid var(--border);font-size:0.82rem;color:var(--text-muted);display:none;">
+                            <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center;">
+                                <span><span style="color:var(--accent);font-weight:600;">Formula:</span> Value = <span id="ipFormulaEntry" style="color:var(--gold);font-family:'JetBrains Mono',monospace;">$115</span> + (PA Profit × <span id="ipFormulaMultiplier" style="color:var(--purple);font-family:'JetBrains Mono',monospace;">0.1489</span>)</span>
+                                <span>PA today: <span id="ipFormulaPaPnl" style="color:var(--success);font-family:'JetBrains Mono',monospace;">—</span> → Your value: <span id="ipFormulaCurrentVal" style="color:var(--gold);font-family:'JetBrains Mono',monospace;">—</span></span>
+                            </div>
+                        </div>
+
                         <div class="form-footer">
                             <button class="btn btn-primary" style="width:auto;" onclick="ipAddInvestor()">➕ Add Investor</button>
                             <button class="btn btn-secondary" onclick="ipClearNewForm()">Clear</button>
@@ -1553,39 +1547,43 @@
                         .ip-inv-header::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 60% 80% at 100% 50%, rgba(155,111,250,0.08) 0%, transparent 70%); pointer-events:none; }
                         .ip-value-giant { font-family:'JetBrains Mono',monospace; font-size:clamp(2.5rem,6vw,4.5rem); font-weight:700; letter-spacing:-0.03em; line-height:1; }
                         .ip-trade-row:hover { background:var(--bg-hover); }
-                        .ip-milestone-chip { display:inline-flex; align-items:center; gap:0.3rem; padding:0.25rem 0.6rem; border-radius:20px; font-size:0.72rem; font-weight:600; border:1px solid; }
-                        .ip-milestone-chip.reached { background:rgba(34,211,160,0.12); color:var(--success); border-color:rgba(34,211,160,0.3); }
-                        .ip-milestone-chip.pending { background:rgba(99,179,237,0.06); color:var(--text-dim); border-color:var(--border); }
-                        .ip-milestone-chip.current { background:rgba(59,126,248,0.15); color:var(--accent); border-color:rgba(59,126,248,0.4); }
-                        .ip-milestone-chip.goal { background:rgba(255,209,102,0.12); color:var(--gold); border-color:rgba(255,209,102,0.35); }
+                        .ip-ms-chip { display:inline-flex; align-items:center; gap:0.3rem; padding:0.3rem 0.7rem; border-radius:20px; font-size:0.72rem; font-weight:600; border:1px solid; transition:all 0.2s; }
+                        .ip-ms-chip.reached { background:rgba(34,211,160,0.12); color:var(--success); border-color:rgba(34,211,160,0.3); }
+                        .ip-ms-chip.pending { background:rgba(99,179,237,0.05); color:var(--text-dim); border-color:var(--border); }
+                        .ip-ms-chip.current { background:rgba(59,126,248,0.15); color:var(--accent); border-color:rgba(59,126,248,0.4); animation:pulse-chip 2s ease infinite; }
+                        .ip-ms-chip.goal { background:rgba(255,209,102,0.15); color:var(--gold); border-color:rgba(255,209,102,0.4); }
+                        @keyframes pulse-chip { 0%,100%{opacity:1} 50%{opacity:0.7} }
+                        .ip-chart-wrap { position:relative; height:200px; }
                     </style>
 
-                    <!-- Header value card -->
+                    <!-- Big value header -->
                     <div class="ip-inv-header" id="ipInvHeader">
                         <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
                             <div>
-                                <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.4rem;">YOUR ACCOUNT VALUE</div>
+                                <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.4rem;">YOUR ACCOUNT VALUE</div>
                                 <div class="ip-value-giant" id="ipDisplayValue">$—</div>
-                                <div style="margin-top:0.5rem;color:var(--text-muted);font-size:0.875rem;">
+                                <div style="margin-top:0.6rem;font-size:0.85rem;color:var(--text-muted);">
                                     Entry: <strong id="ipEntryDisplay" style="color:var(--text);">—</strong>
-                                    &nbsp;·&nbsp; Payout Target: <strong id="ipPayoutDisplay" style="color:var(--gold);">—</strong>
+                                    &nbsp;·&nbsp; Target Payout: <strong id="ipPayoutDisplay" style="color:var(--gold);">—</strong>
                                     &nbsp;·&nbsp; Multiplier: <strong id="ipMultDisplay" style="color:var(--purple);">—</strong>
                                 </div>
                             </div>
-                            <div style="text-align:right;">
-                                <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">Mirroring</div>
-                                <div id="ipMirrorLabel" style="font-size:1.1rem;font-weight:700;color:var(--cyan);">—</div>
-                                <div id="ipMirrorSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.15rem;">Master Account</div>
+                            <div style="text-align:right;flex-shrink:0;">
+                                <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.3rem;">MIRRORING</div>
+                                <div id="ipMirrorLabel" style="font-size:1.2rem;font-weight:700;color:var(--cyan);">—</div>
+                                <div id="ipMirrorSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.1rem;">—</div>
                             </div>
                         </div>
-                        <!-- Progress bar -->
+                        <!-- Journey progress -->
                         <div>
                             <div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;">
-                                <span id="ipInvProgLeft">$0 to start</span>
-                                <span id="ipInvProgRight" style="color:var(--gold);">Target: $—</span>
+                                <span id="ipInvProgLeft">Your value: $0</span>
+                                <span id="ipInvProgRight" style="color:var(--gold);">Payout: $—</span>
                             </div>
-                            <div style="height:14px;background:rgba(0,0,0,0.3);border-radius:7px;overflow:hidden;">
-                                <div id="ipInvProgFill" style="height:100%;width:0%;border-radius:7px;transition:width 2s cubic-bezier(0.4,0,0.2,1);background:linear-gradient(90deg,var(--accent),var(--purple));"></div>
+                            <div style="height:14px;background:rgba(0,0,0,0.35);border-radius:7px;overflow:hidden;position:relative;">
+                                <div id="ipInvProgFill" style="height:100%;width:0%;border-radius:7px;transition:width 2s cubic-bezier(0.4,0,0.2,1);background:linear-gradient(90deg,var(--accent),var(--purple));position:relative;">
+                                    <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shimmer 2.5s ease infinite;"></div>
+                                </div>
                             </div>
                             <div id="ipInvProgPct" style="text-align:right;font-size:0.75rem;color:var(--text-muted);margin-top:0.35rem;">0% to payout</div>
                         </div>
@@ -1594,68 +1592,71 @@
                     <!-- 4 stat cards -->
                     <div class="metrics-grid" style="margin-bottom:1.5rem;">
                         <div class="metric-card"><div class="metric-header"><span class="metric-label">📍 Your Entry</span><span class="metric-icon">💵</span></div><div class="metric-value" id="ipStatEntry">$—</div><div class="metric-sub">Amount you invested</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📈 Your Profit</span><span class="metric-icon">✅</span></div><div class="metric-value" id="ipStatProfit" style="color:var(--success)">$—</div><div class="metric-sub">Scaled from master profit</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">🏆 Payout</span><span class="metric-icon">🎯</span></div><div class="metric-value" id="ipStatPayout" style="color:var(--gold)">$—</div><div class="metric-sub" id="ipStatPayoutSub">When PA hits goal</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📊 Master P&L</span><span class="metric-icon">💰</span></div><div class="metric-value" id="ipStatMasterPnl" style="color:var(--accent)">$—</div><div class="metric-sub" id="ipStatMasterSub">Real account profit</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📈 Your Profit</span><span class="metric-icon">✅</span></div><div class="metric-value" id="ipStatProfit" style="color:var(--success)">$—</div><div class="metric-sub">Your scaled share today</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">🏆 Payout</span><span class="metric-icon">🎯</span></div><div class="metric-value" id="ipStatPayout" style="color:var(--gold)">$—</div><div class="metric-sub" id="ipStatPayoutSub">When PA hits $4,600 profit</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📊 PA Real P&L</span><span class="metric-icon">💰</span></div><div class="metric-value" id="ipStatMasterPnl" style="color:var(--accent)">$—</div><div class="metric-sub" id="ipStatMasterSub">Real account profit</div></div>
                     </div>
 
-                    <!-- Progress milestones chips -->
+                    <!-- Milestone chips -->
                     <div class="card" style="margin-bottom:1.5rem;">
-                        <div class="card-header"><div class="card-title">Journey Milestones</div></div>
+                        <div class="card-header"><div class="card-title">🚀 Your Journey</div><div class="card-sub">10% checkpoints — entry → payout</div></div>
                         <div class="card-body" style="padding:1.25rem 1.5rem;">
                             <div id="ipMilestoneChips" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
                         </div>
                     </div>
 
-                    <!-- Two panels: explanation + trade log -->
-                    <div style="display:grid;grid-template-columns:1fr 2fr;gap:1.25rem;margin-bottom:1.5rem;" class="ip-two-col">
-                        <style>.ip-two-col { @media(max-width:700px){ grid-template-columns:1fr !important; } }</style>
-
-                        <!-- How it works -->
+                    <!-- 2-col: how it works + equity chart -->
+                    <div style="display:grid;grid-template-columns:1fr 1.8fr;gap:1.25rem;margin-bottom:1.5rem;">
                         <div class="card">
                             <div class="card-header"><div class="card-title">📖 How It Works</div></div>
-                            <div class="card-body" style="padding:1.25rem 1.5rem;">
-                                <div style="display:flex;flex-direction:column;gap:1rem;">
+                            <div class="card-body" style="padding:1.25rem;">
+                                <div style="display:flex;flex-direction:column;gap:0.875rem;">
                                     <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border-left:3px solid var(--accent);">
-                                        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:0.25rem;">Master Account</div>
-                                        <div style="font-size:0.85rem;color:var(--text-muted);">A real $50,000 PA account trades on your behalf. You cannot see it directly — only its progress reflected in your value.</div>
+                                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:0.3rem;">The PA Account</div>
+                                        <div style="font-size:0.82rem;color:var(--text-muted);">A real $50,000 funded account trades on your behalf. Your $<span id="ipHowEntry">115</span> buys you a share of its performance.</div>
                                     </div>
                                     <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border-left:3px solid var(--purple);">
-                                        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--purple);margin-bottom:0.25rem;">Your Display Value</div>
-                                        <div style="font-size:0.85rem;color:var(--text-muted);">Your value = <span id="ipHowEntry" style="color:var(--gold)">$115</span> + (Master Profit × <span id="ipHowMult" style="color:var(--purple)">0.1489</span>)</div>
+                                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--purple);margin-bottom:0.3rem;">Your Value Formula</div>
+                                        <div style="font-size:0.82rem;color:var(--text-muted);">$<span id="ipHowEntry2">115</span> + (PA Profit × <span id="ipHowMult" style="color:var(--purple);">0.1489</span>)</div>
                                     </div>
                                     <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border-left:3px solid var(--gold);">
-                                        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:0.25rem;">Payout Trigger</div>
-                                        <div style="font-size:0.85rem;color:var(--text-muted);">When the master account reaches <strong style="color:var(--gold)" id="ipHowGoalBal">$54,600</strong>, your account value reaches <strong id="ipHowPayout" style="color:var(--gold)">$800</strong> and you receive your payout.</div>
+                                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:0.3rem;">Payout Trigger</div>
+                                        <div style="font-size:0.82rem;color:var(--text-muted);">PA hits <strong style="color:var(--gold);" id="ipHowGoalBal">$54,600</strong> balance → you get <strong style="color:var(--gold);" id="ipHowPayout">$800</strong>.</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Recent trades from master account -->
-                        <div class="table-card">
-                            <div class="table-header">
-                                <span class="card-title">📋 Master Account Trades</span>
-                                <span style="color:var(--text-muted);font-size:0.8rem;" id="ipTradeCount">0 trades</span>
-                            </div>
-                            <div class="table-wrap" style="max-height:320px;overflow-y:auto;">
-                                <table>
-                                    <thead><tr><th>Date</th><th>Condition</th><th>Template</th><th>P&L</th><th>Cycle</th></tr></thead>
-                                    <tbody id="ipTradeBody"></tbody>
-                                </table>
+                        <div class="card">
+                            <div class="card-header"><div class="card-title">📈 PA Equity Curve</div><div class="card-sub" id="ipChartSub">Balance over time</div></div>
+                            <div class="card-body" style="padding:1rem 1.25rem;">
+                                <div style="position:relative;height:200px;"><canvas id="ipEquityChart"></canvas></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Full milestone table -->
+                    <!-- Trade log -->
+                    <div class="table-card" style="margin-bottom:1.5rem;">
+                        <div class="table-header">
+                            <span class="card-title">📋 PA Trade History</span>
+                            <span style="color:var(--text-muted);font-size:0.8rem;" id="ipTradeCount">0 trades</span>
+                        </div>
+                        <div class="table-wrap" style="max-height:350px;overflow-y:auto;">
+                            <table>
+                                <thead><tr><th>#</th><th>Date</th><th>Session</th><th>Risk</th><th>Real P&L</th><th>Your Scaled</th><th>Cycle</th><th>Running Value</th></tr></thead>
+                                <tbody id="ipTradeBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Milestone breakdown table -->
                     <div class="table-card">
                         <div class="table-header">
                             <span class="card-title">📊 Milestone Breakdown</span>
-                            <span style="color:var(--text-muted);font-size:0.8rem;">10% progress checkpoints</span>
+                            <span style="color:var(--text-muted);font-size:0.8rem;">Your value at each 10% checkpoint</span>
                         </div>
                         <div class="table-wrap">
                             <table>
-                                <thead><tr><th>Status</th><th>Master Profit</th><th>Master Balance</th><th>Your Value</th><th>Your Gain</th><th></th></tr></thead>
+                                <thead><tr><th>Status</th><th>PA Profit</th><th>PA Balance</th><th>Your Value</th><th>Your Gain</th><th></th></tr></thead>
                                 <tbody id="ipMilestoneBody"></tbody>
                             </table>
                         </div>
@@ -3606,51 +3607,33 @@ function tmplDesc(name) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  INVESTOR PORTAL — PA Mirror Edition
+//  INVESTOR PORTAL — Per-Investor PA Linking
 // ═══════════════════════════════════════════════════════
 
 // ── Constants ──
-const IP_START_BAL   = 50000;   // Master PA starting balance
-const IP_GOAL_PROFIT = 4600;    // Profit needed on master PA to trigger payout
+const IP_START_BAL   = 50000;
+const IP_GOAL_PROFIT = 4600;
 const IP_GOAL_BAL    = IP_START_BAL + IP_GOAL_PROFIT; // $54,600
 
-// ── State ──
-let ipMasterAccountNum = null;  // Which PA account number is the master (1-20)
-let ipInvestors        = [];    // Array of investor objects
-let ipSettings         = { defaultEntry: 115, defaultPayout: 800 };
+// State
+let ipInvestors     = [];   // [{id, name, email, entry_point, payout_target, linked_account}]
+let ipAllProfiles   = [];   // cached from Supabase for user search
+let ipEquityChartObj = null;
 
-// Multiplier formula: how much each $1 of master profit adds to investor value
-function ipCalcMultiplier(entry, payout) {
-    return (payout - entry) / IP_GOAL_PROFIT;
-}
-function ipCalcDisplayValue(entry, payout, masterProfit) {
-    const mult = ipCalcMultiplier(entry, payout);
-    return entry + masterProfit * mult;
-}
+function ipCalcMultiplier(entry, payout) { return (payout - entry) / IP_GOAL_PROFIT; }
+function ipCalcDisplayValue(entry, payout, masterProfit) { return entry + masterProfit * ipCalcMultiplier(entry, payout); }
 
-// Get trades for the linked master PA account from allData
-function ipGetMasterTrades() {
-    if (!ipMasterAccountNum) return [];
-    return allData.filter(t => parseInt(t.account) === ipMasterAccountNum && !t.no_trade_day);
+// Get trades for a specific PA account number
+function ipGetTradesForAccount(accNum) {
+    if (!accNum) return [];
+    return allData.filter(t => parseInt(t.account) === parseInt(accNum) && !t.no_trade_day);
+}
+function ipGetPnlForAccount(accNum) {
+    return ipGetTradesForAccount(accNum).reduce((s, t) => s + parseFloat(t.pnl || 0), 0);
 }
 
-function ipGetMasterPnl() {
-    return ipGetMasterTrades().reduce((s, t) => s + parseFloat(t.pnl || 0), 0);
-}
-
-// ── LOAD / SAVE ──
+// ── LOAD ──
 async function ipLoadState() {
-    // Try Supabase first
-    try {
-        const { data } = await sbClient.from('investor_portal_config').select('value').eq('id', 'master_state').single();
-        if (data?.value) {
-            ipMasterAccountNum = data.value.masterAccount || null;
-            ipSettings = { defaultEntry: data.value.defaultEntry || 115, defaultPayout: data.value.defaultPayout || 800 };
-        }
-    } catch(_) {
-        try { const s = JSON.parse(localStorage.getItem('pfp_ip_state') || '{}'); ipMasterAccountNum = s.masterAccount || null; ipSettings = { defaultEntry: s.defaultEntry || 115, defaultPayout: s.defaultPayout || 800 }; } catch(__) {}
-    }
-    // Load investors
     try {
         const { data } = await sbClient.from('investor_portal_investors').select('*').order('created_at', { ascending: true });
         if (data) { ipInvestors = data; return; }
@@ -3658,289 +3641,433 @@ async function ipLoadState() {
     try { ipInvestors = JSON.parse(localStorage.getItem('pfp_investors') || '[]'); } catch(_) { ipInvestors = []; }
 }
 
-async function ipSaveState() {
-    const val = { masterAccount: ipMasterAccountNum, defaultEntry: ipSettings.defaultEntry, defaultPayout: ipSettings.defaultPayout };
-    try { await sbClient.from('investor_portal_config').upsert({ id: 'master_state', value: val }); } catch(_) {}
-    localStorage.setItem('pfp_ip_state', JSON.stringify(val));
-}
-
 async function ipSaveInvestors() {
-    try { for (const inv of ipInvestors) await sbClient.from('investor_portal_investors').upsert(inv); } catch(_) {}
+    try {
+        for (const inv of ipInvestors) {
+            await sbClient.from('investor_portal_investors').upsert({
+                id: inv.id, name: inv.name, email: inv.email,
+                entry_point: inv.entry_point, payout_target: inv.payout_target,
+                linked_account: inv.linked_account, created_at: inv.created_at
+            });
+        }
+    } catch(_) {}
     localStorage.setItem('pfp_investors', JSON.stringify(ipInvestors));
 }
 
 // ── MAIN RENDER ──
 async function updateInvestorPortalPage() {
     await ipLoadState();
-    const isAdmin  = currentProfile?.role === 'admin';
-    const myEmail  = currentUser?.email || currentProfile?.email || '';
-    const myProfile = ipInvestors.find(i => i.email && i.email.toLowerCase() === myEmail.toLowerCase());
+    const isAdmin   = currentProfile?.role === 'admin';
+    const myEmail   = (currentUser?.email || currentProfile?.email || '').toLowerCase();
+    const myProfile = ipInvestors.find(i => i.email && i.email.toLowerCase() === myEmail);
 
     // ROLE GUARD
+    const ipPg = document.getElementById('investorPortalPage');
+    const denied = ipPg?.querySelector('.ip-denied');
+    if (denied) denied.remove();
+
     if (currentProfile?.role !== 'admin' && currentProfile?.role !== 'investor') {
-        document.getElementById('ipAdminSection').style.display = 'none';
-        document.getElementById('ipInvestorSection').style.display = 'none';
-        document.getElementById('ipNotRegistered').style.display = 'none';
-        const pg = document.getElementById('investorPortalPage');
-        if (pg && !pg.querySelector('.ip-denied')) {
+        ['ipAdminSection','ipInvestorSection','ipNotRegistered'].forEach(id => {
+            const el = document.getElementById(id); if (el) el.style.display = 'none';
+        });
+        if (ipPg) {
             const div = document.createElement('div');
             div.className = 'ip-denied';
             div.style.cssText = 'text-align:center;padding:4rem 2rem;background:var(--bg-card);border:1px dashed var(--border-glow);border-radius:var(--radius);margin-top:1rem;';
             div.innerHTML = '<div style="font-size:3rem;margin-bottom:1rem;">🔒</div><h3 style="font-size:1.2rem;font-weight:700;margin-bottom:.5rem;">Investor Access Only</h3><p style="color:var(--text-muted);font-size:.875rem;max-width:340px;margin:0 auto;">This section is restricted to registered investors.</p>';
-            pg.prepend(div);
+            ipPg.prepend(div);
         }
         return;
     }
 
-    document.getElementById('ipAdminSection').style.display = isAdmin ? 'block' : 'none';
-    document.getElementById('ipInvestorSection').style.display = 'none';
-    document.getElementById('ipNotRegistered').style.display = 'none';
+    const adminEl = document.getElementById('ipAdminSection');
+    const invEl   = document.getElementById('ipInvestorSection');
+    const notEl   = document.getElementById('ipNotRegistered');
 
-    if (isAdmin) {
-        ipRenderAdmin();
-        // Admin also sees investor view if they're in the list
-        if (myProfile) {
-            document.getElementById('ipInvestorSection').style.display = 'block';
-            ipRenderInvestorView(myProfile);
-        }
-    } else {
-        // Pure investor role
-        if (myProfile) {
-            document.getElementById('ipInvestorSection').style.display = 'block';
-            ipRenderInvestorView(myProfile);
-        } else {
-            document.getElementById('ipNotRegistered').style.display = 'block';
-        }
+    if (adminEl) adminEl.style.display = isAdmin ? 'block' : 'none';
+    if (invEl)   invEl.style.display   = 'none';
+    if (notEl)   notEl.style.display   = 'none';
+
+    if (isAdmin) ipRenderAdmin();
+
+    if (myProfile) {
+        if (invEl) invEl.style.display = 'block';
+        ipRenderInvestorView(myProfile);
+    } else if (!isAdmin) {
+        if (notEl) notEl.style.display = 'block';
     }
 }
 
+// ── ADMIN RENDER ──
 function ipRenderAdmin() {
-    const masterPnl = ipGetMasterPnl();
-    const masterBal = IP_START_BAL + masterPnl;
-    const pct = Math.min(masterPnl / IP_GOAL_PROFIT * 100, 100);
-    const nickname = ipMasterAccountNum ? getNickname(ipMasterAccountNum) : null;
+    const el = id => document.getElementById(id);
 
-    // Populate account selector
-    const sel = document.getElementById('ipMasterAccountSelect');
+    // Populate PA selector in add form
+    const sel = el('ipLinkAccountSelect');
     if (sel) {
-        const prev = sel.value;
+        const cur = sel.value;
         sel.innerHTML = '<option value="">— Select PA Account —</option>';
         for (let i = 1; i <= USER_ACCOUNT_GOAL; i++) {
             const nick = getNickname(i);
             const opt = document.createElement('option');
             opt.value = i;
             opt.textContent = nick ? `PA #${i} — ${nick}` : `PA Account #${i}`;
-            if (i === ipMasterAccountNum) opt.selected = true;
+            if (String(i) === String(cur)) opt.selected = true;
             sel.appendChild(opt);
         }
-        if (!ipMasterAccountNum && prev) sel.value = prev;
     }
 
-    // Fill settings fields
-    const entryEl = document.getElementById('ipDefaultEntry');
-    const payoutEl = document.getElementById('ipPayoutTarget');
-    if (entryEl && !entryEl.dataset.dirty) entryEl.value = ipSettings.defaultEntry || 115;
-    if (payoutEl && !payoutEl.dataset.dirty) payoutEl.value = ipSettings.defaultPayout || 800;
-
-    // Stats
-    const masterLabel = ipMasterAccountNum ? (nickname ? `PA #${ipMasterAccountNum} — ${nickname}` : `PA Account #${ipMasterAccountNum}`) : 'None Linked';
-    const el = (id) => document.getElementById(id);
-    if (el('ipMasterBal')) el('ipMasterBal').textContent = ipMasterAccountNum ? masterLabel : '—';
-    if (el('ipMasterBalSub')) el('ipMasterBalSub').textContent = ipMasterAccountNum ? `Balance: ${fmtCurrency(masterBal)}` : 'No account linked';
-    if (el('ipMasterProfit')) { el('ipMasterProfit').textContent = fmtCurrency(masterPnl); el('ipMasterProfit').style.color = masterPnl >= 0 ? 'var(--success)' : 'var(--danger)'; }
-    if (el('ipProfitPct')) el('ipProfitPct').textContent = pct.toFixed(1) + '% to $54,600 goal';
+    // Overview stats
+    const linked = [...new Set(ipInvestors.map(i => i.linked_account).filter(Boolean))];
+    const atGoal = ipInvestors.filter(inv => {
+        const pnl = ipGetPnlForAccount(inv.linked_account);
+        return pnl >= IP_GOAL_PROFIT;
+    }).length;
     if (el('ipInvestorCount')) el('ipInvestorCount').textContent = ipInvestors.length;
-
-    // Progress bar
-    if (el('ipProgLabel')) el('ipProgLabel').textContent = `${fmtCurrency(masterBal)} balance`;
-    if (el('ipProgFill')) el('ipProgFill').style.width = pct.toFixed(1) + '%';
-    if (el('ipProgPct')) el('ipProgPct').textContent = pct.toFixed(1) + '% to goal';
-    if (el('ipProgToGo')) el('ipProgToGo').textContent = `${fmtCurrency(Math.max(IP_GOAL_PROFIT - masterPnl, 0))} to go`;
-    if (el('ipMasterProgressTitle')) el('ipMasterProgressTitle').textContent = ipMasterAccountNum ? `${masterLabel} Progress` : 'Master Account Progress';
-
-    // Formula preview
-    const entry = ipSettings.defaultEntry || 115;
-    const payout = ipSettings.defaultPayout || 800;
-    const mult = ipCalcMultiplier(entry, payout);
-    if (el('ipFormulaPreview')) el('ipFormulaPreview').style.display = 'flex';
-    if (el('ipFormulaEntry')) el('ipFormulaEntry').textContent = fmtCurrency(entry);
-    if (el('ipFormulaMultiplier')) el('ipFormulaMultiplier').textContent = mult.toFixed(4);
+    if (el('ipLinkedCount'))   el('ipLinkedCount').textContent   = linked.length;
+    if (el('ipAtGoalCount'))   el('ipAtGoalCount').textContent   = atGoal;
 
     // Investor table
-    const tbody = document.getElementById('ipInvestorTableBody');
+    const tbody = el('ipInvestorTableBody');
+    if (!tbody) return;
     if (!ipInvestors.length) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">No investors yet. Add one below.</td></tr>';
-    } else {
-        const mPnl = masterPnl;
-        tbody.innerHTML = ipInvestors.map((inv, idx) => {
-            const e = parseFloat(inv.entry_point) || 115;
-            const p = parseFloat(inv.payout_target) || 800;
-            const m = ipCalcMultiplier(e, p);
-            const dv = ipCalcDisplayValue(e, p, mPnl);
-            const pctDv = Math.min((dv - e) / (p - e) * 100, 100);
-            return `<tr>
-                <td><strong>${inv.name || '—'}</strong></td>
-                <td style="color:var(--text-muted);font-size:0.85rem;">${inv.email || '—'}</td>
-                <td style="font-family:'JetBrains Mono',monospace;">${fmtCurrency(e)}</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:var(--gold);">${fmtCurrency(p)}</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:var(--purple);">${m.toFixed(4)}x</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:${dv >= p ? 'var(--gold)' : 'var(--success)'};">${fmtCurrency(dv)}</td>
-                <td><div style="display:flex;align-items:center;gap:0.5rem;"><div style="flex:1;height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;max-width:80px;"><div style="height:100%;width:${Math.max(0,pctDv).toFixed(0)}%;background:${dv>=p?'var(--gold)':'var(--accent)'};border-radius:3px;"></div></div><span style="font-size:0.75rem;color:var(--text-muted);">${Math.max(0,pctDv).toFixed(0)}%</span></div></td>
-                <td><button class="btn btn-secondary" style="padding:0.25rem 0.625rem;font-size:0.72rem;" onclick="ipRemoveInvestor(${idx})">✕</button></td>
-            </tr>`;
-        }).join('');
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted);">No investors yet. Add one below.</td></tr>';
+        return;
     }
+    tbody.innerHTML = ipInvestors.map((inv, idx) => {
+        const e    = parseFloat(inv.entry_point)   || 115;
+        const p    = parseFloat(inv.payout_target) || 800;
+        const acc  = parseInt(inv.linked_account)  || null;
+        const pnl  = acc ? ipGetPnlForAccount(acc) : 0;
+        const dv   = ipCalcDisplayValue(e, p, pnl);
+        const pct  = Math.min(Math.max((dv - e) / (p - e) * 100, 0), 100);
+        const nick = acc ? (getNickname(acc) ? `PA #${acc} — ${getNickname(acc)}` : `PA #${acc}`) : '<span style="color:var(--warning);">⚠ Not linked</span>';
+        return `<tr>
+            <td><strong>${inv.name || '—'}</strong></td>
+            <td style="color:var(--text-muted);font-size:0.82rem;">${inv.email || '—'}</td>
+            <td style="font-size:0.82rem;">${nick}</td>
+            <td style="font-family:'JetBrains Mono',monospace;color:${pnl>=0?'var(--success)':'var(--danger)'};">${fmtCurrency(pnl)}</td>
+            <td style="font-family:'JetBrains Mono',monospace;">${fmtCurrency(e)}</td>
+            <td style="font-family:'JetBrains Mono',monospace;color:var(--gold);">${fmtCurrency(p)}</td>
+            <td style="font-family:'JetBrains Mono',monospace;color:${dv>=p?'var(--gold)':'var(--success)'};">${fmtCurrency(dv)}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <div style="flex:1;height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;max-width:80px;">
+                        <div style="height:100%;width:${pct.toFixed(0)}%;background:${dv>=p?'var(--gold)':'var(--accent)'};border-radius:3px;transition:width 1s;"></div>
+                    </div>
+                    <span style="font-size:0.72rem;color:var(--text-muted);">${pct.toFixed(0)}%</span>
+                </div>
+            </td>
+            <td><button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipRemoveInvestor(${idx})">✕</button></td>
+        </tr>`;
+    }).join('');
 }
 
+// ── INVESTOR VIEW ──
 function ipRenderInvestorView(inv) {
-    const entry  = parseFloat(inv.entry_point) || 115;
-    const payout = parseFloat(inv.payout_target) || 800;
-    const mult   = ipCalcMultiplier(entry, payout);
-    const masterPnl = ipGetMasterPnl();
+    const el = id => document.getElementById(id);
+    const entry    = parseFloat(inv.entry_point)   || 115;
+    const payout   = parseFloat(inv.payout_target) || 800;
+    const accNum   = parseInt(inv.linked_account)  || null;
+    const mult     = ipCalcMultiplier(entry, payout);
+    const trades   = ipGetTradesForAccount(accNum).sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
+    const masterPnl = trades.reduce((s,t) => s + parseFloat(t.pnl||0), 0);
     const masterBal = IP_START_BAL + masterPnl;
-    const dv     = ipCalcDisplayValue(entry, payout, masterPnl);
-    const profit = dv - entry;
-    const progPct = Math.min(Math.max((dv - entry) / (payout - entry) * 100, 0), 100);
-    const atGoal = dv >= payout;
-    const nickname = ipMasterAccountNum ? (getNickname(ipMasterAccountNum) || `PA Account #${ipMasterAccountNum}`) : 'Not Linked';
-
-    const el = (id) => document.getElementById(id);
+    const dv        = ipCalcDisplayValue(entry, payout, masterPnl);
+    const profit    = dv - entry;
+    const progPct   = Math.min(Math.max((dv - entry) / (payout - entry) * 100, 0), 100);
+    const atGoal    = dv >= payout;
+    const nickname  = accNum ? (getNickname(accNum) ? `PA #${accNum} — ${getNickname(accNum)}` : `PA #${accNum}`) : 'No Account Linked';
 
     // Header
     const dvEl = el('ipDisplayValue');
-    if (dvEl) { dvEl.textContent = fmtCurrency(dv); dvEl.style.color = atGoal ? 'var(--gold)' : 'var(--text)'; if (atGoal) dvEl.style.textShadow = '0 0 30px rgba(255,209,102,0.5)'; else dvEl.style.textShadow = ''; }
-    if (el('ipEntryDisplay')) el('ipEntryDisplay').textContent = fmtCurrency(entry);
+    if (dvEl) {
+        dvEl.textContent = fmtCurrency(dv);
+        dvEl.style.color = atGoal ? 'var(--gold)' : 'var(--text)';
+        dvEl.style.textShadow = atGoal ? '0 0 40px rgba(255,209,102,0.5)' : '';
+    }
+    if (el('ipEntryDisplay'))  el('ipEntryDisplay').textContent  = fmtCurrency(entry);
     if (el('ipPayoutDisplay')) el('ipPayoutDisplay').textContent = fmtCurrency(payout);
-    if (el('ipMultDisplay')) el('ipMultDisplay').textContent = mult.toFixed(4) + 'x';
-    if (el('ipMirrorLabel')) el('ipMirrorLabel').textContent = ipMasterAccountNum ? `PA #${ipMasterAccountNum}` : 'No Account Linked';
-    if (el('ipMirrorSub')) el('ipMirrorSub').textContent = ipMasterAccountNum ? `${nickname} · Balance: ${fmtCurrency(masterBal)}` : 'Contact admin';
+    if (el('ipMultDisplay'))   el('ipMultDisplay').textContent   = mult.toFixed(4) + 'x';
+    if (el('ipMirrorLabel'))   el('ipMirrorLabel').textContent   = accNum ? `PA #${accNum}` : '—';
+    if (el('ipMirrorSub')) {
+        const nick = accNum ? getNickname(accNum) : null;
+        el('ipMirrorSub').textContent = nick ? `✏️ ${nick} · Balance: ${fmtCurrency(masterBal)}` : (accNum ? `Balance: ${fmtCurrency(masterBal)}` : 'Contact admin to link account');
+    }
+
+    // Header style when at goal
+    const hdr = el('ipInvHeader');
+    if (hdr) {
+        hdr.style.borderColor = atGoal ? 'rgba(255,209,102,0.5)' : '';
+        hdr.style.background  = atGoal ? 'linear-gradient(135deg,rgba(255,209,102,0.1),rgba(245,166,35,0.06))' : '';
+    }
 
     // Progress bar
-    if (el('ipInvProgLeft')) el('ipInvProgLeft').textContent = fmtCurrency(dv);
-    if (el('ipInvProgRight')) el('ipInvProgRight').textContent = `Target: ${fmtCurrency(payout)}`;
+    if (el('ipInvProgLeft'))  el('ipInvProgLeft').textContent  = `Your value: ${fmtCurrency(dv)}`;
+    if (el('ipInvProgRight')) el('ipInvProgRight').textContent = `Payout: ${fmtCurrency(payout)}`;
     if (el('ipInvProgFill')) {
         const fill = el('ipInvProgFill');
-        fill.style.width = progPct.toFixed(1) + '%';
-        fill.style.background = atGoal ? 'linear-gradient(90deg,var(--gold),#ffb700)' : 'linear-gradient(90deg,var(--accent),var(--purple))';
+        fill.style.width      = progPct.toFixed(1) + '%';
+        fill.style.background = atGoal
+            ? 'linear-gradient(90deg,var(--gold),#ffb700)'
+            : 'linear-gradient(90deg,var(--accent),var(--purple))';
     }
-    if (el('ipInvProgPct')) el('ipInvProgPct').textContent = atGoal ? '🎉 Goal Reached! Payout Triggered!' : progPct.toFixed(1) + '% to payout';
-
-    // Update header border if at goal
-    const hdr = el('ipInvHeader');
-    if (hdr && atGoal) { hdr.style.borderColor = 'rgba(255,209,102,0.5)'; hdr.style.background = 'linear-gradient(135deg,rgba(255,209,102,0.1),rgba(245,166,35,0.06))'; }
+    if (el('ipInvProgPct')) el('ipInvProgPct').textContent = atGoal ? '🎉 Payout Reached!' : progPct.toFixed(1) + '% to payout';
 
     // Stat cards
-    if (el('ipStatEntry')) el('ipStatEntry').textContent = fmtCurrency(entry);
+    if (el('ipStatEntry'))  el('ipStatEntry').textContent  = fmtCurrency(entry);
     if (el('ipStatProfit')) { el('ipStatProfit').textContent = fmtCurrency(profit); el('ipStatProfit').style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)'; }
     if (el('ipStatPayout')) el('ipStatPayout').textContent = fmtCurrency(payout);
-    if (el('ipStatPayoutSub')) el('ipStatPayoutSub').textContent = atGoal ? '🎉 Payout triggered!' : `When PA hits $${(IP_GOAL_BAL).toLocaleString()}`;
+    if (el('ipStatPayoutSub')) el('ipStatPayoutSub').textContent = atGoal ? '🎉 Payout Triggered!' : `When PA hits $${IP_GOAL_PROFIT.toLocaleString()} profit`;
     if (el('ipStatMasterPnl')) { el('ipStatMasterPnl').textContent = fmtCurrency(masterPnl); el('ipStatMasterPnl').style.color = masterPnl >= 0 ? 'var(--accent)' : 'var(--danger)'; }
-    if (el('ipStatMasterSub')) el('ipStatMasterSub').textContent = ipMasterAccountNum ? `PA #${ipMasterAccountNum} profit` : 'No account linked';
+    if (el('ipStatMasterSub')) el('ipStatMasterSub').textContent = accNum ? nickname : 'No account linked';
 
-    // Milestone chips (every 10% of way to payout)
+    // Milestone chips (11 steps: 0%→100%)
     const chips = el('ipMilestoneChips');
     if (chips) {
-        const steps = 10;
-        chips.innerHTML = Array.from({ length: steps + 1 }, (_, i) => {
-            const targetDv = entry + (payout - entry) * (i / steps);
-            const requiredProfit = (targetDv - entry) / mult;
-            const passed = masterPnl >= requiredProfit;
-            const isCurrent = i > 0 && masterPnl >= (entry + (payout - entry) * ((i - 1) / steps) - entry) / mult && !passed;
-            const isGoal = i === steps;
-            let cls = passed ? 'reached' : 'pending';
-            if (isGoal && passed) cls = 'goal';
-            return `<span class="ip-milestone-chip ${cls}">${passed ? '✓' : i === 0 ? '▶' : '○'} ${i * 10}% · ${fmtCurrency(targetDv)}</span>`;
+        chips.innerHTML = Array.from({length: 11}, (_, i) => {
+            const targetDv = entry + (payout - entry) * (i / 10);
+            const reqProfit = i === 0 ? 0 : (targetDv - entry) / mult;
+            const passed  = masterPnl >= reqProfit && i > 0;
+            const current = !passed && i > 0 && masterPnl >= ((entry + (payout - entry) * ((i-1)/10)) - entry) / mult;
+            const isGoal  = i === 10;
+            let cls = isGoal && passed ? 'goal' : passed ? 'reached' : current ? 'current' : 'pending';
+            const icon = isGoal && passed ? '🏆' : passed ? '✓' : current ? '▶' : '○';
+            return `<span class="ip-ms-chip ${cls}">${icon} ${i*10}% · ${fmtCurrency(targetDv)}</span>`;
         }).join('');
     }
 
-    // "How it works" panel
-    if (el('ipHowEntry')) el('ipHowEntry').textContent = fmtCurrency(entry);
-    if (el('ipHowMult')) el('ipHowMult').textContent = mult.toFixed(4);
+    // How it works
+    if (el('ipHowEntry'))   el('ipHowEntry').textContent   = entry;
+    if (el('ipHowEntry2'))  el('ipHowEntry2').textContent  = entry;
+    if (el('ipHowMult'))    el('ipHowMult').textContent    = mult.toFixed(4);
     if (el('ipHowGoalBal')) el('ipHowGoalBal').textContent = fmtCurrency(IP_GOAL_BAL);
-    if (el('ipHowPayout')) el('ipHowPayout').textContent = fmtCurrency(payout);
+    if (el('ipHowPayout'))  el('ipHowPayout').textContent  = fmtCurrency(payout);
 
-    // Trades table
-    const trades = ipGetMasterTrades().sort((a, b) => new Date(b.trade_date) - new Date(a.trade_date));
+    // Equity chart
+    const sorted = [...trades].sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
+    if (el('ipChartSub')) el('ipChartSub').textContent = accNum ? `${nickname} balance over time` : 'No account linked';
+    const ctx = el('ipEquityChart');
+    if (ctx) {
+        let runBal = IP_START_BAL, runDv = entry;
+        const labels = ['Start'];
+        const balData = [IP_START_BAL];
+        const dvData  = [entry];
+        sorted.forEach(t => {
+            const pnl = parseFloat(t.pnl||0);
+            runBal += pnl;
+            runDv  = ipCalcDisplayValue(entry, payout, runBal - IP_START_BAL);
+            labels.push(t.trade_date);
+            balData.push(runBal);
+            dvData.push(runDv);
+        });
+        if (ipEquityChartObj) { ipEquityChartObj.destroy(); ipEquityChartObj = null; }
+        ipEquityChartObj = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'PA Balance ($)',
+                        data: balData,
+                        borderColor: 'rgba(59,126,248,0.8)',
+                        backgroundColor: 'rgba(59,126,248,0.08)',
+                        fill: true, tension: 0.3, pointRadius: sorted.length > 20 ? 0 : 3,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Your Value ($)',
+                        data: dvData,
+                        borderColor: 'rgba(255,209,102,0.9)',
+                        backgroundColor: 'rgba(255,209,102,0.06)',
+                        fill: false, tension: 0.3, pointRadius: sorted.length > 20 ? 0 : 3,
+                        yAxisID: 'y2', borderDash: [4,3]
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { labels: { color: '#7a8bb5', font: { size: 11 } } } },
+                scales: {
+                    x: { ticks: { color: '#3d4f78', maxTicksLimit: 6, font:{size:10} }, grid: { color: 'rgba(99,179,237,0.05)' } },
+                    y: { ticks: { color: '#3b7ef8', font:{size:10}, callback: v => '$' + v.toLocaleString() }, grid: { color: 'rgba(99,179,237,0.06)' }, position: 'left' },
+                    y2: { ticks: { color: '#ffd166', font:{size:10}, callback: v => '$' + v.toFixed(0) }, grid: { drawOnChartArea: false }, position: 'right' }
+                }
+            }
+        });
+    }
+
+    // Trade log with "Your Scaled" column
     const tBody = el('ipTradeBody');
+    const tCount = el('ipTradeCount');
+    const tradesSorted = [...trades].sort((a,b) => new Date(b.trade_date)-new Date(a.trade_date));
+    if (tCount) tCount.textContent = `${tradesSorted.length} trade${tradesSorted.length !== 1 ? 's' : ''}`;
     if (tBody) {
-        if (!trades.length) {
-            tBody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--text-muted);">No trades yet on this account</td></tr>';
+        if (!tradesSorted.length) {
+            tBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--text-muted);">${accNum ? 'No trades yet on this account' : 'No account linked'}</td></tr>`;
         } else {
-            tBody.innerHTML = trades.slice(0, 50).map(t => {
-                const pnl = parseFloat(t.pnl || 0);
+            let runningPnl = masterPnl; // we'll compute running from oldest→newest
+            // Build running in reverse (trade log is newest first)
+            const orderedOldNew = [...trades].sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
+            const runMap = new Map();
+            let rp = 0;
+            orderedOldNew.forEach(t => {
+                rp += parseFloat(t.pnl||0);
+                runMap.set(t.id || t.timestamp, rp);
+            });
+            tBody.innerHTML = tradesSorted.map((t, i) => {
+                const pnl   = parseFloat(t.pnl||0);
+                const runP  = runMap.get(t.id || t.timestamp) ?? 0;
+                const runDv = ipCalcDisplayValue(entry, payout, runP);
+                const scaled = pnl * mult;
                 return `<tr class="ip-trade-row">
+                    <td style="color:var(--text-dim);font-size:0.78rem;">${tradesSorted.length - i}</td>
                     <td style="font-size:0.82rem;color:var(--text-muted);">${t.trade_date}</td>
                     <td style="font-size:0.82rem;">${t.market_condition || '—'}</td>
                     <td style="font-size:0.82rem;color:var(--text-muted);">$${t.risk_template}</td>
-                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:${pnl >= 0 ? 'var(--success)' : 'var(--danger)'};">${fmtCurrency(pnl)}</td>
-                    <td style="font-size:0.82rem;color:var(--text-muted);">C${t.cycle}</td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:${pnl>=0?'var(--success)':'var(--danger)'};">${fmtCurrency(pnl)}</td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:${scaled>=0?'var(--success)':'var(--danger)'};">${fmtCurrency(scaled)}</td>
+                    <td style="font-size:0.78rem;color:var(--text-muted);">C${t.cycle}</td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:${runDv>=payout?'var(--gold)':'var(--text)'};">${fmtCurrency(runDv)}</td>
                 </tr>`;
             }).join('');
         }
     }
-    if (el('ipTradeCount')) el('ipTradeCount').textContent = `${trades.length} trade${trades.length !== 1 ? 's' : ''}`;
 
-    // Milestone table (10 checkpoints)
+    // Milestone breakdown table
     const mBody = el('ipMilestoneBody');
     if (mBody) {
-        const checkpoints = [0, 460, 920, 1380, 1840, 2300, 2760, 3220, 3680, 4140, 4600];
+        const checkpoints = Array.from({length:11}, (_,i) => Math.round(IP_GOAL_PROFIT * i / 10));
         mBody.innerHTML = checkpoints.map((p, i) => {
             const val  = ipCalcDisplayValue(entry, payout, p);
             const gain = val - entry;
-            const passed  = masterPnl >= p;
-            const current = i < checkpoints.length - 1 && masterPnl >= p && masterPnl < checkpoints[i + 1];
-            const badge = current ? `<span class="badge badge-success">▶ Current</span>`
-                        : passed  ? `<span class="badge badge-active">✓ Passed</span>`
+            const passed  = masterPnl >= p && (p > 0 || masterPnl > 0);
+            const current = i < checkpoints.length-1 && masterPnl >= p && masterPnl < checkpoints[i+1];
+            const badge = current ? `<span class="badge badge-success">▶ Here</span>`
+                        : passed  ? `<span class="badge badge-active">✓ Done</span>`
                         :           `<span style="color:var(--text-dim);font-size:0.75rem;">○ Pending</span>`;
             return `<tr>
                 <td>${badge}</td>
                 <td style="font-family:'JetBrains Mono',monospace;color:var(--text-muted);">${fmtCurrency(p)}</td>
                 <td style="font-family:'JetBrains Mono',monospace;color:var(--text-muted);">${fmtCurrency(IP_START_BAL + p)}</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:var(--success);">${fmtCurrency(val)}</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:${gain > 0 ? 'var(--success)' : 'var(--text-muted)'};">+${fmtCurrency(gain)}</td>
+                <td style="font-family:'JetBrains Mono',monospace;color:${val>=payout?'var(--gold)':'var(--success)'};">${fmtCurrency(val)}</td>
+                <td style="font-family:'JetBrains Mono',monospace;color:${gain>0?'var(--success)':'var(--text-muted)'};">+${fmtCurrency(gain)}</td>
                 <td>${p === IP_GOAL_PROFIT ? `<span class="badge" style="background:rgba(255,209,102,0.12);color:var(--gold);border:1px solid rgba(255,209,102,0.3);">🏆 ${fmtCurrency(payout)} PAYOUT</span>` : p === 0 ? `<span style="color:var(--text-dim);font-size:.75rem;">Start</span>` : ''}</td>
             </tr>`;
         }).join('');
     }
 }
 
-// ── ADMIN ACTIONS ──
-async function ipSaveMasterAccount() {
-    const sel = document.getElementById('ipMasterAccountSelect');
-    const entryEl = document.getElementById('ipDefaultEntry');
-    const payoutEl = document.getElementById('ipPayoutTarget');
-    const num = parseInt(sel?.value);
-    if (!num) { showAlert('Please select a PA account', 'error'); return; }
-    ipMasterAccountNum = num;
-    ipSettings.defaultEntry  = parseFloat(entryEl?.value) || 115;
-    ipSettings.defaultPayout = parseFloat(payoutEl?.value) || 800;
-    await ipSaveState();
-    ipRenderAdmin();
-    // re-render investor view if admin is also an investor
-    const myEmail = currentUser?.email || '';
-    const myProfile = ipInvestors.find(i => i.email && i.email.toLowerCase() === myEmail.toLowerCase());
-    if (myProfile || currentProfile?.role === 'admin') {
-        const inv = myProfile || { entry_point: ipSettings.defaultEntry, payout_target: ipSettings.defaultPayout };
-        document.getElementById('ipInvestorSection').style.display = 'block';
-        ipRenderInvestorView(inv);
-    }
-    const nickname = getNickname(num);
-    showAlert(`✓ Master account linked: ${nickname ? `PA #${num} — ${nickname}` : `PA Account #${num}`}`, 'success');
+// ── USER SEARCH (for admin add form) ──
+let ipAllProfilesCache = [];
+
+async function ipLoadProfiles() {
+    if (ipAllProfilesCache.length) return;
+    try {
+        const { data } = await sbClient.from('profiles').select('id, username, email, role').order('created_at', { ascending: false });
+        if (data) ipAllProfilesCache = data;
+    } catch(_) {}
 }
 
-async function ipAddInvestor() {
-    const name   = document.getElementById('ipNewName').value.trim();
-    const email  = document.getElementById('ipNewEmail').value.trim();
-    const entry  = parseFloat(document.getElementById('ipNewEntry').value);
+async function ipSearchUsers() {
+    await ipLoadProfiles();
+    const q = (document.getElementById('ipUserSearch')?.value || '').toLowerCase().trim();
+    const dd = document.getElementById('ipUserDropdown');
+    if (!dd) return;
+    if (!q) { dd.style.display = 'none'; return; }
+    const matches = ipAllProfilesCache.filter(p =>
+        (p.email || '').toLowerCase().includes(q) ||
+        (p.username || '').toLowerCase().includes(q)
+    ).slice(0, 8);
+    if (!matches.length) { dd.style.display = 'none'; return; }
+    dd.style.display = 'block';
+    dd.innerHTML = matches.map(p => `
+        <div onclick="ipSelectUser(${JSON.stringify(p.id)},${JSON.stringify(p.email)},${JSON.stringify(p.username||p.email)})"
+             style="padding:0.625rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"
+             onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+            <span><strong style="font-size:0.875rem;">${p.username || p.email}</strong><br><span style="font-size:0.75rem;color:var(--text-muted);">${p.email}</span></span>
+            <span class="badge ${p.role === 'investor' ? 'badge-gold' : p.role === 'admin' ? 'badge-gold' : 'badge-active'}" style="${p.role==='investor'?'background:rgba(255,209,102,0.12);color:var(--gold);border:1px solid rgba(255,209,102,0.3);':''};font-size:0.68rem;">${p.role || 'user'}</span>
+        </div>
+    `).join('');
+}
+
+function ipSelectUser(id, email, name) {
+    document.getElementById('ipSelectedUserId').value  = id;
+    document.getElementById('ipSelectedUserEmail').value = email;
+    document.getElementById('ipSelectedUserName').value  = name;
+    const disp = document.getElementById('ipSelectedUser');
+    if (disp) disp.innerHTML = `<span style="color:var(--text);">✓ <strong>${name}</strong> <span style="color:var(--text-muted);font-size:0.8rem;">(${email})</span></span>`;
+    const search = document.getElementById('ipUserSearch');
+    if (search) search.value = name;
+    const dd = document.getElementById('ipUserDropdown');
+    if (dd) dd.style.display = 'none';
+    // Pre-fill name field
+    const nameField = document.getElementById('ipNewName');
+    if (nameField && !nameField.value) nameField.value = name;
+    ipPreviewFormula();
+}
+
+// ── FORMULA PREVIEW ──
+function ipPreviewFormula() {
+    const fp  = document.getElementById('ipFormulaPreview');
+    const sel = document.getElementById('ipLinkAccountSelect');
+    const accNum = parseInt(sel?.value);
+    const entry  = parseFloat(document.getElementById('ipNewEntry')?.value) || 115;
     const payout = parseFloat(document.getElementById('ipNewPayout')?.value) || 800;
-    if (!name || !email || isNaN(entry) || entry <= 0) { showAlert('Please fill in all fields', 'error'); return; }
-    if (ipInvestors.find(i => i.email.toLowerCase() === email.toLowerCase())) { showAlert('Investor with this email already exists', 'error'); return; }
-    const inv = { id: crypto.randomUUID(), name, email, entry_point: entry, payout_target: payout, created_at: new Date().toISOString() };
-    ipInvestors.push(inv);
+    if (!fp) return;
+    fp.style.display = 'flex';
+    const mult = ipCalcMultiplier(entry, payout);
+    const fe = document.getElementById('ipFormulaEntry');
+    const fm = document.getElementById('ipFormulaMultiplier');
+    const fp2 = document.getElementById('ipFormulaPaPnl');
+    const fv  = document.getElementById('ipFormulaCurrentVal');
+    if (fe) fe.textContent = fmtCurrency(entry);
+    if (fm) fm.textContent = mult.toFixed(4);
+    if (accNum && fp2 && fv) {
+        const pnl = ipGetPnlForAccount(accNum);
+        const dv  = ipCalcDisplayValue(entry, payout, pnl);
+        fp2.textContent = fmtCurrency(pnl);
+        fv.textContent  = fmtCurrency(dv);
+    } else {
+        if (fp2) fp2.textContent = '—';
+        if (fv)  fv.textContent  = '—';
+    }
+}
+
+// ── ADD / REMOVE INVESTOR ──
+async function ipAddInvestor() {
+    const email  = document.getElementById('ipSelectedUserEmail')?.value.trim();
+    const uid    = document.getElementById('ipSelectedUserId')?.value.trim();
+    const name   = document.getElementById('ipNewName')?.value.trim() || document.getElementById('ipSelectedUserName')?.value.trim();
+    const acc    = parseInt(document.getElementById('ipLinkAccountSelect')?.value);
+    const entry  = parseFloat(document.getElementById('ipNewEntry')?.value);
+    const payout = parseFloat(document.getElementById('ipNewPayout')?.value) || 800;
+
+    if (!email)           { showAlert('Please search and select a user first', 'error'); return; }
+    if (!acc)             { showAlert('Please select a PA account to link', 'error'); return; }
+    if (isNaN(entry) || entry <= 0) { showAlert('Enter a valid entry amount', 'error'); return; }
+
+    // Upsert (update if email already exists)
+    const existing = ipInvestors.findIndex(i => i.email.toLowerCase() === email.toLowerCase());
+    const inv = { id: existing >= 0 ? ipInvestors[existing].id : crypto.randomUUID(), name: name || email, email, entry_point: entry, payout_target: payout, linked_account: acc, created_at: existing >= 0 ? ipInvestors[existing].created_at : new Date().toISOString() };
+    if (existing >= 0) ipInvestors[existing] = inv; else ipInvestors.push(inv);
+
+    // Also set the user's role to 'investor' if not already admin
+    try {
+        if (uid) {
+            const { data: prof } = await sbClient.from('profiles').select('role').eq('id', uid).single();
+            if (prof && prof.role !== 'admin') {
+                await sbClient.from('profiles').update({ role: 'investor', approved: true }).eq('id', uid);
+            }
+        }
+    } catch(_) {}
+
     await ipSaveInvestors();
     ipClearNewForm();
     ipRenderAdmin();
-    showAlert(`✓ ${name} added as investor`, 'success');
+    // Refresh admin user table too
+    if (typeof loadAdminData === 'function') setTimeout(loadAdminData, 300);
+    showAlert(`✓ ${name || email} added as investor — linked to PA #${acc}`, 'success');
 }
 
 async function ipRemoveInvestor(idx) {
@@ -3954,25 +4081,29 @@ async function ipRemoveInvestor(idx) {
 }
 
 function ipClearNewForm() {
-    ['ipNewName','ipNewEmail','ipNewEntry','ipNewPayout'].forEach(id => { const el = document.getElementById(id); if (el) el.value = id === 'ipNewPayout' ? '800' : ''; });
-}
-
-function ipPreviewFormula() {
-    const entry  = parseFloat(document.getElementById('ipDefaultEntry')?.value) || 115;
-    const payout = parseFloat(document.getElementById('ipPayoutTarget')?.value) || 800;
-    const mult   = ipCalcMultiplier(entry, payout);
+    ['ipUserSearch','ipNewName','ipNewEntry','ipNewPayout'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = id === 'ipNewPayout' ? '800' : id === 'ipNewEntry' ? '115' : '';
+    });
+    ['ipSelectedUserId','ipSelectedUserEmail','ipSelectedUserName'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+    });
+    const disp = document.getElementById('ipSelectedUser');
+    if (disp) disp.innerHTML = '<span>No user selected</span>';
+    const dd = document.getElementById('ipUserDropdown');
+    if (dd) dd.style.display = 'none';
+    const sel = document.getElementById('ipLinkAccountSelect');
+    if (sel) sel.value = '';
     const fp = document.getElementById('ipFormulaPreview');
-    if (fp) fp.style.display = 'flex';
-    const fe = document.getElementById('ipFormulaEntry');
-    const fm = document.getElementById('ipFormulaMultiplier');
-    if (fe) fe.textContent = fmtCurrency(entry);
-    if (fm) fm.textContent = mult.toFixed(4);
+    if (fp) fp.style.display = 'none';
 }
 
-// Legacy stubs to avoid errors from old HTML references
-async function ipUpdateProfit() { showAlert('Use "Link Master PA Account" above — profit is pulled live from your trades.', 'info'); }
+// Legacy stubs
+async function ipSaveMasterAccount() {}
+async function ipUpdateProfit() {}
 async function ipSaveProfit() {}
-let ipMasterProfit = 0; // kept for compat
+let ipMasterAccountNum = null;
+let ipMasterProfit = 0;
 
 // ── AUTH BUTTON ALIASES (new form uses these) ──
 async function authDoLogin() { await handleLogin({ preventDefault: ()=>{} }); }

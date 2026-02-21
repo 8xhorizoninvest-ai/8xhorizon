@@ -1453,7 +1453,54 @@
                         <span class="admin-banner-icon">💼</span>
                         <div class="admin-banner-text">
                             <strong>Investor Portal — Admin Controls</strong>
-                            <span>Link each investor to their own PA account. They see that account's real trades and progress — scaled so their $115 becomes $800 at goal.</span>
+                            <span>Manage investors, approve mode requests, and monitor account health.</span>
+                        </div>
+                        <!-- Notification bell -->
+                        <div style="margin-left:auto;position:relative;">
+                            <button class="btn btn-secondary" style="padding:0.5rem 0.875rem;font-size:0.85rem;position:relative;" onclick="ipToggleNotifPanel()">
+                                🔔 Requests <span id="ipNotifBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:var(--danger);color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Notification Panel (collapsible) -->
+                    <div id="ipNotifPanel" style="display:none;margin-bottom:1.5rem;">
+                        <div class="table-card">
+                            <div class="table-header"><span class="card-title">🔔 Pending Mode Requests</span><span id="ipNotifCount" style="color:var(--text-muted);font-size:0.8rem;">0 pending</span></div>
+                            <div id="ipNotifList" style="padding:0.75rem 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+                                <div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.875rem;">No pending requests</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PA Health Panel -->
+                    <div class="card" style="margin-bottom:1.5rem;border-color:rgba(59,126,248,0.2);">
+                        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                            <div><div class="card-title">🏦 PA Health Monitor</div><div class="card-sub">Your real account — hidden from investors</div></div>
+                            <div style="display:flex;gap:0.5rem;align-items:center;">
+                                <span style="font-size:0.78rem;color:var(--text-muted);">PA Balance:</span>
+                                <span id="ipAdminPaBal" style="font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent);">$50,000</span>
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding:1rem 1.5rem;">
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;">
+                                <div style="text-align:center;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--success);" id="ipAdminPaPnl">$0</div>
+                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">Total P&L</div>
+                                </div>
+                                <div style="text-align:center;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--purple);" id="ipAdminPaPct">0%</div>
+                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">% to Goal</div>
+                                </div>
+                                <div style="text-align:center;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.5rem;font-weight:700;" id="ipAdminWarnLevel">🟢</div>
+                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;" id="ipAdminWarnText">All clear</div>
+                                </div>
+                                <div style="text-align:center;padding:0.75rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--gold);" id="ipAdminAtRisk">0</div>
+                                    <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">At-Risk Investors</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1468,14 +1515,11 @@
                     <!-- Investor list table -->
                     <div class="table-card" style="margin-bottom:1.5rem;">
                         <div class="table-header">
-                            <div>
-                                <span class="card-title">Investor Accounts</span>
-                                <div style="color:var(--text-muted);font-size:0.8rem;margin-top:0.15rem;">Each investor links to their own PA account</div>
-                            </div>
+                            <div><span class="card-title">Investor Accounts</span></div>
                         </div>
                         <div class="table-wrap">
                             <table>
-                                <thead><tr><th>Name</th><th>Email</th><th>Linked PA</th><th>PA Profit</th><th>Entry $</th><th>Payout $</th><th>Current Value</th><th>Progress</th><th>Actions</th></tr></thead>
+                                <thead><tr><th>Name</th><th>Email</th><th>Linked PA</th><th>Mode</th><th>Current Value</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
                                 <tbody id="ipInvestorTableBody"></tbody>
                             </table>
                         </div>
@@ -1484,7 +1528,7 @@
                     <!-- Add investor form -->
                     <div class="form-card" style="margin-bottom:1.5rem;">
                         <h3 style="margin-bottom:0.4rem;font-size:1rem;font-weight:700;">➕ Add / Update Investor</h3>
-                        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Search by email or username, pick their PA account, set entry and payout amounts. The investor must already have the <strong style="color:var(--gold);">Investor</strong> role set in the Admin Panel.</p>
+                        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Search by email or username, pick their PA account, set entry and payout amounts.</p>
 
                         <div class="form-grid" style="margin-bottom:1rem;">
                             <div class="form-group" style="margin-bottom:0;">
@@ -1510,6 +1554,13 @@
                                 <label class="form-label">Link to PA Account</label>
                                 <select class="form-select" id="ipLinkAccountSelect" onchange="ipPreviewFormula()">
                                     <option value="">— Select PA Account —</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Starting Mode</label>
+                                <select class="form-select" id="ipNewMode">
+                                    <option value="conservative">🛡 Conservative</option>
+                                    <option value="base">⚡ Base</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -1554,8 +1605,48 @@
                         .ip-ms-chip.current { background:rgba(59,126,248,0.15); color:var(--accent); border-color:rgba(59,126,248,0.4); animation:pulse-chip 2s ease infinite; }
                         .ip-ms-chip.goal { background:rgba(255,209,102,0.15); color:var(--gold); border-color:rgba(255,209,102,0.4); }
                         @keyframes pulse-chip { 0%,100%{opacity:1} 50%{opacity:0.7} }
-                        .ip-chart-wrap { position:relative; height:200px; }
+                        .ip-mode-badge { display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.875rem; border-radius:20px; font-size:0.78rem; font-weight:700; border:1px solid; }
+                        .ip-mode-badge.conservative { background:rgba(34,211,160,0.1); color:var(--success); border-color:rgba(34,211,160,0.3); }
+                        .ip-mode-badge.base { background:rgba(155,111,250,0.1); color:var(--purple); border-color:rgba(155,111,250,0.3); }
+                        .ip-mode-badge.pending { background:rgba(245,166,35,0.1); color:var(--warning); border-color:rgba(245,166,35,0.3); }
+                        .ip-warn-banner { border-radius:var(--radius-sm); padding:0.875rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.875rem; flex-wrap:wrap; }
+                        .ip-warn-banner.level1 { background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.3); color:var(--warning); }
+                        .ip-warn-banner.level2 { background:rgba(240,92,106,0.08); border:1px solid rgba(240,92,106,0.3); color:#ff9f43; }
+                        .ip-warn-banner.level3 { background:rgba(240,92,106,0.12); border:1px solid rgba(240,92,106,0.4); color:var(--danger); }
+                        .ip-monitor-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--danger); animation:pulse-dot 1.2s ease infinite; }
+                        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+                        /* Mode Request Modal */
+                        .ip-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9000; display:flex; align-items:center; justify-content:center; padding:1rem; }
+                        .ip-modal { background:var(--bg-card); border:1px solid var(--border-glow); border-radius:20px; padding:2rem; width:100%; max-width:440px; box-shadow:var(--shadow),0 0 60px rgba(59,126,248,0.1); animation:slideDown 0.25s ease; }
+                        .ip-modal h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.4rem; }
+                        .ip-mode-option { padding:1rem; border:2px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; margin-bottom:0.75rem; }
+                        .ip-mode-option:hover { border-color:var(--accent); background:rgba(59,126,248,0.05); }
+                        .ip-mode-option.selected { border-color:var(--accent); background:rgba(59,126,248,0.1); }
+                        .ip-mode-option.selected-base { border-color:var(--purple); background:rgba(155,111,250,0.1); }
                     </style>
+
+                    <!-- Warning banners (shown/hidden by JS) -->
+                    <div id="ipWarnL1" class="ip-warn-banner level1" style="display:none;">
+                        <span style="font-size:1.2rem;">📉</span>
+                        <div style="flex:1;">
+                            <strong>Your account is in a drawdown period.</strong> Markets can be unpredictable. Consider requesting Conservative mode to reduce exposure while things recover.
+                        </div>
+                        <button class="btn" style="background:rgba(245,166,35,0.2);color:var(--warning);border:1px solid rgba(245,166,35,0.4);padding:0.4rem 0.875rem;font-size:0.8rem;white-space:nowrap;" onclick="ipOpenModeModal('conservative')">Request Conservative Mode</button>
+                    </div>
+                    <div id="ipWarnL2" class="ip-warn-banner level2" style="display:none;">
+                        <span style="font-size:1.2rem;">⚠️</span>
+                        <div style="flex:1;">
+                            <strong>Your account balance is running low.</strong> Switching to Conservative mode is recommended. Your account manager has been alerted.
+                        </div>
+                        <button class="btn" style="background:rgba(240,92,106,0.15);color:#ff9f43;border:1px solid rgba(240,92,106,0.35);padding:0.4rem 0.875rem;font-size:0.8rem;white-space:nowrap;" onclick="ipOpenModeModal('conservative')">Send Request Now</button>
+                    </div>
+                    <div id="ipWarnL3" class="ip-warn-banner level3" style="display:none;">
+                        <span style="font-size:1.2rem;"><span class="ip-monitor-dot"></span></span>
+                        <div style="flex:1;">
+                            <strong>Your account manager is actively monitoring your account.</strong> No action is needed from you right now. We'll be in touch.
+                        </div>
+                        <span style="font-size:0.78rem;font-weight:600;white-space:nowrap;">Monitoring Active 🔴</span>
+                    </div>
 
                     <!-- Big value header -->
                     <div class="ip-inv-header" id="ipInvHeader">
@@ -1563,16 +1654,18 @@
                             <div>
                                 <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.4rem;">YOUR ACCOUNT VALUE</div>
                                 <div class="ip-value-giant" id="ipDisplayValue">$—</div>
-                                <div style="margin-top:0.6rem;font-size:0.85rem;color:var(--text-muted);">
-                                    Entry: <strong id="ipEntryDisplay" style="color:var(--text);">—</strong>
-                                    &nbsp;·&nbsp; Target Payout: <strong id="ipPayoutDisplay" style="color:var(--gold);">—</strong>
-                                    &nbsp;·&nbsp; Multiplier: <strong id="ipMultDisplay" style="color:var(--purple);">—</strong>
+                                <div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                                    <span id="ipCycleGain" style="font-size:0.9rem;font-weight:600;color:var(--success);">+0.0%</span>
+                                    <span style="color:var(--text-dim);font-size:0.8rem;">this cycle</span>
+                                    <span id="ipModeBadge" class="ip-mode-badge conservative">🛡 Conservative</span>
+                                    <button id="ipModeReqBtn" class="btn btn-secondary" style="padding:0.25rem 0.7rem;font-size:0.75rem;border-radius:12px;" onclick="ipOpenModeModal()">Request Mode Change</button>
                                 </div>
                             </div>
                             <div style="text-align:right;flex-shrink:0;">
-                                <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.3rem;">MIRRORING</div>
-                                <div id="ipMirrorLabel" style="font-size:1.2rem;font-weight:700;color:var(--cyan);">—</div>
-                                <div id="ipMirrorSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.1rem;">—</div>
+                                <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.2rem;">ENTRY</div>
+                                <div id="ipEntryDisplay" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;">—</div>
+                                <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-top:0.5rem;margin-bottom:0.2rem;">PAYOUT TARGET</div>
+                                <div id="ipPayoutDisplay" style="font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--gold);">—</div>
                             </div>
                         </div>
                         <!-- Journey progress -->
@@ -1590,60 +1683,66 @@
                         </div>
                     </div>
 
-                    <!-- 4 stat cards -->
+                    <!-- Stat cards (investor-safe — no raw PA numbers) -->
                     <div class="metrics-grid" style="margin-bottom:1.5rem;">
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📍 Your Entry</span><span class="metric-icon">💵</span></div><div class="metric-value" id="ipStatEntry">$—</div><div class="metric-sub">Amount you invested</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📈 Your Profit</span><span class="metric-icon">✅</span></div><div class="metric-value" id="ipStatProfit" style="color:var(--success)">$—</div><div class="metric-sub">Your scaled share today</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">🏆 Payout</span><span class="metric-icon">🎯</span></div><div class="metric-value" id="ipStatPayout" style="color:var(--gold)">$—</div><div class="metric-sub" id="ipStatPayoutSub">When PA hits $4,600 profit</div></div>
-                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📊 PA Real P&L</span><span class="metric-icon">💰</span></div><div class="metric-value" id="ipStatMasterPnl" style="color:var(--accent)">$—</div><div class="metric-sub" id="ipStatMasterSub">Real account profit</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📍 Your Entry</span><span class="metric-icon">💵</span></div><div class="metric-value" id="ipStatEntry">$—</div><div class="metric-sub">Your starting amount</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📈 Your Gain</span><span class="metric-icon">✅</span></div><div class="metric-value" id="ipStatProfit" style="color:var(--success)">$—</div><div class="metric-sub">Profit earned so far</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">🏆 Payout Target</span><span class="metric-icon">🎯</span></div><div class="metric-value" id="ipStatPayout" style="color:var(--gold)">$—</div><div class="metric-sub" id="ipStatPayoutSub">Your target payout</div></div>
+                        <div class="metric-card"><div class="metric-header"><span class="metric-label">📊 Cycle Gain %</span><span class="metric-icon">💹</span></div><div class="metric-value" id="ipStatPct" style="color:var(--accent)">0%</div><div class="metric-sub">Performance this cycle</div></div>
                     </div>
 
                     <!-- Milestone chips -->
                     <div class="card" style="margin-bottom:1.5rem;">
-                        <div class="card-header"><div class="card-title">🚀 Your Journey</div><div class="card-sub">10% checkpoints — entry → payout</div></div>
+                        <div class="card-header"><div class="card-title">🚀 Your Journey</div><div class="card-sub">Progress checkpoints to your $<span id="ipMsPayoutLabel">800</span> payout</div></div>
                         <div class="card-body" style="padding:1.25rem 1.5rem;">
                             <div id="ipMilestoneChips" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
                         </div>
                     </div>
 
-                    <!-- 2-col: how it works + equity chart -->
-                    <div style="display:grid;grid-template-columns:1fr 1.8fr;gap:1.25rem;margin-bottom:1.5rem;">
+                    <!-- Equity chart + stats side by side -->
+                    <div style="display:grid;grid-template-columns:1.8fr 1fr;gap:1.25rem;margin-bottom:1.5rem;">
                         <div class="card">
-                            <div class="card-header"><div class="card-title">📖 How It Works</div></div>
-                            <div class="card-body" style="padding:1.25rem;">
-                                <div style="display:flex;flex-direction:column;gap:0.875rem;">
-                                    <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border-left:3px solid var(--accent);">
-                                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:0.3rem;">The PA Account</div>
-                                        <div style="font-size:0.82rem;color:var(--text-muted);">A real $50,000 funded account trades on your behalf. Your $<span id="ipHowEntry">115</span> buys you a share of its performance.</div>
-                                    </div>
-                                    <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border-left:3px solid var(--purple);">
-                                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--purple);margin-bottom:0.3rem;">Your Value Formula</div>
-                                        <div style="font-size:0.82rem;color:var(--text-muted);">$<span id="ipHowEntry2">115</span> + (PA Profit × <span id="ipHowMult" style="color:var(--purple);">0.1489</span>)</div>
-                                    </div>
-                                    <div style="padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border-left:3px solid var(--gold);">
-                                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:0.3rem;">Payout Trigger</div>
-                                        <div style="font-size:0.82rem;color:var(--text-muted);">PA hits <strong style="color:var(--gold);" id="ipHowGoalBal">$54,600</strong> balance → you get <strong style="color:var(--gold);" id="ipHowPayout">$800</strong>.</div>
-                                    </div>
-                                </div>
+                            <div class="card-header"><div class="card-title">📈 Account Equity Curve</div><div class="card-sub">Your account value over time</div></div>
+                            <div class="card-body" style="padding:1rem 1.25rem;">
+                                <div style="position:relative;height:220px;"><canvas id="ipEquityChart"></canvas></div>
                             </div>
                         </div>
                         <div class="card">
-                            <div class="card-header"><div class="card-title">📈 PA Equity Curve</div><div class="card-sub" id="ipChartSub">Balance over time</div></div>
-                            <div class="card-body" style="padding:1rem 1.25rem;">
-                                <div style="position:relative;height:200px;"><canvas id="ipEquityChart"></canvas></div>
+                            <div class="card-header"><div class="card-title">📊 Session Stats</div></div>
+                            <div class="card-body" style="padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+                                    <span style="font-size:0.8rem;color:var(--text-muted);">Total Sessions</span>
+                                    <span id="ipStatTotal" style="font-family:'JetBrains Mono',monospace;font-weight:700;">0</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+                                    <span style="font-size:0.8rem;color:var(--text-muted);">Win Rate</span>
+                                    <span id="ipStatWinRate" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">0%</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+                                    <span style="font-size:0.8rem;color:var(--text-muted);">Best Session</span>
+                                    <span id="ipStatBest" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">$0</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+                                    <span style="font-size:0.8rem;color:var(--text-muted);">Worst Session</span>
+                                    <span id="ipStatWorst" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--danger);">$0</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;">
+                                    <span style="font-size:0.8rem;color:var(--text-muted);">Your Mode</span>
+                                    <span id="ipStatMode" style="font-weight:700;font-size:0.82rem;">—</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Trade log -->
+                    <!-- Trade log — investor facing, fully scaled, no raw PA numbers -->
                     <div class="table-card" style="margin-bottom:1.5rem;">
                         <div class="table-header">
-                            <span class="card-title">📋 PA Trade History</span>
-                            <span style="color:var(--text-muted);font-size:0.8rem;" id="ipTradeCount">0 trades</span>
+                            <span class="card-title">📋 Session History</span>
+                            <span style="color:var(--text-muted);font-size:0.8rem;" id="ipTradeCount">0 sessions</span>
                         </div>
-                        <div class="table-wrap" style="max-height:350px;overflow-y:auto;">
+                        <div class="table-wrap" style="max-height:380px;overflow-y:auto;">
                             <table>
-                                <thead><tr><th>#</th><th>Date</th><th>Session</th><th>Risk</th><th>Real P&L</th><th>Your Scaled</th><th>Cycle</th><th>Running Value</th></tr></thead>
+                                <thead><tr><th>#</th><th>Date</th><th>Condition</th><th>Mode</th><th>Gain / Loss</th><th>Your Balance</th><th>Cycle</th></tr></thead>
                                 <tbody id="ipTradeBody"></tbody>
                             </table>
                         </div>
@@ -1653,11 +1752,11 @@
                     <div class="table-card">
                         <div class="table-header">
                             <span class="card-title">📊 Milestone Breakdown</span>
-                            <span style="color:var(--text-muted);font-size:0.8rem;">Your value at each 10% checkpoint</span>
+                            <span style="color:var(--text-muted);font-size:0.8rem;">Your value at each checkpoint</span>
                         </div>
                         <div class="table-wrap">
                             <table>
-                                <thead><tr><th>Status</th><th>PA Profit</th><th>PA Balance</th><th>Your Value</th><th>Your Gain</th><th></th></tr></thead>
+                                <thead><tr><th>Status</th><th>Checkpoint</th><th>Your Value</th><th>Your Gain</th><th></th></tr></thead>
                                 <tbody id="ipMilestoneBody"></tbody>
                             </table>
                         </div>
@@ -1674,6 +1773,30 @@
                 </div>
 
             </div><!-- /investorPortalPage -->
+
+            <!-- ── MODE REQUEST MODAL ── -->
+            <div id="ipModeModalOverlay" class="ip-modal-overlay" style="display:none;" onclick="if(event.target===this)ipCloseModeModal()">
+                <div class="ip-modal">
+                    <h3>🔄 Request Mode Change</h3>
+                    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Select your preferred trading mode. Your account manager will review and respond shortly.</p>
+                    <div id="ipModeOptCons" class="ip-mode-option" onclick="ipSelectModeOpt('conservative')">
+                        <div style="font-weight:700;margin-bottom:0.25rem;">🛡 Conservative</div>
+                        <div style="font-size:0.82rem;color:var(--text-muted);">Lower risk, steady growth — recommended during uncertain markets.</div>
+                    </div>
+                    <div id="ipModeOptBase" class="ip-mode-option" onclick="ipSelectModeOpt('base')">
+                        <div style="font-weight:700;margin-bottom:0.25rem;">⚡ Base</div>
+                        <div style="font-size:0.82rem;color:var(--text-muted);">Higher activity, more growth potential — for confident market conditions.</div>
+                    </div>
+                    <div class="form-group" style="margin-top:0.5rem;">
+                        <label class="form-label">Message to your account manager (optional)</label>
+                        <textarea class="form-textarea" id="ipModeReqMsg" placeholder="e.g. I'd like to switch to conservative for now..." style="min-height:70px;font-size:0.875rem;"></textarea>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+                        <button class="btn btn-primary" style="flex:1;" id="ipModeSubmitBtn" onclick="ipSubmitModeRequest()">Send Request</button>
+                        <button class="btn btn-secondary" onclick="ipCloseModeModal()">Cancel</button>
+                    </div>
+                </div>
+            </div>
 
         </div><!-- /container -->
     </main>
@@ -3628,21 +3751,50 @@ function tmplDesc(name) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  INVESTOR PORTAL — Per-Investor PA Linking
+//  INVESTOR PORTAL — Full Illusion System
 // ═══════════════════════════════════════════════════════
 
 // ── Constants ──
-const IP_START_BAL   = 50000;
-const IP_GOAL_PROFIT = 4600;
-const IP_GOAL_BAL    = IP_START_BAL + IP_GOAL_PROFIT; // $54,600
+const IP_START_BAL    = 50000;
+const IP_GOAL_PROFIT  = 4600;
+const IP_GOAL_BAL     = IP_START_BAL + IP_GOAL_PROFIT; // $54,600
+// Warning thresholds — % drop from $50k starting balance
+const IP_WARN_L1_PCT  = 0.03;  // 3% → $48,500
+const IP_WARN_L2_PCT  = 0.05;  // 5% → $47,500
+const IP_WARN_L3_PCT  = 0.08;  // 8% → $46,000
 
 // State
-let ipInvestors     = [];   // [{id, name, email, entry_point, payout_target, linked_account}]
-let ipAllProfiles   = [];   // cached from Supabase for user search
+let ipInvestors      = [];
+let ipModeRequests   = [];
 let ipEquityChartObj = null;
+let ipSelectedMode   = null;   // for modal
 
+// ── Helpers ──
 function ipCalcMultiplier(entry, payout) { return (payout - entry) / IP_GOAL_PROFIT; }
-function ipCalcDisplayValue(entry, payout, masterProfit) { return entry + masterProfit * ipCalcMultiplier(entry, payout); }
+function ipCalcDisplayValue(entry, payout, masterProfit) {
+    // Method 1: percentage mirror  value = entry × (PA_balance / PA_start)
+    const paBal = IP_START_BAL + masterProfit;
+    return entry * (paBal / IP_START_BAL);
+}
+function ipCalcPct(entry, payout, masterProfit) {
+    // Same % gain as PA
+    return masterProfit / IP_START_BAL * 100;
+}
+function ipModeLabel(mode) {
+    return mode === 'base' ? '⚡ Base' : '🛡 Conservative';
+}
+function ipRiskToMode(riskTemplate) {
+    // $300 risk = Base, everything else = Conservative
+    return String(riskTemplate) === '300' ? 'Base' : 'Conservative';
+}
+function ipWarningLevel(masterPnl) {
+    const bal = IP_START_BAL + masterPnl;
+    const drop = (IP_START_BAL - bal) / IP_START_BAL;
+    if (drop >= IP_WARN_L3_PCT) return 3;
+    if (drop >= IP_WARN_L2_PCT) return 2;
+    if (drop >= IP_WARN_L1_PCT) return 1;
+    return 0;
+}
 
 // Get trades for a specific PA account number
 function ipGetTradesForAccount(accNum) {
@@ -3656,8 +3808,13 @@ function ipGetPnlForAccount(accNum) {
 // ── LOAD ──
 async function ipLoadState() {
     try {
-        const { data } = await sbClient.from('investor_portal_investors').select('*').order('created_at', { ascending: true });
-        if (data) { ipInvestors = data; return; }
+        const [invRes, reqRes] = await Promise.all([
+            sbClient.from('investor_portal_investors').select('*').order('created_at', { ascending: true }),
+            sbClient.from('investor_mode_requests').select('*').order('created_at', { ascending: false })
+        ]);
+        if (invRes.data) ipInvestors = invRes.data;
+        if (reqRes.data) ipModeRequests = reqRes.data;
+        return;
     } catch(_) {}
     try { ipInvestors = JSON.parse(localStorage.getItem('pfp_investors') || '[]'); } catch(_) { ipInvestors = []; }
 }
@@ -3668,7 +3825,8 @@ async function ipSaveInvestors() {
             await sbClient.from('investor_portal_investors').upsert({
                 id: inv.id, name: inv.name, email: inv.email,
                 entry_point: inv.entry_point, payout_target: inv.payout_target,
-                linked_account: inv.linked_account, created_at: inv.created_at
+                linked_account: inv.linked_account, mode: inv.mode || 'conservative',
+                created_at: inv.created_at
             });
         }
     } catch(_) {}
@@ -3738,21 +3896,70 @@ function ipRenderAdmin() {
         }
     }
 
+    // PA Health panel — real numbers for admin only
+    const totalPnl = allData.filter(t=>!t.no_trade_day).reduce((s,t)=>s+parseFloat(t.pnl||0),0);
+    const paBal    = IP_START_BAL + totalPnl;
+    const paPct    = Math.min((totalPnl / IP_GOAL_PROFIT) * 100, 100);
+    const globalWL = ipWarningLevel(totalPnl);
+    const wlIcons  = ['🟢','🟡','🟠','🔴'];
+    const wlText   = ['All clear','Drawdown active','Running low','Monitor active'];
+    if (el('ipAdminPaBal')) el('ipAdminPaBal').textContent = fmtCurrency(paBal);
+    if (el('ipAdminPaPnl')) { el('ipAdminPaPnl').textContent = fmtCurrency(totalPnl); el('ipAdminPaPnl').style.color = totalPnl >= 0 ? 'var(--success)' : 'var(--danger)'; }
+    if (el('ipAdminPaPct')) el('ipAdminPaPct').textContent = paPct.toFixed(1) + '%';
+    if (el('ipAdminWarnLevel')) el('ipAdminWarnLevel').textContent = wlIcons[globalWL];
+    if (el('ipAdminWarnText'))  el('ipAdminWarnText').textContent  = wlText[globalWL];
+    const atRisk = ipInvestors.filter(inv => ipWarningLevel(ipGetPnlForAccount(inv.linked_account)) > 0).length;
+    if (el('ipAdminAtRisk')) el('ipAdminAtRisk').textContent = atRisk;
+
     // Overview stats
     const linked = [...new Set(ipInvestors.map(i => i.linked_account).filter(Boolean))];
-    const atGoal = ipInvestors.filter(inv => {
-        const pnl = ipGetPnlForAccount(inv.linked_account);
-        return pnl >= IP_GOAL_PROFIT;
-    }).length;
+    const atGoal = ipInvestors.filter(inv => ipGetPnlForAccount(inv.linked_account) >= IP_GOAL_PROFIT).length;
     if (el('ipInvestorCount')) el('ipInvestorCount').textContent = ipInvestors.length;
     if (el('ipLinkedCount'))   el('ipLinkedCount').textContent   = linked.length;
     if (el('ipAtGoalCount'))   el('ipAtGoalCount').textContent   = atGoal;
+
+    // Notification badge
+    const pendingReqs = ipModeRequests.filter(r => r.status === 'pending');
+    const badge = el('ipNotifBadge');
+    const count = el('ipNotifCount');
+    if (badge) { badge.textContent = pendingReqs.length; badge.style.display = pendingReqs.length ? 'flex' : 'none'; }
+    if (count) count.textContent = `${pendingReqs.length} pending`;
+
+    // Notification list
+    const notifList = el('ipNotifList');
+    if (notifList) {
+        if (!pendingReqs.length) {
+            notifList.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:0.875rem;">No pending requests ✓</div>';
+        } else {
+            notifList.innerHTML = pendingReqs.map(r => {
+                const inv = ipInvestors.find(i => i.id === r.investor_id);
+                const name = inv?.name || inv?.email || 'Unknown';
+                const initials = name.substring(0,2).toUpperCase();
+                const ts = r.created_at ? new Date(r.created_at).toLocaleString() : '—';
+                return `<div style="display:flex;align-items:center;gap:0.875rem;padding:0.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;">${initials}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:600;font-size:0.875rem;">${name}</div>
+                        <div style="font-size:0.78rem;color:var(--text-muted);">
+                            ${ipModeLabel(r.current_mode)} → ${ipModeLabel(r.requested_mode)}
+                            <span style="margin-left:0.5rem;color:var(--text-dim);">${ts}</span>
+                        </div>
+                        ${r.message ? `<div style="font-size:0.78rem;color:var(--text-muted);font-style:italic;margin-top:0.2rem;">"${r.message}"</div>` : ''}
+                    </div>
+                    <div style="display:flex;gap:0.4rem;flex-shrink:0;">
+                        <button class="btn btn-success" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="ipRespondRequest('${r.id}','${inv?.id}','${r.requested_mode}','approved')">✅ Approve</button>
+                        <button class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="ipRespondRequest('${r.id}','${inv?.id}','${r.current_mode}','denied')">❌ Deny</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+    }
 
     // Investor table
     const tbody = el('ipInvestorTableBody');
     if (!tbody) return;
     if (!ipInvestors.length) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text-muted);">No investors yet. Add one below.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted);">No investors yet. Add one below.</td></tr>';
         return;
     }
     tbody.innerHTML = ipInvestors.map((inv, idx) => {
@@ -3763,44 +3970,62 @@ function ipRenderAdmin() {
         const dv   = ipCalcDisplayValue(e, p, pnl);
         const pct  = Math.min(Math.max((dv - e) / (p - e) * 100, 0), 100);
         const nick = acc ? (getNickname(acc) ? `PA #${acc} — ${getNickname(acc)}` : `PA #${acc}`) : '<span style="color:var(--warning);">⚠ Not linked</span>';
-        return `<tr>
+        const mode = inv.mode || 'conservative';
+        const wl   = ipWarningLevel(pnl);
+        const wlDots = ['🟢','🟡','🟠','🔴'];
+        const pendingReq = ipModeRequests.find(r => r.investor_id === inv.id && r.status === 'pending');
+        return `<tr style="${wl>=2?'background:rgba(240,92,106,0.03)':''}">
             <td><strong>${inv.name || '—'}</strong></td>
             <td style="color:var(--text-muted);font-size:0.82rem;">${inv.email || '—'}</td>
             <td style="font-size:0.82rem;">${nick}</td>
-            <td style="font-family:'JetBrains Mono',monospace;color:${pnl>=0?'var(--success)':'var(--danger)'};">${fmtCurrency(pnl)}</td>
-            <td style="font-family:'JetBrains Mono',monospace;">${fmtCurrency(e)}</td>
-            <td style="font-family:'JetBrains Mono',monospace;color:var(--gold);">${fmtCurrency(p)}</td>
+            <td>
+                <span class="badge" style="${mode==='base'?'background:rgba(155,111,250,0.12);color:var(--purple);border:1px solid rgba(155,111,250,0.3);':'background:rgba(34,211,160,0.1);color:var(--success);border:1px solid rgba(34,211,160,0.25);'}">${ipModeLabel(mode)}</span>
+                ${pendingReq?`<span style="font-size:0.68rem;color:var(--warning);margin-left:0.3rem;">⏳ req</span>`:''}
+            </td>
             <td style="font-family:'JetBrains Mono',monospace;color:${dv>=p?'var(--gold)':'var(--success)'};">${fmtCurrency(dv)}</td>
             <td>
                 <div style="display:flex;align-items:center;gap:0.5rem;">
                     <div style="flex:1;height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;max-width:80px;">
-                        <div style="height:100%;width:${pct.toFixed(0)}%;background:${dv>=p?'var(--gold)':'var(--accent)'};border-radius:3px;transition:width 1s;"></div>
+                        <div style="height:100%;width:${pct.toFixed(0)}%;background:${dv>=p?'var(--gold)':'var(--accent)'};border-radius:3px;"></div>
                     </div>
                     <span style="font-size:0.72rem;color:var(--text-muted);">${pct.toFixed(0)}%</span>
                 </div>
             </td>
-            <td><button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipRemoveInvestor(${idx})">✕</button></td>
+            <td title="${['Normal','Level 1 — Drawdown','Level 2 — Running Low','Level 3 — Critical'][wl]}">${wlDots[wl]}</td>
+            <td>
+                <button class="btn btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;" onclick="ipRemoveInvestor(${idx})">✕ Remove</button>
+            </td>
         </tr>`;
     }).join('');
 }
 
-// ── INVESTOR VIEW ──
+// ── INVESTOR VIEW RENDER ──
 function ipRenderInvestorView(inv) {
     const el = id => document.getElementById(id);
-    const entry    = parseFloat(inv.entry_point)   || 115;
-    const payout   = parseFloat(inv.payout_target) || 800;
-    const accNum   = parseInt(inv.linked_account)  || null;
-    const mult     = ipCalcMultiplier(entry, payout);
-    const trades   = ipGetTradesForAccount(accNum).sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
-    const masterPnl = trades.reduce((s,t) => s + parseFloat(t.pnl||0), 0);
-    const masterBal = IP_START_BAL + masterPnl;
+    const entry   = parseFloat(inv.entry_point)   || 115;
+    const payout  = parseFloat(inv.payout_target) || 800;
+    const accNum  = parseInt(inv.linked_account)  || null;
+    const mode    = inv.mode || 'conservative';
+    const mult    = ipCalcMultiplier(entry, payout);
+    const trades  = ipGetTradesForAccount(accNum).sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
+
+    // Filter trades by mode: conservative = $100 risk, base = $300 risk
+    // Both modes show all trades but label them correctly
+    const masterPnl = trades.reduce((s,t) => s+parseFloat(t.pnl||0), 0);
     const dv        = ipCalcDisplayValue(entry, payout, masterPnl);
+    const pctGain   = ipCalcPct(entry, payout, masterPnl);
     const profit    = dv - entry;
     const progPct   = Math.min(Math.max((dv - entry) / (payout - entry) * 100, 0), 100);
     const atGoal    = dv >= payout;
-    const nickname  = accNum ? (getNickname(accNum) ? `PA #${accNum} — ${getNickname(accNum)}` : `PA #${accNum}`) : 'No Account Linked';
+    const wl        = ipWarningLevel(masterPnl);
 
-    // Header
+    // ── Warning banners ──
+    ['ipWarnL1','ipWarnL2','ipWarnL3'].forEach(id => { if(el(id)) el(id).style.display='none'; });
+    if (wl === 1 && el('ipWarnL1')) el('ipWarnL1').style.display = 'flex';
+    if (wl === 2 && el('ipWarnL2')) el('ipWarnL2').style.display = 'flex';
+    if (wl === 3 && el('ipWarnL3')) el('ipWarnL3').style.display = 'flex';
+
+    // ── Hero header ──
     const dvEl = el('ipDisplayValue');
     if (dvEl) {
         dvEl.textContent = fmtCurrency(dv);
@@ -3809,14 +4034,46 @@ function ipRenderInvestorView(inv) {
     }
     if (el('ipEntryDisplay'))  el('ipEntryDisplay').textContent  = fmtCurrency(entry);
     if (el('ipPayoutDisplay')) el('ipPayoutDisplay').textContent = fmtCurrency(payout);
-    if (el('ipMultDisplay'))   el('ipMultDisplay').textContent   = mult.toFixed(4) + 'x';
-    if (el('ipMirrorLabel'))   el('ipMirrorLabel').textContent   = accNum ? `PA #${accNum}` : '—';
-    if (el('ipMirrorSub')) {
-        const nick = accNum ? getNickname(accNum) : null;
-        el('ipMirrorSub').textContent = nick ? `✏️ ${nick} · Balance: ${fmtCurrency(masterBal)}` : (accNum ? `Balance: ${fmtCurrency(masterBal)}` : 'Contact admin to link account');
+
+    // Cycle gain %
+    const gainEl = el('ipCycleGain');
+    if (gainEl) {
+        gainEl.textContent = (pctGain >= 0 ? '+' : '') + pctGain.toFixed(2) + '%';
+        gainEl.style.color = pctGain >= 0 ? 'var(--success)' : 'var(--danger)';
     }
 
-    // Header style when at goal
+    // Mode badge
+    const modeBadge = el('ipModeBadge');
+    if (modeBadge) {
+        modeBadge.textContent = ipModeLabel(mode);
+        modeBadge.className = `ip-mode-badge ${mode}`;
+    }
+
+    // Check for pending request — if pending, disable mode request button
+    const myEmail = (currentUser?.email || currentProfile?.email || '').toLowerCase();
+    const pendingReq = ipModeRequests.find(r =>
+        r.status === 'pending' &&
+        ipInvestors.find(i => i.id === r.investor_id && i.email?.toLowerCase() === myEmail)
+    );
+    const modeBtn = el('ipModeReqBtn');
+    if (modeBtn) {
+        if (pendingReq) {
+            modeBtn.textContent = '⏳ Request Pending';
+            modeBtn.disabled = true;
+            modeBtn.style.opacity = '0.6';
+        } else if (wl === 3) {
+            modeBtn.style.display = 'none';
+        } else {
+            modeBtn.textContent = 'Request Mode Change';
+            modeBtn.disabled = false;
+            modeBtn.style.opacity = '1';
+            modeBtn.style.display = '';
+        }
+    }
+
+    if (el('ipStatMode')) el('ipStatMode').textContent = ipModeLabel(mode);
+
+    // Header glow at goal
     const hdr = el('ipInvHeader');
     if (hdr) {
         hdr.style.borderColor = atGoal ? 'rgba(255,209,102,0.5)' : '';
@@ -3835,52 +4092,58 @@ function ipRenderInvestorView(inv) {
     }
     if (el('ipInvProgPct')) el('ipInvProgPct').textContent = atGoal ? '🎉 Payout Reached!' : progPct.toFixed(1) + '% to payout';
 
-    // Stat cards
+    // Stat cards — NO raw PA numbers
     if (el('ipStatEntry'))  el('ipStatEntry').textContent  = fmtCurrency(entry);
-    if (el('ipStatProfit')) { el('ipStatProfit').textContent = fmtCurrency(profit); el('ipStatProfit').style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)'; }
+    if (el('ipStatProfit')) { el('ipStatProfit').textContent = (profit>=0?'+':'')+fmtCurrency(profit); el('ipStatProfit').style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)'; }
     if (el('ipStatPayout')) el('ipStatPayout').textContent = fmtCurrency(payout);
-    if (el('ipStatPayoutSub')) el('ipStatPayoutSub').textContent = atGoal ? '🎉 Payout Triggered!' : `When PA hits $${IP_GOAL_PROFIT.toLocaleString()} profit`;
-    if (el('ipStatMasterPnl')) { el('ipStatMasterPnl').textContent = fmtCurrency(masterPnl); el('ipStatMasterPnl').style.color = masterPnl >= 0 ? 'var(--accent)' : 'var(--danger)'; }
-    if (el('ipStatMasterSub')) el('ipStatMasterSub').textContent = accNum ? nickname : 'No account linked';
+    if (el('ipStatPayoutSub')) el('ipStatPayoutSub').textContent = atGoal ? '🎉 Payout Triggered!' : 'Your target payout';
+    if (el('ipStatPct'))    { el('ipStatPct').textContent = (pctGain>=0?'+':'')+pctGain.toFixed(2)+'%'; el('ipStatPct').style.color = pctGain>=0?'var(--accent)':'var(--danger)'; }
 
-    // Milestone chips (11 steps: 0%→100%)
-    const chips = el('ipMilestoneChips');
-    if (chips) {
-        chips.innerHTML = Array.from({length: 11}, (_, i) => {
-            const targetDv = entry + (payout - entry) * (i / 10);
-            const reqProfit = i === 0 ? 0 : (targetDv - entry) / mult;
-            const passed  = masterPnl >= reqProfit && i > 0;
-            const current = !passed && i > 0 && masterPnl >= ((entry + (payout - entry) * ((i-1)/10)) - entry) / mult;
-            const isGoal  = i === 10;
+    // Session stats (all scaled)
+    const wins = trades.filter(t => parseFloat(t.pnl||0) > 0);
+    const losses = trades.filter(t => parseFloat(t.pnl||0) < 0);
+    const winRate = trades.length ? (wins.length/trades.length*100) : 0;
+    const scaledPnls = trades.map(t => parseFloat(t.pnl||0) * mult);
+    const bestScaled  = scaledPnls.length ? Math.max(...scaledPnls) : 0;
+    const worstScaled = scaledPnls.length ? Math.min(...scaledPnls) : 0;
+    if (el('ipStatTotal'))   el('ipStatTotal').textContent   = trades.length;
+    if (el('ipStatWinRate')) el('ipStatWinRate').textContent = Math.round(winRate) + '%';
+    if (el('ipStatBest'))    el('ipStatBest').textContent    = '+' + fmtCurrency(bestScaled);
+    if (el('ipStatWorst'))   el('ipStatWorst').textContent   = fmtCurrency(worstScaled);
+
+    // Milestone chips
+    if (el('ipMsPayoutLabel')) el('ipMsPayoutLabel').textContent = Math.round(payout);
+    const msChips = el('ipMilestoneChips');
+    if (msChips) {
+        const checkpoints = Array.from({length:11}, (_,i) => ({
+            pct: i*10,
+            paPnl: Math.round(IP_GOAL_PROFIT * i / 10),
+            val: ipCalcDisplayValue(entry, payout, Math.round(IP_GOAL_PROFIT * i / 10))
+        }));
+        msChips.innerHTML = checkpoints.map((cp, i) => {
+            const passed  = masterPnl >= cp.paPnl && (cp.paPnl > 0 || masterPnl > 0);
+            const current = i < checkpoints.length-1 && masterPnl >= cp.paPnl && masterPnl < checkpoints[i+1].paPnl;
+            const isGoal  = i === checkpoints.length-1;
             let cls = isGoal && passed ? 'goal' : passed ? 'reached' : current ? 'current' : 'pending';
             const icon = isGoal && passed ? '🏆' : passed ? '✓' : current ? '▶' : '○';
-            return `<span class="ip-ms-chip ${cls}">${icon} ${i*10}% · ${fmtCurrency(targetDv)}</span>`;
+            return `<span class="ip-ms-chip ${cls}">${icon} ${cp.pct}% · ${fmtCurrency(cp.val)}</span>`;
         }).join('');
     }
 
-    // How it works
-    if (el('ipHowEntry'))   el('ipHowEntry').textContent   = entry;
-    if (el('ipHowEntry2'))  el('ipHowEntry2').textContent  = entry;
-    if (el('ipHowMult'))    el('ipHowMult').textContent    = mult.toFixed(4);
-    if (el('ipHowGoalBal')) el('ipHowGoalBal').textContent = fmtCurrency(IP_GOAL_BAL);
-    if (el('ipHowPayout'))  el('ipHowPayout').textContent  = fmtCurrency(payout);
-
-    // Equity chart
+    // ── Equity curve — investor-safe: shows THEIR value only, no PA balance ──
     const sorted = [...trades].sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
-    if (el('ipChartSub')) el('ipChartSub').textContent = accNum ? `${nickname} balance over time` : 'No account linked';
     const ctx = el('ipEquityChart');
     if (ctx) {
-        let runBal = IP_START_BAL, runDv = entry;
-        const labels = ['Start'];
-        const balData = [IP_START_BAL];
+        let runPnl = 0;
+        const labels  = ['Start'];
         const dvData  = [entry];
-        sorted.forEach(t => {
-            const pnl = parseFloat(t.pnl||0);
-            runBal += pnl;
-            runDv  = ipCalcDisplayValue(entry, payout, runBal - IP_START_BAL);
+        const benchData = [entry];
+        const step = (payout - entry) / (sorted.length || 1);
+        sorted.forEach((t, i) => {
+            runPnl += parseFloat(t.pnl||0);
+            dvData.push(ipCalcDisplayValue(entry, payout, runPnl));
             labels.push(t.trade_date);
-            balData.push(runBal);
-            dvData.push(runDv);
+            benchData.push(entry + step * (i+1));
         });
         if (ipEquityChartObj) { ipEquityChartObj.destroy(); ipEquityChartObj = null; }
         ipEquityChartObj = new Chart(ctx, {
@@ -3889,46 +4152,51 @@ function ipRenderInvestorView(inv) {
                 labels,
                 datasets: [
                     {
-                        label: 'PA Balance ($)',
-                        data: balData,
-                        borderColor: 'rgba(59,126,248,0.8)',
-                        backgroundColor: 'rgba(59,126,248,0.08)',
-                        fill: true, tension: 0.3, pointRadius: sorted.length > 20 ? 0 : 3,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Your Value ($)',
+                        label: 'Your Account Value',
                         data: dvData,
                         borderColor: 'rgba(255,209,102,0.9)',
-                        backgroundColor: 'rgba(255,209,102,0.06)',
-                        fill: false, tension: 0.3, pointRadius: sorted.length > 20 ? 0 : 3,
-                        yAxisID: 'y2', borderDash: [4,3]
+                        backgroundColor: 'rgba(255,209,102,0.07)',
+                        fill: true, tension: 0.35,
+                        pointRadius: sorted.length > 20 ? 0 : 3,
+                        borderWidth: 2.5, yAxisID: 'y'
+                    },
+                    {
+                        label: 'Benchmark Path',
+                        data: benchData,
+                        borderColor: 'rgba(122,139,181,0.35)',
+                        fill: false, tension: 0,
+                        pointRadius: 0, borderDash: [5,4], borderWidth: 1.5,
+                        yAxisID: 'y'
                     }
                 ]
             },
             options: {
-                responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { labels: { color: '#7a8bb5', font: { size: 11 } } } },
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { labels: { color: '#7a8bb5', font: { size: 10 } } } },
                 scales: {
-                    x: { ticks: { color: '#3d4f78', maxTicksLimit: 6, font:{size:10} }, grid: { color: 'rgba(99,179,237,0.05)' } },
-                    y: { ticks: { color: '#3b7ef8', font:{size:10}, callback: v => '$' + v.toLocaleString() }, grid: { color: 'rgba(99,179,237,0.06)' }, position: 'left' },
-                    y2: { ticks: { color: '#ffd166', font:{size:10}, callback: v => '$' + v.toFixed(0) }, grid: { drawOnChartArea: false }, position: 'right' }
+                    x: { ticks: { color: '#3d4f78', maxTicksLimit: 6, font:{size:10} }, grid: { color: 'rgba(99,179,237,0.05)' }, border:{display:false} },
+                    y: {
+                        ticks: { color: '#ffd166', font:{size:10}, callback: v => '$'+v.toFixed(0) },
+                        grid: { color: 'rgba(99,179,237,0.06)' }, border:{display:false},
+                        min: Math.max(0, entry * 0.85), // never show $0 — hides the "bottom"
+                        suggestedMax: payout * 1.05
+                    }
                 }
             }
         });
     }
 
-    // Trade log with "Your Scaled" column
-    const tBody = el('ipTradeBody');
+    // ── Trade log — investor-facing, fully scaled, no raw PA numbers ──
+    const tBody  = el('ipTradeBody');
     const tCount = el('ipTradeCount');
     const tradesSorted = [...trades].sort((a,b) => new Date(b.trade_date)-new Date(a.trade_date));
-    if (tCount) tCount.textContent = `${tradesSorted.length} trade${tradesSorted.length !== 1 ? 's' : ''}`;
+    if (tCount) tCount.textContent = `${tradesSorted.length} session${tradesSorted.length !== 1 ? 's' : ''}`;
     if (tBody) {
         if (!tradesSorted.length) {
-            tBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--text-muted);">${accNum ? 'No trades yet on this account' : 'No account linked'}</td></tr>`;
+            tBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text-muted);">${accNum ? 'No sessions yet' : 'No account linked'}</td></tr>`;
         } else {
-            let runningPnl = masterPnl; // we'll compute running from oldest→newest
-            // Build running in reverse (trade log is newest first)
+            // Build running value map oldest→newest
             const orderedOldNew = [...trades].sort((a,b) => new Date(a.trade_date)-new Date(b.trade_date));
             const runMap = new Map();
             let rp = 0;
@@ -3937,25 +4205,25 @@ function ipRenderInvestorView(inv) {
                 runMap.set(t.id || t.timestamp, rp);
             });
             tBody.innerHTML = tradesSorted.map((t, i) => {
-                const pnl   = parseFloat(t.pnl||0);
-                const runP  = runMap.get(t.id || t.timestamp) ?? 0;
-                const runDv = ipCalcDisplayValue(entry, payout, runP);
-                const scaled = pnl * mult;
+                const pnlRaw = parseFloat(t.pnl||0);
+                const scaled = pnlRaw * mult;   // Method 2 — trade log multiplier
+                const runP   = runMap.get(t.id || t.timestamp) ?? 0;
+                const runDv  = ipCalcDisplayValue(entry, payout, runP);
+                const tradeMode = ipRiskToMode(t.risk_template);
                 return `<tr class="ip-trade-row">
                     <td style="color:var(--text-dim);font-size:0.78rem;">${tradesSorted.length - i}</td>
                     <td style="font-size:0.82rem;color:var(--text-muted);">${t.trade_date}</td>
                     <td style="font-size:0.82rem;">${t.market_condition || '—'}</td>
-                    <td style="font-size:0.82rem;color:var(--text-muted);">$${t.risk_template}</td>
-                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:${pnl>=0?'var(--success)':'var(--danger)'};">${fmtCurrency(pnl)}</td>
-                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:${scaled>=0?'var(--success)':'var(--danger)'};">${fmtCurrency(scaled)}</td>
-                    <td style="font-size:0.78rem;color:var(--text-muted);">C${t.cycle}</td>
+                    <td><span style="font-size:0.75rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:10px;${tradeMode==='Base'?'background:rgba(155,111,250,0.1);color:var(--purple);':'background:rgba(34,211,160,0.1);color:var(--success);'}">${tradeMode}</span></td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:600;color:${scaled>=0?'var(--success)':'var(--danger)'};">${scaled>=0?'+':''}${fmtCurrency(scaled)}</td>
                     <td style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:${runDv>=payout?'var(--gold)':'var(--text)'};">${fmtCurrency(runDv)}</td>
+                    <td style="font-size:0.78rem;color:var(--text-muted);">C${t.cycle}</td>
                 </tr>`;
             }).join('');
         }
     }
 
-    // Milestone breakdown table
+    // ── Milestone breakdown table — clean, no PA references ──
     const mBody = el('ipMilestoneBody');
     if (mBody) {
         const checkpoints = Array.from({length:11}, (_,i) => Math.round(IP_GOAL_PROFIT * i / 10));
@@ -3966,17 +4234,94 @@ function ipRenderInvestorView(inv) {
             const current = i < checkpoints.length-1 && masterPnl >= p && masterPnl < checkpoints[i+1];
             const badge = current ? `<span class="badge badge-success">▶ Here</span>`
                         : passed  ? `<span class="badge badge-active">✓ Done</span>`
-                        :           `<span style="color:var(--text-dim);font-size:0.75rem;">○ Pending</span>`;
+                        :           `<span style="color:var(--text-dim);font-size:0.75rem;">○ Ahead</span>`;
             return `<tr>
                 <td>${badge}</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:var(--text-muted);">${fmtCurrency(p)}</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:var(--text-muted);">${fmtCurrency(IP_START_BAL + p)}</td>
+                <td style="font-size:0.82rem;color:var(--text-muted);">${i*10}% of goal</td>
                 <td style="font-family:'JetBrains Mono',monospace;color:${val>=payout?'var(--gold)':'var(--success)'};">${fmtCurrency(val)}</td>
-                <td style="font-family:'JetBrains Mono',monospace;color:${gain>0?'var(--success)':'var(--text-muted)'};">+${fmtCurrency(gain)}</td>
+                <td style="font-family:'JetBrains Mono',monospace;color:${gain>0?'var(--success)':'var(--text-muted)'};">${gain>0?'+':''}${fmtCurrency(gain)}</td>
                 <td>${p === IP_GOAL_PROFIT ? `<span class="badge" style="background:rgba(255,209,102,0.12);color:var(--gold);border:1px solid rgba(255,209,102,0.3);">🏆 ${fmtCurrency(payout)} PAYOUT</span>` : p === 0 ? `<span style="color:var(--text-dim);font-size:.75rem;">Start</span>` : ''}</td>
             </tr>`;
         }).join('');
     }
+}
+
+// ── MODE REQUEST SYSTEM ──
+function ipToggleNotifPanel() {
+    const p = document.getElementById('ipNotifPanel');
+    if (p) p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+let ipSelectedMode = null;
+
+function ipOpenModeModal(preselect) {
+    ipSelectedMode = preselect || null;
+    document.getElementById('ipModeReqMsg').value = '';
+    document.getElementById('ipModeOptCons').className = 'ip-mode-option' + (preselect==='conservative'?' selected':'');
+    document.getElementById('ipModeOptBase').className = 'ip-mode-option' + (preselect==='base'?' selected-base':'');
+    document.getElementById('ipModeModalOverlay').style.display = 'flex';
+}
+function ipCloseModeModal() {
+    document.getElementById('ipModeModalOverlay').style.display = 'none';
+    ipSelectedMode = null;
+}
+function ipSelectModeOpt(mode) {
+    ipSelectedMode = mode;
+    document.getElementById('ipModeOptCons').className = 'ip-mode-option' + (mode==='conservative'?' selected':'');
+    document.getElementById('ipModeOptBase').className = 'ip-mode-option' + (mode==='base'?' selected-base':'');
+}
+
+async function ipSubmitModeRequest() {
+    if (!ipSelectedMode) { showAlert('Please select a mode first', 'error'); return; }
+    const myEmail   = (currentUser?.email || currentProfile?.email || '').toLowerCase();
+    const myInv     = ipInvestors.find(i => i.email?.toLowerCase() === myEmail);
+    if (!myInv) { showAlert('Investor profile not found', 'error'); return; }
+    if (myInv.mode === ipSelectedMode) { showAlert('You\'re already on that mode', 'info'); ipCloseModeModal(); return; }
+
+    const msg = document.getElementById('ipModeReqMsg')?.value.trim() || '';
+    const req = {
+        id: crypto.randomUUID(),
+        investor_id: myInv.id,
+        current_mode: myInv.mode || 'conservative',
+        requested_mode: ipSelectedMode,
+        message: msg,
+        status: 'pending',
+        created_at: new Date().toISOString()
+    };
+
+    try {
+        await sbClient.from('investor_mode_requests').insert([req]);
+    } catch(_) {}
+    ipModeRequests.unshift(req);
+
+    ipCloseModeModal();
+    showAlert('✓ Mode change request sent! Your account manager will review it shortly.', 'success');
+    await updateInvestorPortalPage();
+}
+
+async function ipRespondRequest(reqId, investorId, newMode, decision) {
+    try {
+        await sbClient.from('investor_mode_requests').update({
+            status: decision,
+            responded_at: new Date().toISOString()
+        }).eq('id', reqId);
+    } catch(_) {}
+
+    // Update local cache
+    const idx = ipModeRequests.findIndex(r => r.id === reqId);
+    if (idx >= 0) ipModeRequests[idx].status = decision;
+
+    // If approved, update the investor's mode in DB
+    if (decision === 'approved' && investorId) {
+        try {
+            await sbClient.from('investor_portal_investors').update({ mode: newMode }).eq('id', investorId);
+        } catch(_) {}
+        const invIdx = ipInvestors.findIndex(i => i.id === investorId);
+        if (invIdx >= 0) ipInvestors[invIdx].mode = newMode;
+    }
+
+    showAlert(decision === 'approved' ? `✅ Mode change approved` : `❌ Request denied`, decision === 'approved' ? 'success' : 'info');
+    ipRenderAdmin();
 }
 
 // ── USER SEARCH (for admin add form) ──
@@ -4007,7 +4352,7 @@ async function ipSearchUsers() {
              style="padding:0.625rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"
              onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
             <span><strong style="font-size:0.875rem;">${p.username || p.email}</strong><br><span style="font-size:0.75rem;color:var(--text-muted);">${p.email}</span></span>
-            <span class="badge ${p.role === 'investor' ? 'badge-gold' : p.role === 'admin' ? 'badge-gold' : 'badge-active'}" style="${p.role==='investor'?'background:rgba(255,209,102,0.12);color:var(--gold);border:1px solid rgba(255,209,102,0.3);':''};font-size:0.68rem;">${p.role || 'user'}</span>
+            <span class="badge ${p.role==='investor'?'badge-gold':p.role==='admin'?'badge-gold':'badge-active'}" style="${p.role==='investor'?'background:rgba(255,209,102,0.12);color:var(--gold);border:1px solid rgba(255,209,102,0.3);':''};font-size:0.68rem;">${p.role||'user'}</span>
         </div>
     `).join('');
 }
@@ -4022,7 +4367,6 @@ function ipSelectUser(id, email, name) {
     if (search) search.value = name;
     const dd = document.getElementById('ipUserDropdown');
     if (dd) dd.style.display = 'none';
-    // Pre-fill name field
     const nameField = document.getElementById('ipNewName');
     if (nameField && !nameField.value) nameField.value = name;
     ipPreviewFormula();
@@ -4057,12 +4401,13 @@ function ipPreviewFormula() {
 
 // ── ADD / REMOVE INVESTOR ──
 async function ipAddInvestor() {
-    const email  = document.getElementById('ipSelectedUserEmail')?.value.trim();
-    const uid    = document.getElementById('ipSelectedUserId')?.value.trim();
-    const name   = document.getElementById('ipNewName')?.value.trim() || document.getElementById('ipSelectedUserName')?.value.trim();
-    const acc    = parseInt(document.getElementById('ipLinkAccountSelect')?.value);
-    const entry  = parseFloat(document.getElementById('ipNewEntry')?.value);
-    const payout = parseFloat(document.getElementById('ipNewPayout')?.value) || 800;
+    const email   = document.getElementById('ipSelectedUserEmail')?.value.trim();
+    const uid     = document.getElementById('ipSelectedUserId')?.value.trim();
+    const name    = document.getElementById('ipNewName')?.value.trim() || document.getElementById('ipSelectedUserName')?.value.trim();
+    const acc     = parseInt(document.getElementById('ipLinkAccountSelect')?.value);
+    const entry   = parseFloat(document.getElementById('ipNewEntry')?.value);
+    const payout  = parseFloat(document.getElementById('ipNewPayout')?.value) || 800;
+    const modeVal = document.getElementById('ipNewMode')?.value || 'conservative';
 
     if (!email)           { showAlert('Please search and select a user first', 'error'); return; }
     if (!acc)             { showAlert('Please select a PA account to link', 'error'); return; }
@@ -4070,7 +4415,7 @@ async function ipAddInvestor() {
 
     // Upsert (update if email already exists)
     const existing = ipInvestors.findIndex(i => i.email.toLowerCase() === email.toLowerCase());
-    const inv = { id: existing >= 0 ? ipInvestors[existing].id : crypto.randomUUID(), name: name || email, email, entry_point: entry, payout_target: payout, linked_account: acc, created_at: existing >= 0 ? ipInvestors[existing].created_at : new Date().toISOString() };
+    const inv = { id: existing >= 0 ? ipInvestors[existing].id : crypto.randomUUID(), name: name || email, email, entry_point: entry, payout_target: payout, linked_account: acc, mode: modeVal, created_at: existing >= 0 ? ipInvestors[existing].created_at : new Date().toISOString() };
     if (existing >= 0) ipInvestors[existing] = inv; else ipInvestors.push(inv);
 
     // Also set the user's role to 'investor' if not already admin

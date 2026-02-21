@@ -188,7 +188,8 @@
 
         /* ── METRICS ── */
         .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .metric-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; transition: all 0.2s; }
+        .metric-card { background: linear-gradient(145deg,var(--bg-card),#0d1527); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); position:relative; overflow:hidden; }
+        .metric-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(99,179,237,0.12),transparent); pointer-events:none; }
         .metric-card:hover { border-color: var(--border-glow); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
         .metric-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
         .metric-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
@@ -230,31 +231,61 @@
 
         /* ── ACCOUNT CARDS ── */
         .accounts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-        .acc-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; transition: all 0.2s; }
-        .acc-card:hover { border-color: var(--border-glow); transform: translateY(-2px); }
-        .acc-card.at-risk { border-color: rgba(240,92,106,0.4); background: rgba(240,92,106,0.03); }
-        .acc-card.warning-card { border-color: rgba(245,166,35,0.4); }
-        .acc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .acc-card { background: linear-gradient(145deg, var(--bg-card), #0d1527); border: 1px solid var(--border); border-radius: 18px; padding: 1.35rem; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); position: relative; overflow: hidden; }
+        .acc-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(99,179,237,0.12),transparent); pointer-events:none; }
+        .acc-card:hover { border-color: var(--border-glow); transform: translateY(-3px); box-shadow: 0 16px 50px rgba(0,0,0,0.45), 0 0 25px rgba(59,126,248,0.07); }
+        .acc-card.at-risk { border-color: rgba(240,92,106,0.45); background: linear-gradient(145deg,rgba(240,92,106,0.04),#0d1527); animation: atRiskPulse 2.5s ease infinite; }
+        .acc-card.warning-card { border-color: rgba(245,166,35,0.45); animation: warnPulse 3s ease infinite; }
+        .acc-card.goal-reached { border-color: rgba(34,211,160,0.45); background: linear-gradient(145deg,rgba(34,211,160,0.04),#0d1527); }
+        @keyframes atRiskPulse { 0%,100%{box-shadow:0 0 0 0 rgba(240,92,106,0)} 50%{box-shadow:0 0 20px 0 rgba(240,92,106,0.15)} }
+        @keyframes warnPulse { 0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0)} 50%{box-shadow:0 0 18px 0 rgba(245,166,35,0.12)} }
+        .acc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
         .acc-num { font-size: 1.1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-        .acc-nickname { font-size: 0.75rem; color: var(--cyan); font-weight: 500; margin-top: 2px; }
-        .badge { padding: 0.3rem 0.65rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-        .badge-success { background: rgba(34,211,160,0.15); color: var(--success); }
-        .badge-active { background: rgba(59,126,248,0.15); color: var(--accent); }
-        .badge-danger { background: var(--danger-glow); color: var(--danger); }
-        .badge-warning { background: var(--warning-glow); color: var(--warning); }
-        .badge-muted { background: rgba(122,139,181,0.15); color: var(--text-muted); }
-        .badge-admin { background: rgba(255,209,102,0.15); color: var(--gold); }
+        .acc-nickname { font-size: 0.7rem; color: var(--cyan); font-weight: 600; margin-top: 2px; letter-spacing:0.03em; }
+        .badge { padding: 0.25rem 0.65rem; border-radius: 20px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border: 1px solid transparent; }
+        .badge-success { background: rgba(34,211,160,0.12); color: var(--success); border-color:rgba(34,211,160,0.3); }
+        .badge-active { background: rgba(59,126,248,0.12); color: var(--accent); border-color:rgba(59,126,248,0.25); }
+        .badge-danger { background: rgba(240,92,106,0.12); color: var(--danger); border-color:rgba(240,92,106,0.3); }
+        .badge-warning { background: rgba(245,166,35,0.12); color: var(--warning); border-color:rgba(245,166,35,0.3); }
+        .badge-muted { background: rgba(122,139,181,0.1); color: var(--text-dim); }
+        .badge-admin { background: rgba(255,209,102,0.12); color: var(--gold); border-color:rgba(255,209,102,0.3); }
+        .badge-gold { background: rgba(255,209,102,0.12); color: var(--gold); border-color:rgba(255,209,102,0.3); }
+        /* Enhanced progress bar */
         .acc-progress { margin-bottom: 1rem; }
-        .prog-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.4rem; }
-        .prog-bar { height: 6px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; }
-        .prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--purple)); transition: width 0.5s ease; }
-        .prog-fill.red { background: linear-gradient(90deg, var(--danger), #c0392b); }
+        .prog-header { display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 0.45rem; }
+        .prog-bar { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; position: relative; }
+        .prog-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--purple)); transition: width 0.9s cubic-bezier(0.4,0,0.2,1); position: relative; }
+        .prog-fill::after { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.15) 50%,transparent 100%); background-size:200% 100%; animation:shimmer 2s ease infinite; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        .prog-fill.red { background: linear-gradient(90deg, #c0392b, var(--danger)); }
+        .prog-fill.green { background: linear-gradient(90deg, #16a34a, var(--success)); box-shadow:0 0 8px rgba(34,211,160,0.4); }
+        .prog-fill.negative { background: linear-gradient(90deg, var(--danger), rgba(240,92,106,0.7)); box-shadow:0 0 6px rgba(240,92,106,0.35); }
+        /* Dual bar (for negative showing drawdown + progress center) */
+        .prog-dual { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; overflow: hidden; }
+        .prog-dual-neg { background: linear-gradient(90deg, rgba(240,92,106,0.6), rgba(240,92,106,0.85)); transition: width 0.9s ease; }
+        .prog-dual-gap { flex: 1; }
         .acc-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-        .acc-stat-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.2rem; }
-        .acc-stat-val { font-size: 1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-        .acc-name-edit { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; }
-        .acc-name-input { flex: 1; padding: 0.3rem 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 0.8rem; font-family: inherit; }
-        .acc-name-input:focus { outline: none; border-color: var(--accent); }
+        .acc-stat-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.2rem; }
+        .acc-stat-val { font-size: 0.95rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .acc-name-edit { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.75rem; padding-top:0.75rem; border-top:1px solid var(--border); }
+        .acc-name-input { flex: 1; padding: 0.3rem 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.8rem; font-family: inherit; }
+        .acc-name-input:focus { outline: none; border-color: var(--accent); box-shadow:0 0 0 2px var(--accent-glow); }
+        /* Toast notification system */
+        #alertToastContainer { position:fixed; top:1.25rem; right:1.25rem; z-index:99999; display:flex; flex-direction:column; gap:0.625rem; pointer-events:none; max-width:400px; }
+        .alert-toast { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:1rem 1.25rem; width:100%; box-shadow:0 8px 40px rgba(0,0,0,0.5); display:flex; align-items:flex-start; gap:0.875rem; pointer-events:all; animation:toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+        .alert-toast.removing { animation:toastOut 0.3s ease forwards; }
+        .alert-toast.toast-warning { border-color:rgba(245,166,35,0.5); background:linear-gradient(135deg,#0f1629,rgba(245,166,35,0.05)); }
+        .alert-toast.toast-danger { border-color:rgba(240,92,106,0.5); background:linear-gradient(135deg,#0f1629,rgba(240,92,106,0.05)); }
+        .alert-toast.toast-success { border-color:rgba(34,211,160,0.5); background:linear-gradient(135deg,#0f1629,rgba(34,211,160,0.05)); }
+        .alert-toast.toast-info { border-color:rgba(59,126,248,0.5); background:linear-gradient(135deg,#0f1629,rgba(59,126,248,0.05)); }
+        .toast-icon { font-size:1.4rem; flex-shrink:0; line-height:1; }
+        .toast-body { flex:1; min-width:0; }
+        .toast-title { font-size:0.84rem; font-weight:700; margin-bottom:0.2rem; }
+        .toast-msg { font-size:0.76rem; color:var(--text-muted); line-height:1.5; }
+        .toast-close { cursor:pointer; color:var(--text-dim); font-size:1.1rem; flex-shrink:0; background:none; border:none; padding:0; line-height:1; transition:color 0.15s; }
+        .toast-close:hover { color:var(--text); }
+        @keyframes toastIn { from{opacity:0;transform:translateX(30px) scale(0.93)} to{opacity:1;transform:translateX(0) scale(1)} }
+        @keyframes toastOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(30px)} }
 
         /* ── TEMPLATE CARDS ── */
         .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
@@ -733,6 +764,9 @@
             <button class="logout-btn" onclick="handleLogout()"><span>🚪</span> Sign Out</button>
         </div>
     </aside>
+
+    <!-- TOAST ALERT CONTAINER -->
+    <div id="alertToastContainer"></div>
 
     <!-- MAIN -->
     <main class="main" id="main">
@@ -1651,39 +1685,41 @@
                         /* Stats */
                         .ip-stats2 { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.25rem; }
                         @media(max-width:900px){ .ip-stats2{grid-template-columns:repeat(2,1fr);} }
-                        .ip-stat2 { background:linear-gradient(145deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.07); border-radius:18px; padding:1.25rem 1.5rem; position:relative; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.35); transition:border-color 0.3s,transform 0.2s; }
-                        .ip-stat2:hover { border-color:rgba(255,255,255,0.15); transform:translateY(-3px); }
-                        .ip-stat2::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent); }
-                        .ip-stat2-icon { font-size:1.4rem; margin-bottom:0.6rem; display:block; }
-                        .ip-stat2-val { font-family:'JetBrains Mono',monospace; font-size:1.3rem; font-weight:700; margin-bottom:0.3rem; }
-                        .ip-stat2-lbl { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.28); }
-                        .ip-stat2-glow { position:absolute; bottom:-20px; right:-20px; width:80px; height:80px; border-radius:50%; opacity:0.12; pointer-events:none; }
+                        .ip-stat2 { background:linear-gradient(145deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.09); border-radius:20px; padding:1.4rem 1.5rem; position:relative; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.4); transition:border-color 0.3s,transform 0.25s,box-shadow 0.3s; cursor:default; }
+                        .ip-stat2:hover { border-color:rgba(255,255,255,0.2); transform:translateY(-4px); box-shadow:0 16px 50px rgba(0,0,0,0.5),0 0 30px rgba(74,142,255,0.06); }
+                        .ip-stat2::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); }
+                        .ip-stat2::after { content:''; position:absolute; bottom:0; left:0; right:0; height:60px; background:linear-gradient(to top,rgba(74,142,255,0.03),transparent); pointer-events:none; }
+                        .ip-stat2-icon { font-size:1.5rem; margin-bottom:0.75rem; display:block; filter:drop-shadow(0 0 6px rgba(74,142,255,0.3)); }
+                        .ip-stat2-val { font-family:'JetBrains Mono',monospace; font-size:1.4rem; font-weight:700; margin-bottom:0.35rem; letter-spacing:-0.02em; }
+                        .ip-stat2-lbl { font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.28); }
+                        .ip-stat2-glow { position:absolute; bottom:-20px; right:-20px; width:90px; height:90px; border-radius:50%; opacity:0.1; pointer-events:none; transition:opacity 0.3s; }
+                        .ip-stat2:hover .ip-stat2-glow { opacity:0.2; }
                         /* Chart */
-                        .ip-chart-card { background:linear-gradient(160deg,#080d1c,#0b1120); border:1px solid rgba(255,255,255,0.07); border-radius:20px; overflow:hidden; margin-bottom:1.25rem; box-shadow:0 8px 40px rgba(0,0,0,0.4); }
-                        .ip-chart-head { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.75rem; border-bottom:1px solid rgba(255,255,255,0.06); }
-                        .ip-chart-title { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; }
-                        .ip-legend-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:4px; }
+                        .ip-chart-card { background:linear-gradient(160deg,#060b19,#0a1020); border:1px solid rgba(255,255,255,0.08); border-radius:22px; overflow:hidden; margin-bottom:1.25rem; box-shadow:0 12px 50px rgba(0,0,0,0.5); }
+                        .ip-chart-head { display:flex; align-items:center; justify-content:space-between; padding:1.35rem 1.75rem; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.01); }
+                        .ip-chart-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; letter-spacing:-0.01em; }
+                        .ip-legend-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:4px; box-shadow:0 0 6px currentColor; }
                         /* Journey */
-                        .ip-journey-card { background:linear-gradient(145deg,#070c19,#090f1e); border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:1.5rem 1.75rem; margin-bottom:1.25rem; }
+                        .ip-journey-card { background:linear-gradient(145deg,#060b18,#080e1c); border:1px solid rgba(255,255,255,0.08); border-radius:22px; padding:1.5rem 1.75rem; margin-bottom:1.25rem; box-shadow:0 8px 40px rgba(0,0,0,0.4); }
                         .ip-journey-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
-                        .ip-journey-title { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; }
+                        .ip-journey-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
                         .ip-ms-track { display:flex; align-items:flex-start; gap:0; overflow-x:auto; padding-bottom:0.5rem; }
                         .ip-ms-node { display:flex; flex-direction:column; align-items:center; flex-shrink:0; min-width:60px; position:relative; }
                         .ip-ms-line { position:absolute; top:14px; left:calc(50% + 14px); width:calc(100% - 14px); height:2px; }
-                        .ip-ms-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; border:2px solid; transition:all 0.3s; position:relative; z-index:1; }
-                        .ip-ms-dot.done  { background:rgba(46,204,154,0.2); border-color:#2ecc9a; color:#2ecc9a; box-shadow:0 0 12px rgba(46,204,154,0.4); }
-                        .ip-ms-dot.now   { background:rgba(74,142,255,0.25); border-color:#4a8eff; color:#4a8eff; box-shadow:0 0 18px rgba(74,142,255,0.6); animation:ms-pulse 1.8s ease infinite; }
+                        .ip-ms-dot { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:800; border:2px solid; transition:all 0.3s; position:relative; z-index:1; }
+                        .ip-ms-dot.done  { background:rgba(46,204,154,0.2); border-color:#2ecc9a; color:#2ecc9a; box-shadow:0 0 14px rgba(46,204,154,0.5); }
+                        .ip-ms-dot.now   { background:rgba(74,142,255,0.25); border-color:#4a8eff; color:#4a8eff; box-shadow:0 0 20px rgba(74,142,255,0.7); animation:ms-pulse 1.8s ease infinite; }
                         .ip-ms-dot.pend  { background:transparent; border-color:rgba(255,255,255,0.1); color:rgba(255,255,255,0.18); }
-                        .ip-ms-dot.goal  { background:rgba(240,192,64,0.2); border-color:#f0c040; color:#f0c040; box-shadow:0 0 18px rgba(240,192,64,0.4); }
-                        @keyframes ms-pulse { 0%,100%{box-shadow:0 0 12px rgba(74,142,255,0.45)} 50%{box-shadow:0 0 26px rgba(74,142,255,0.85)} }
+                        .ip-ms-dot.goal  { background:rgba(240,192,64,0.2); border-color:#f0c040; color:#f0c040; box-shadow:0 0 20px rgba(240,192,64,0.5); }
+                        @keyframes ms-pulse { 0%,100%{box-shadow:0 0 14px rgba(74,142,255,0.5)} 50%{box-shadow:0 0 28px rgba(74,142,255,0.9)} }
                         .ip-ms-label { font-size:0.58rem; font-weight:700; margin-top:0.45rem; color:rgba(255,255,255,0.28); white-space:nowrap; font-family:'JetBrains Mono',monospace; text-align:center; }
                         .ip-ms-label.done { color:#2ecc9a; } .ip-ms-label.now { color:#4a8eff; } .ip-ms-label.goal { color:#f0c040; }
                         /* Sessions */
-                        .ip-sessions-card { background:linear-gradient(160deg,#070c1a,#08101c); border:1px solid rgba(255,255,255,0.07); border-radius:20px; overflow:hidden; margin-bottom:1.25rem; }
-                        .ip-sessions-head { display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.75rem; border-bottom:1px solid rgba(255,255,255,0.06); }
-                        .ip-sessions-title { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; }
+                        .ip-sessions-card { background:linear-gradient(160deg,#060b18,#080e1d); border:1px solid rgba(255,255,255,0.08); border-radius:22px; overflow:hidden; margin-bottom:1.25rem; box-shadow:0 8px 40px rgba(0,0,0,0.4); }
+                        .ip-sessions-head { display:flex; justify-content:space-between; align-items:center; padding:1.35rem 1.75rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+                        .ip-sessions-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
                         /* Alerts */
-                        .ip-alert2 { border-radius:16px; padding:1rem 1.5rem; margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; flex-wrap:wrap; position:relative; overflow:hidden; }
+                        .ip-alert2 { border-radius:18px; padding:1.1rem 1.5rem; margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; flex-wrap:wrap; position:relative; overflow:hidden; }
                         .ip-alert2::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:2px 0 0 2px; }
                         .ip-alert2.l1 { background:rgba(245,166,35,0.06); border:1px solid rgba(245,166,35,0.18); } .ip-alert2.l1::before { background:#f5a623; }
                         .ip-alert2.l2 { background:rgba(240,100,50,0.08); border:1px solid rgba(240,100,50,0.22); } .ip-alert2.l2::before { background:#f06432; }
@@ -2829,6 +2865,8 @@ async function loadDashboardData() {
         allData = trades || [];
         payoutData = pe ? [] : (payouts || []);
         updateAllViews();
+        // Reset per-session alert state so fresh alerts can show on new load
+        window._alertedAccounts = {};
     } catch (err) {
         console.error('Load data error:', err);
         showAlert('Failed to load data: ' + err.message, 'error');
@@ -3348,15 +3386,19 @@ function updateCharts() {
     if (!trades.length) return;
 
     const C = { blue: '#3b7ef8', purple: '#9b6ffa', green: '#22d3a0', red: '#f05c6a', gold: '#ffd166', cyan: '#06d6d6' };
-    const grid = 'rgba(99,179,237,0.07)';
-    const baseOpts = { responsive: true, maintainAspectRatio: false, animation: { duration: 400 }, plugins: { legend: { display: false } } };
+    const grid = 'rgba(99,179,237,0.06)';
+    const baseOpts = { responsive: true, maintainAspectRatio: false, animation: { duration: 700, easing: 'easeOutQuart' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15,22,41,0.95)', borderColor: 'rgba(99,179,237,0.2)', borderWidth: 1, titleColor: '#e8f0ff', bodyColor: '#7a8bb5', padding: 10, cornerRadius: 10, titleFont: { family: 'Space Grotesk', weight: '700' } } } };
 
     const dates = [...new Set(trades.map(t => t.trade_date))].sort();
     let sum = 0;
     const cumulative = dates.map(d => { sum += trades.filter(t => t.trade_date === d).reduce((s, t) => s + parseFloat(t.pnl || 0), 0); return sum; });
+    // Color gradient: green if positive, red if last value is negative
+    const lastVal = cumulative[cumulative.length - 1] || 0;
+    const lineColor = lastVal >= 0 ? C.blue : C.red;
+    const fillColor = lastVal >= 0 ? 'rgba(59,126,248,0.08)' : 'rgba(240,92,106,0.06)';
     charts.growth = new Chart(document.getElementById('growthChart'), {
         type: 'line',
-        data: { labels: dates, datasets: [{ data: cumulative, borderColor: C.blue, backgroundColor: 'rgba(59,126,248,0.08)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5 }] },
+        data: { labels: dates, datasets: [{ data: cumulative, borderColor: lineColor, backgroundColor: fillColor, fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 6, pointHoverBackgroundColor: lineColor, pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2 }] },
         options: { ...baseOpts, scales: { y: { ticks: { callback: v => '$' + v.toLocaleString(), color: '#7a8bb5', font: { size: 10 } }, grid: { color: grid }, border: { display: false } }, x: { grid: { display: false }, ticks: { color: '#7a8bb5', maxTicksLimit: 8, font: { size: 10 } }, border: { display: false } } } }
     });
 
@@ -3365,8 +3407,8 @@ function updateCharts() {
     const condLabels = Object.keys(condStats);
     charts.winRate = new Chart(document.getElementById('winRateChart'), {
         type: 'doughnut',
-        data: { labels: condLabels, datasets: [{ data: condLabels.map(l => condStats[l].t > 0 ? ((condStats[l].w / condStats[l].t) * 100).toFixed(0) : 0), backgroundColor: [C.blue, C.purple, C.green, C.gold], borderWidth: 0 }] },
-        options: { ...baseOpts, cutout: '72%', plugins: { legend: { display: true, position: 'bottom', labels: { color: '#7a8bb5', font: { size: 10 }, padding: 8, boxWidth: 10 } } } }
+        data: { labels: condLabels, datasets: [{ data: condLabels.map(l => condStats[l].t > 0 ? ((condStats[l].w / condStats[l].t) * 100).toFixed(0) : 0), backgroundColor: [C.blue, C.purple, C.green, C.gold], borderWidth: 2, borderColor: '#0a0e1a', hoverBorderColor: '#0a0e1a', hoverOffset: 5 }] },
+        options: { ...baseOpts, cutout: '74%', plugins: { ...baseOpts.plugins, legend: { display: true, position: 'bottom', labels: { color: '#7a8bb5', font: { size: 10 }, padding: 8, boxWidth: 10 } } } }
     });
 
     const daily = {};
@@ -3374,16 +3416,16 @@ function updateCharts() {
     const dKeys = Object.keys(daily).sort().slice(-14);
     charts.daily = new Chart(document.getElementById('dailyChart'), {
         type: 'bar',
-        data: { labels: dKeys.map(d => d.substring(5)), datasets: [{ data: dKeys.map(k => daily[k]), backgroundColor: dKeys.map(k => daily[k] >= 0 ? 'rgba(34,211,160,0.7)' : 'rgba(240,92,106,0.7)'), borderRadius: 5, borderSkipped: false }] },
+        data: { labels: dKeys.map(d => d.substring(5)), datasets: [{ data: dKeys.map(k => daily[k]), backgroundColor: dKeys.map(k => daily[k] >= 0 ? 'rgba(34,211,160,0.65)' : 'rgba(240,92,106,0.65)'), hoverBackgroundColor: dKeys.map(k => daily[k] >= 0 ? 'rgba(34,211,160,0.9)' : 'rgba(240,92,106,0.9)'), borderRadius: 6, borderSkipped: false }] },
         options: { ...baseOpts, scales: { y: { ticks: { callback: v => '$' + v.toLocaleString(), color: '#7a8bb5', font: { size: 10 } }, grid: { color: grid }, border: { display: false } }, x: { grid: { display: false }, ticks: { color: '#7a8bb5', font: { size: 10 } }, border: { display: false } } } }
     });
 
     const riskC = {};
     trades.forEach(t => { const r = '$' + (t.risk_template || '?'); riskC[r] = (riskC[r] || 0) + 1; });
     charts.risk = new Chart(document.getElementById('riskChart'), {
-        type: 'pie',
-        data: { labels: Object.keys(riskC), datasets: [{ data: Object.values(riskC), backgroundColor: [C.blue, C.purple, C.green, C.gold, C.cyan, C.red], borderWidth: 0 }] },
-        options: { ...baseOpts, plugins: { legend: { display: true, position: 'bottom', labels: { color: '#7a8bb5', font: { size: 10 }, padding: 6, boxWidth: 10 } } } }
+        type: 'doughnut',
+        data: { labels: Object.keys(riskC), datasets: [{ data: Object.values(riskC), backgroundColor: [C.blue, C.purple, C.green, C.gold, C.cyan, C.red], borderWidth: 2, borderColor: '#0a0e1a', hoverOffset: 5 }] },
+        options: { ...baseOpts, cutout: '60%', plugins: { ...baseOpts.plugins, legend: { display: true, position: 'bottom', labels: { color: '#7a8bb5', font: { size: 10 }, padding: 6, boxWidth: 10 } } } }
     });
 
     const atGoal = getAccountsAtGoal();
@@ -3392,8 +3434,8 @@ function updateCharts() {
     document.getElementById('accStatusSub').textContent = `${USER_ACCOUNT_GOAL} accounts total`;
     charts.accStatus = new Chart(document.getElementById('accountStatusChart'), {
         type: 'doughnut',
-        data: { labels: ['At Goal', 'In Progress', 'Not Started'], datasets: [{ data: [atGoal, active, inactive], backgroundColor: [C.green, C.blue, 'rgba(122,139,181,0.3)'], borderWidth: 0 }] },
-        options: { ...baseOpts, cutout: '70%', plugins: { legend: { display: true, position: 'bottom', labels: { color: '#7a8bb5', font: { size: 10 }, padding: 6, boxWidth: 10 } } } }
+        data: { labels: ['At Goal', 'In Progress', 'Not Started'], datasets: [{ data: [atGoal, active, inactive], backgroundColor: [C.green, C.blue, 'rgba(122,139,181,0.2)'], borderWidth: 2, borderColor: '#0a0e1a', hoverOffset: 5 }] },
+        options: { ...baseOpts, cutout: '72%', plugins: { ...baseOpts.plugins, legend: { display: true, position: 'bottom', labels: { color: '#7a8bb5', font: { size: 10 }, padding: 6, boxWidth: 10 } } } }
     });
 }
 
@@ -3442,15 +3484,53 @@ function updateAccounts() {
     grid.innerHTML = '';
     const byAcc = groupByAccount(allData);
     let shown = 0;
+    const alertsTriggered = [];
+
     for (let i = 1; i <= USER_ACCOUNT_GOAL; i++) {
         const acc = byAcc[i];
         if (accountFilter === 'active' && acc.trades === 0) continue;
         if (accountFilter === 'goal' && acc.pnl < GOAL_PER_ACCOUNT) continue;
         if (accountFilter === 'profitable' && acc.pnl <= 0) continue;
+
         const atGoal = acc.pnl >= GOAL_PER_ACCOUNT;
+        const balance = STARTING_BALANCE + acc.pnl;
+        const isNegPnl = acc.pnl < 0;
         const nickname = getNickname(i);
+
+        // Progress bar logic: show correct proportion
+        // For positive PnL: fill toward GOAL_PER_ACCOUNT
+        // For negative PnL: show red bar representing drawdown vs MAX_DRAWDOWN
+        let progBarHTML;
+        if (acc.pnl >= 0) {
+            const pct = Math.min((acc.pnl / GOAL_PER_ACCOUNT) * 100, 100);
+            const fillClass = atGoal ? 'green' : '';
+            progBarHTML = `<div class="prog-bar"><div class="prog-fill ${fillClass}" style="width:${pct}%"></div></div>`;
+        } else {
+            // Negative: show how much of the max drawdown has been used
+            const drawdownUsed = Math.min(Math.abs(acc.pnl) / MAX_DRAWDOWN * 100, 100);
+            progBarHTML = `<div class="prog-bar"><div class="prog-fill negative" style="width:${drawdownUsed}%"></div></div>`;
+        }
+
+        const progressPct = acc.pnl >= 0 ? Math.round(Math.min((acc.pnl / GOAL_PER_ACCOUNT) * 100, 100)) : -Math.round(Math.min((Math.abs(acc.pnl) / MAX_DRAWDOWN) * 100, 100));
+        const progressLabel = acc.pnl >= 0 ? `${progressPct}% to goal` : `${Math.abs(progressPct)}% drawdown`;
+        const pnlColor = acc.pnl > 0 ? 'var(--success)' : acc.pnl < 0 ? 'var(--danger)' : 'var(--text-muted)';
+
+        // Low balance alert check
+        const cushion = balance - (STARTING_BALANCE - MAX_DRAWDOWN);
+        if (acc.trades > 0 && cushion < 500 && cushion > 0) {
+            alertsTriggered.push({ type: 'warning', account: i, nickname, cushion, balance });
+        } else if (acc.trades > 0 && cushion <= 0) {
+            alertsTriggered.push({ type: 'danger', account: i, nickname, cushion, balance });
+        }
+
+        // Card class
+        let cardClass = 'acc-card';
+        if (atGoal) cardClass += ' goal-reached';
+        else if (cushion <= 0 && acc.trades > 0) cardClass += ' at-risk';
+        else if (cushion < 500 && acc.trades > 0) cardClass += ' warning-card';
+
         const card = document.createElement('div');
-        card.className = 'acc-card';
+        card.className = cardClass;
         card.innerHTML = `
             <div class="acc-header">
                 <div>
@@ -3460,14 +3540,17 @@ function updateAccounts() {
                 <span class="badge ${atGoal ? 'badge-success' : acc.trades > 0 ? 'badge-active' : 'badge-muted'}">${atGoal ? '✓ GOAL' : acc.trades > 0 ? 'ACTIVE' : 'EMPTY'}</span>
             </div>
             <div class="acc-progress">
-                <div class="prog-header"><span>${fmtCurrency(acc.pnl)}</span><span>${Math.round(acc.progress)}%</span></div>
-                <div class="prog-bar"><div class="prog-fill" style="width:${acc.progress}%"></div></div>
+                <div class="prog-header">
+                    <span style="color:${pnlColor};font-weight:700;">${fmtCurrency(acc.pnl)}</span>
+                    <span style="color:${acc.pnl >= 0 ? 'var(--text-muted)' : 'var(--danger)'};">${progressLabel}</span>
+                </div>
+                ${progBarHTML}
             </div>
             <div class="acc-stats">
                 <div><div class="acc-stat-lbl">Trades</div><div class="acc-stat-val">${acc.trades}</div></div>
                 <div><div class="acc-stat-lbl">Win Rate</div><div class="acc-stat-val">${acc.trades > 0 ? Math.round(acc.winRate) : 0}%</div></div>
-                <div><div class="acc-stat-lbl">To Goal</div><div class="acc-stat-val">${fmtCurrency(Math.max(GOAL_PER_ACCOUNT - acc.pnl, 0))}</div></div>
-                <div><div class="acc-stat-lbl">Balance</div><div class="acc-stat-val">${fmtCurrency(50000 + acc.pnl)}</div></div>
+                <div><div class="acc-stat-lbl">To Goal</div><div class="acc-stat-val" style="color:var(--text-muted)">${fmtCurrency(Math.max(GOAL_PER_ACCOUNT - acc.pnl, 0))}</div></div>
+                <div><div class="acc-stat-lbl">Balance</div><div class="acc-stat-val" style="color:${balance < STARTING_BALANCE ? 'var(--danger)' : 'var(--success)'}">${fmtCurrency(balance)}</div></div>
             </div>
             <div class="acc-name-edit">
                 <input type="text" class="acc-name-input" value="${nickname}" placeholder="✏️ Give this account a name..." maxlength="30" id="accName${i}">
@@ -3478,6 +3561,21 @@ function updateAccounts() {
     }
     if (!shown) grid.innerHTML = '<p style="color:var(--text-muted);padding:2rem;">No accounts match this filter.</p>';
     document.getElementById('accountsTitle').textContent = `${USER_ACCOUNT_GOAL} Portfolio Accounts`;
+
+    // Fire low balance toasts (once per session per account, throttled)
+    if (!window._alertedAccounts) window._alertedAccounts = {};
+    alertsTriggered.forEach(a => {
+        const key = `acc_alert_${a.account}_${a.type}`;
+        if (!window._alertedAccounts[key]) {
+            window._alertedAccounts[key] = true;
+            const label = a.nickname ? `PA #${a.account} (${a.nickname})` : `PA #${a.account}`;
+            if (a.type === 'danger') {
+                showToast('danger', '🔴 Account At Risk!', `${label} has hit or exceeded the max drawdown. Balance: ${fmtCurrency(a.balance)}`);
+            } else {
+                showToast('warning', '⚠️ Low Cushion Alert', `${label} is within $${Math.round(a.cushion)} of the fail line. Balance: ${fmtCurrency(a.balance)}`);
+            }
+        }
+    });
 }
 
 function filterAccounts(filter, e) {
@@ -3485,6 +3583,32 @@ function filterAccounts(filter, e) {
     document.querySelectorAll('.filter-pills .pill').forEach(p => p.classList.remove('active'));
     if (e?.target) e.target.classList.add('active');
     updateAccounts();
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOAST NOTIFICATION SYSTEM
+// ═══════════════════════════════════════════════════════
+let _toastQueue = [];
+function showToast(type, title, message, duration = 7000) {
+    const container = document.getElementById('alertToastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `alert-toast toast-${type}`;
+    const icons = { danger: '🔴', warning: '⚠️', success: '✅', info: 'ℹ️' };
+    toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || '🔔'}</div>
+        <div class="toast-body">
+            <div class="toast-title">${title}</div>
+            <div class="toast-msg">${message}</div>
+        </div>
+        <button class="toast-close" onclick="dismissToast(this.closest('.alert-toast'))">✕</button>`;
+    container.appendChild(toast);
+    if (duration > 0) setTimeout(() => dismissToast(toast), duration);
+}
+function dismissToast(el) {
+    if (!el || el.classList.contains('removing')) return;
+    el.classList.add('removing');
+    setTimeout(() => el.remove(), 300);
 }
 
 function updateAnalytics() {

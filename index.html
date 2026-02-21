@@ -3688,21 +3688,23 @@ function renderAdminUsers(profiles) {
 async function approveUser(userId, email) {
     const { error } = await sbClient.from('profiles').update({ approved: true }).eq('id', userId);
     if (error) { showAlert('Error approving user: ' + error.message, 'error'); return; }
-    showAlert(`✓ ${email} approved — they can now access the dashboard`, 'success');
+    showAlert(`✓ ${email} approved`, 'success');
     // Auto-send approval email
-    if (ipInitEmailJS() && email) {
-        const profile = adminAllProfiles.find(p => p.id === userId);
-        const name = profile?.username || email.split('@')[0];
+    if (email) {
         try {
+            emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+            const profile = adminAllProfiles.find(p => p.id === userId);
+            const name = profile?.username || email.split('@')[0];
             await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_MSG_TEMPLATE_ID, {
                 to_email:      email,
                 to_name:       name,
                 admin_subject: '✅ Your account has been approved',
-                admin_message: `Hi ${name},\n\nGreat news — your account has been reviewed and approved. You can now log in and access your dashboard.\n\nIf you have any questions, feel free to reach out.\n\nBest regards,\nYour Account Manager`,
+                admin_message: 'Hi ' + name + ',\n\nGreat news — your account has been reviewed and approved. You can now log in and access your dashboard.\n\nIf you have any questions, feel free to reach out.\n\nBest regards,\nYour Account Manager',
             });
             showAlert(`📧 Approval email sent to ${email}`, 'success');
         } catch(e) {
             console.warn('Approval email failed:', e);
+            showAlert(`✓ Approved but email failed: ${e.text || e.message || e}`, 'error');
         }
     }
     loadAdminData();
@@ -5865,6 +5867,8 @@ function ipAutoUrgentNotify(inv) {
 const EMAILJS_PUBLIC_KEY   = '2HRrFfKcifIKQ10XX';
 const EMAILJS_SERVICE_ID   = 'service_i8ib6bt';
 const EMAILJS_TEMPLATE_ID  = 'template_qpt1abj';
+const EMAILJS_MSG_TEMPLATE_ID = 'template_zhz3lij';
+
 let _emailjsReady = false;
 let _emailScheduleTimer = null;
 const EMAIL_SEND_HOUR = 17; // 5:00 PM
@@ -7087,13 +7091,14 @@ async function dbgApproveOne(userId) {
     dbgLog('✓ Approved: ' + userId.slice(0,8), 'ok');
     // Auto-send approval email
     const prof = _dbgAllProfiles.find(p => p.id === userId);
-    if (ipInitEmailJS() && prof?.email) {
-        const name = prof.username || prof.email.split('@')[0];
+    if (prof?.email) {
         try {
+            emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+            const name = prof.username || prof.email.split('@')[0];
             await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_MSG_TEMPLATE_ID, {
                 to_email: prof.email, to_name: name,
                 admin_subject: '✅ Your account has been approved',
-                admin_message: `Hi ${name},\n\nYour account has been approved. You can now log in and access your dashboard.\n\nBest regards,\nYour Account Manager`,
+                admin_message: 'Hi ' + name + ',\n\nYour account has been approved. You can now log in and access your dashboard.\n\nBest regards,\nYour Account Manager',
             });
         } catch(e) { console.warn('Approval email failed:', e); }
     }
@@ -7414,7 +7419,6 @@ document.addEventListener('click', function(e) {
 
 <script>
 // ── ADMIN MESSAGE MODAL ──
-const EMAILJS_MSG_TEMPLATE_ID = 'template_zhz3lij';
 
 function ipOpenMessageModal() {
     const inv = window.currentInvestorRecord;

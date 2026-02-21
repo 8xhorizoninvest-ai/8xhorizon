@@ -2183,7 +2183,7 @@ const MOOD_ADVICE = {
 function initSupabase() {
     const url = 'https://gmhmtdgultwlleskvpao.supabase.co';
     const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtaG10ZGd1bHR3bGxlc2t2cGFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MzgyOTIsImV4cCI6MjA4NzExNDI5Mn0.D6MyCDPvW05CiVm6DOa0YX1z-lwmTRWDC9a8-gg9gA0';
-    try { sbClient = window.supabase.createClient(url, key); window._SUPA_URL = url; window._SUPA_KEY = key; return true; }
+    try { sbClient = window.supabase.createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage } }); window._SUPA_URL = url; window._SUPA_KEY = key; return true; }
     catch (e) { console.error('Supabase init error:', e); return false; }
 }
 
@@ -2226,7 +2226,8 @@ async function checkSession() {
 
     // Listen for auth changes (sign in / sign out / token refresh)
     sbClient.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session && !sessionHandled) {
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') && session) {
+            if (sessionHandled) return;
             sessionHandled = true;
             currentUser = session.user;
             await ensureProfile(session);
@@ -2236,8 +2237,6 @@ async function checkSession() {
             currentUser = null;
             currentProfile = null;
             hideDashboard();
-        } else if (event === 'TOKEN_REFRESHED' && session) {
-            // Keep session alive on refresh — do nothing extra
         }
     });
 
@@ -2862,7 +2861,7 @@ async function handleTradeSubmit(e) {
         showAlert('✓ ' + trades.length + ' trade(s) logged!', 'success');
         resetTradeForm();
         navigateTo('overview');
-        await loadDashboardData();
+        loadDashboardData(); // intentionally not awaited — runs in background
     } catch (err) {
         showAlert('Failed: ' + (err.message || 'Unknown error'), 'error');
     } finally { setBtnLoadingCustom('tradeSubmit', false); }
@@ -3663,7 +3662,6 @@ function navigateTo(page) {
     if (el) el.classList.add('active');
     document.getElementById('pageTitle').textContent = PAGE_TITLES[page] || page;
     if (page === 'adminPanel')     loadAdminData();
-    if (page === 'overview')       updateAllViews();
     if (page === 'shareJournal')   updateShareJournalPage();
     if (page === 'psychology')     updatePsychPage();
     if (page === 'investorPortal') updateInvestorPortalPage();
@@ -4239,6 +4237,13 @@ async function ipLoadState() {
         ]);
         if (invRes.data) ipInvestors = invRes.data;
         if (reqRes.data) ipModeRequests = reqRes.data;
+
+        // For investor users: allData is empty (they have no own trades).
+        // Load all trades visible to them so ipGetAllTradesForAccount works.
+        if (!allData.length) {
+            const { data: tradeRows } = await sbClient.from('trades').select('*').order('trade_date', {ascending: true});
+            if (tradeRows && tradeRows.length) allData = tradeRows;
+        }
         return;
     } catch(_) {}
     // localStorage fallback

@@ -1184,89 +1184,106 @@
         <div class="tracker-section">
 
           <div class="sec-div">
-            <h3>💰 Investment Tracker &amp; Projection Comparator</h3>
+            <h3>💰 Investment Tracker &amp; Return Calculator</h3>
             <div class="sec-div-line"></div>
           </div>
 
-          <div class="alert alert-info" style="font-size:0.85rem;">
-            <strong>How to use:</strong> Enter your investment amount + start/end date. See <strong>exact calendar dates</strong> for every milestone. Log what you <em>actually</em> earned and compare it to the projection.
-          </div>
+          <!-- TWO-COLUMN INPUT + LIVE BREAKDOWN -->
+          <div class="tracker-grid" style="margin-bottom:1.5rem;">
 
-          <!-- INPUT FORM -->
-          <div class="card" style="margin-bottom:1.5rem;">
-            <div class="card-header">
-              <span class="card-title">⚙️ Your Investment Details</span>
-              <button class="add-btn" onclick="runTracker()" style="font-size:0.75rem;padding:0.35rem 0.875rem;">▶ Calculate</button>
-            </div>
-            <div class="card-body">
-              <div class="tracker-form-grid">
-                <div class="form-group" style="margin-bottom:0">
-                  <label class="form-label">💵 Investment Amount (USD)</label>
+            <!-- LEFT: INPUTS — only what you know -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">⚙️ Your Trade Details</span>
+                <span id="trPeriodBadge" style="font-size:0.72rem;color:var(--text-secondary);font-family:'JetBrains Mono',monospace;"></span>
+              </div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:1.125rem;">
+
+                <!-- Amount invested -->
+                <div class="form-group" style="margin:0">
+                  <label class="form-label">💵 How much did you invest?</label>
                   <div class="input-with-prefix">
                     <span class="input-prefix-label">$</span>
                     <input type="number" id="trInvest" value="1000" min="1" step="100" oninput="runTracker()">
                   </div>
                 </div>
-                <div class="form-group" style="margin-bottom:0">
-                  <label class="form-label">📈 Monthly Return Rate (%)</label>
-                  <div class="input-with-prefix">
-                    <span class="input-prefix-label">%</span>
-                    <input type="number" id="trRate" value="119.23" step="0.1" oninput="runTracker()">
+
+                <!-- Dates -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;">
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">📅 Start Date</label>
+                    <input type="date" id="trFrom" class="form-input" style="padding:0.65rem 1rem;font-family:'JetBrains Mono',monospace;font-weight:600;" oninput="runTracker()">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label class="form-label">📅 End Date</label>
+                    <input type="date" id="trTo" class="form-input" style="padding:0.65rem 1rem;font-family:'JetBrains Mono',monospace;font-weight:600;" oninput="runTracker()">
                   </div>
                 </div>
-                <div class="form-group" style="margin-bottom:0">
-                  <label class="form-label">📅 Trade Start Date (From)</label>
-                  <input type="date" id="trFrom" class="form-input" style="padding:0.65rem 1rem" oninput="runTracker()">
-                </div>
-                <div class="form-group" style="margin-bottom:0">
-                  <label class="form-label">📅 Trade End Date (To)</label>
-                  <input type="date" id="trTo" class="form-input" style="padding:0.65rem 1rem" oninput="runTracker()">
-                </div>
-                <div class="form-group" style="margin-bottom:0">
+
+                <!-- Period summary auto-display -->
+                <div id="trPeriodSummary" style="display:none;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:10px;padding:0.75rem 1rem;font-size:0.8125rem;color:var(--text-secondary);"></div>
+
+                <!-- Fee -->
+                <div class="form-group" style="margin:0">
                   <label class="form-label">💸 Performance Fee (%)</label>
                   <div class="input-with-prefix">
                     <span class="input-prefix-label">%</span>
                     <input type="number" id="trFee" value="30" min="0" max="100" step="1" oninput="runTracker()">
                   </div>
+                  <div style="font-size:0.65rem;color:var(--text-tertiary);margin-top:0.3rem;">Only deducted from profits. 0% if no fee applies.</div>
                 </div>
-                <div class="form-group" style="margin-bottom:0">
-                  <label class="form-label">✅ Actual Amount You Got ($)</label>
-                  <div class="input-with-prefix">
-                    <span class="input-prefix-label">$</span>
-                    <input type="number" id="trActual" placeholder="Enter what you really made..." oninput="runTracker()">
+
+                <!-- ACTUAL EARNED — the key input, prominent -->
+                <div style="background:rgba(16,185,129,0.05);border:2px solid rgba(16,185,129,0.3);border-radius:12px;padding:1.125rem;">
+                  <label class="form-label" style="color:var(--success);margin-bottom:0.5rem;">✅ What did you actually receive? ($)</label>
+                  <div class="input-with-prefix" style="border-color:rgba(16,185,129,0.35);background:var(--bg-primary);">
+                    <span class="input-prefix-label" style="background:rgba(16,185,129,0.12);color:var(--success);border-right-color:rgba(16,185,129,0.25);">$</span>
+                    <input type="number" id="trActual" placeholder="Enter total amount you got back..." oninput="runTracker()" style="font-size:1.25rem;font-weight:700;">
                   </div>
+                  <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.5rem;">
+                    Enter the <strong>total value</strong> you ended with (e.g. $1,850). The calculator works out your profit, return %, monthly rate, and compares it to the PAMM projection — automatically.
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- RIGHT: LIVE RETURN BREAKDOWN -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">📊 Your Return Breakdown</span>
+                <span id="trVerdictBadge" style="font-size:0.72rem;font-weight:700;padding:0.2rem 0.75rem;border-radius:20px;display:none;border:1px solid;"></span>
+              </div>
+              <div id="trActualBreakdown">
+                <div style="text-align:center;padding:3rem 1.5rem;color:var(--text-tertiary);">
+                  <div style="font-size:2.5rem;margin-bottom:0.75rem;">📊</div>
+                  <div style="font-weight:700;color:var(--text-secondary);font-size:0.9375rem;margin-bottom:0.375rem;">Waiting for your numbers</div>
+                  <div style="font-size:0.8rem;line-height:1.6;">Fill in your investment amount, start &amp; end dates, and what you actually received — your full return breakdown will calculate instantly.</div>
                 </div>
               </div>
             </div>
+
           </div>
 
-          <!-- RESULTS (hidden until calculated) -->
+          <!-- PROJECTION MILESTONES -->
           <div id="trackerResults" style="display:none">
 
-            <!-- STAT TILES -->
-            <div class="stat-tiles" id="trStatTiles"></div>
-
-            <!-- PROJECTION MILESTONES -->
-            <div class="sec-div" style="margin-top:0">
-              <h3 style="font-size:0.9375rem">📅 Exact Projection Dates — From Your Start Date</h3>
+            <div class="sec-div" style="margin-top:0.5rem;">
+              <h3 style="font-size:0.9375rem;">📅 PAMM Projection Milestones — Exact Dates from Your Start</h3>
               <div class="sec-div-line"></div>
             </div>
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:1rem;">Based on the <strong style="color:var(--gold);">119.23%/mo PAMM reference rate</strong> — showing what the projection says you <em>should</em> have at each date.</div>
             <div class="milestone-grid" id="trMilestones"></div>
 
-            <!-- PROJECTED vs ACTUAL -->
+            <!-- FULL TABLE + TRADE LOG -->
             <div class="tracker-grid">
               <div class="card">
-                <div class="card-header"><span class="card-title">📊 Projected vs Actual Comparison</span></div>
-                <div class="card-body">
-                  <div class="compare-block" id="trCompare"></div>
-                  <div id="trActualPanel" style="display:none">
-                    <div id="trActualRows"></div>
-                  </div>
-                  <div id="trActualEmpty" style="font-size:0.8125rem;color:var(--text-secondary);font-style:italic">Enter your actual amount above to compare against projection.</div>
+                <div class="card-header"><span class="card-title">📊 Projected vs Actual — Full Breakdown</span></div>
+                <div class="card-body" id="trCompareBody">
+                  <div style="font-size:0.8125rem;color:var(--text-secondary);font-style:italic;">Enter your actual received amount above to see the full comparison.</div>
                 </div>
               </div>
 
-              <!-- TRADE LOG -->
               <div class="card">
                 <div class="card-header" style="flex-wrap:wrap;gap:0.5rem">
                   <span class="card-title">📋 Trade Log</span>
@@ -1275,18 +1292,10 @@
                 <div style="overflow-x:auto">
                   <table class="trade-log-table">
                     <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Profit ($)</th>
-                        <th>Fee ($)</th>
-                        <th>Net ($)</th>
-                        <th>Note</th>
-                        <th></th>
-                      </tr>
+                      <tr><th>Date</th><th>Result</th><th>Gross ($)</th><th>Fee ($)</th><th>Net ($)</th><th>Note</th><th></th></tr>
                     </thead>
                     <tbody id="tradeBody">
-                      <tr id="trNoTrades"><td colspan="7" style="text-align:center;color:var(--text-tertiary);font-size:0.75rem;padding:1.5rem 1rem">No trades logged. Click "+ Add Trade" to start.</td></tr>
+                      <tr id="trNoTrades"><td colspan="7" style="text-align:center;color:var(--text-tertiary);font-size:0.75rem;padding:1.5rem 1rem">No trades logged yet. Click "+ Add Trade".</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -1294,12 +1303,6 @@
               </div>
             </div>
 
-          </div><!-- end trackerResults -->
-
-          <div id="trackerEmpty" class="tracker-empty">
-            <div class="em-icon">💰</div>
-            <div class="em-title">Enter Your Investment Details Above</div>
-            <p style="font-size:0.8125rem">Fill in amount, dates and monthly return rate to see exact projection dates and compare with your actual results.</p>
           </div>
 
         </div><!-- end tracker-section -->
@@ -1653,266 +1656,260 @@ calc();
 window.addEventListener('resize', calc);
 
 // ══════════════════════════════════════════════════════
-//  INVESTMENT TRACKER & PROJECTION COMPARATOR
+//  INVESTMENT TRACKER — derives return from actual amount
 // ══════════════════════════════════════════════════════
 
+const PAMM_REF_RATE = 119.23;
 let tradeCounter = 0;
-let tradeRows = [];
 
-// Set default dates on load
-(function initTrackerDates() {
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-    const future = new Date(today);
-    future.setMonth(future.getMonth() + 6);
-    const futureStr = future.toISOString().split('T')[0];
-    document.getElementById('trFrom').value = todayStr;
-    document.getElementById('trTo').value   = futureStr;
+(function initDates() {
+    const t = new Date();
+    document.getElementById('trFrom').value = t.toISOString().split('T')[0];
+    const e = new Date(t); e.setMonth(e.getMonth() + 3);
+    document.getElementById('trTo').value = e.toISOString().split('T')[0];
+    runTracker();
 })();
 
-function tfmt(n, decimals = 2) {
-    if (isNaN(n)) return '—';
-    return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+function td(n,dec=2){ return '$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+function ts(n,dec=2){ return (n>=0?'+':'-')+td(n,dec); }
+function tp(n,dec=2){ return (n>=0?'+':'')+n.toFixed(dec)+'%'; }
+function fd(d){ return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }
+function rel(d){
+    const now=new Date();now.setHours(0,0,0,0);
+    const diff=Math.round((d-now)/86400000);
+    if(diff===0)return '📍 Today';
+    if(diff===1)return 'Tomorrow';
+    if(diff===-1)return 'Yesterday';
+    if(diff<0)return Math.abs(diff)+' days ago';
+    if(diff<8)return 'In '+diff+' day'+(diff>1?'s':'');
+    if(diff<60)return 'In ~'+Math.round(diff/7)+' wk'+(Math.round(diff/7)>1?'s':'');
+    if(diff<365)return 'In ~'+Math.round(diff/30.5)+' mo';
+    return 'In ~'+(diff/365).toFixed(1)+' yrs';
 }
-function fmtDate2(d) {
-    return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
-}
-function relDate(d) {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const diff = Math.round((d - today) / 86400000);
-    if (diff === 0) return 'Today';
-    if (diff === 1) return 'Tomorrow';
-    if (diff === -1) return 'Yesterday';
-    if (diff < 0) return Math.abs(diff) + ' days ago';
-    if (diff < 7) return 'In ' + diff + ' days';
-    if (diff < 30) return 'In ' + Math.round(diff/7) + ' week' + (Math.round(diff/7)>1?'s':'');
-    if (diff < 365) return 'In ' + Math.round(diff/30) + ' month' + (Math.round(diff/30)>1?'s':'');
-    return 'In ' + (diff/365).toFixed(1) + ' years';
-}
-function addCalendarMonths(date, months) {
-    const d = new Date(date);
-    d.setMonth(d.getMonth() + months);
-    return d;
-}
-function calendarMonthsBetween(a, b) {
-    return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()) + (b.getDate() >= a.getDate() ? 0 : -1);
+function addMo(d,n){ const x=new Date(d);x.setMonth(x.getMonth()+n);return x; }
+function mosBetween(a,b){ return Math.max(1,(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()); }
+
+function pammProject(invest,months,fee){
+    let b=invest;
+    for(let i=0;i<months;i++){const g=b*(PAMM_REF_RATE/100);b+=g>0?g*(1-fee/100):g;}
+    return b;
 }
 
-function runTracker() {
-    const invest  = parseFloat(document.getElementById('trInvest').value) || 0;
-    const rate    = parseFloat(document.getElementById('trRate').value)   || 0;
+function cRow(icon,label,val,color,sub='',big=false){
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border-radius:10px;border:1.5px solid ${color}25;background:${color}07;gap:1rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+      <div>
+        <div style="font-size:0.8125rem;font-weight:600;color:var(--text-secondary);">${icon} ${label}</div>
+        ${sub?`<div style="font-size:0.65rem;color:var(--text-tertiary);margin-top:0.15rem;">${sub}</div>`:''}
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:${big?'1.375':'1.0625'}rem;font-weight:800;color:${color};white-space:nowrap;">${val}</div>
+    </div>`;
+}
+
+function runTracker(){
+    const invest  = parseFloat(document.getElementById('trInvest').value)||0;
     const fromVal = document.getElementById('trFrom').value;
     const toVal   = document.getElementById('trTo').value;
-    const fee     = parseFloat(document.getElementById('trFee').value)    || 0;
-    const actual  = parseFloat(document.getElementById('trActual').value);
+    const fee     = parseFloat(document.getElementById('trFee').value)||0;
+    const actualRaw = document.getElementById('trActual').value;
+    const actual  = actualRaw!==''?parseFloat(actualRaw):null;
 
-    if (!invest || !rate || !fromVal || !toVal) {
-        document.getElementById('trackerResults').style.display = 'none';
-        document.getElementById('trackerEmpty').style.display = 'block';
-        return;
-    }
+    if(!invest||!fromVal||!toVal){document.getElementById('trackerResults').style.display='none';return;}
+    const fromDate=new Date(fromVal+'T00:00:00');
+    const toDate=new Date(toVal+'T00:00:00');
+    if(toDate<=fromDate)return;
 
-    document.getElementById('trackerResults').style.display = 'block';
-    document.getElementById('trackerEmpty').style.display = 'none';
+    const months   =mosBetween(fromDate,toDate);
+    const calDays  =Math.round((toDate-fromDate)/86400000);
+    const tradeDays=Math.round(calDays*5/7);
 
-    const fromDate = new Date(fromVal + 'T00:00:00');
-    const toDate   = new Date(toVal   + 'T00:00:00');
-    const today    = new Date(); today.setHours(0,0,0,0);
+    const pSum=document.getElementById('trPeriodSummary');
+    pSum.style.display='block';
+    pSum.innerHTML=`📅 <strong>${fd(fromDate)}</strong> → <strong>${fd(toDate)}</strong> &nbsp;·&nbsp; <strong>${months}</strong> month${months!==1?'s':''} &nbsp;·&nbsp; <strong>${calDays}</strong> calendar days &nbsp;·&nbsp; ~<strong>${tradeDays}</strong> trading days`;
+    document.getElementById('trPeriodBadge').textContent=`${months} mo · ${calDays} days`;
+    document.getElementById('trackerResults').style.display='block';
 
-    const monthsTotal = Math.max(1, calendarMonthsBetween(fromDate, toDate));
-    const monthlyDecimal = rate / 100;
+    const projEnd   =pammProject(invest,months,fee);
+    const projProfit=projEnd-invest;
+    const projROI   =(projProfit/invest)*100;
+    const projMo    =projProfit/months;
+    const projDay   =projProfit/tradeDays;
 
-    // ── Compute projected value for period ──
-    let balance = invest;
-    for (let m = 0; m < monthsTotal; m++) {
-        const gross = balance * monthlyDecimal;
-        const feeAmt = gross > 0 ? gross * (fee / 100) : 0;
-        balance += (gross - feeAmt);
-    }
-    const projectedValue  = balance;
-    const projectedProfit = projectedValue - invest;
-    const dailyAvg = (projectedProfit / monthsTotal) / 22;
-    const weeklyAvg = (projectedProfit / monthsTotal) / 4.33;
-
-    // ── STAT TILES ──
-    document.getElementById('trStatTiles').innerHTML = `
-        <div class="stat-tile"><div class="st-val blue">${tfmt(invest)}</div><div class="st-lbl">Invested</div></div>
-        <div class="stat-tile"><div class="st-val gold">${tfmt(projectedValue)}</div><div class="st-lbl">Proj. End Value</div><div class="st-sub">${monthsTotal} month${monthsTotal!==1?'s':''}</div></div>
-        <div class="stat-tile"><div class="st-val pos">${tfmt(projectedProfit)}</div><div class="st-lbl">Proj. Profit</div></div>
-        <div class="stat-tile"><div class="st-val purple">${((projectedProfit/invest)*100).toFixed(1)}%</div><div class="st-lbl">Total ROI</div></div>
-        <div class="stat-tile"><div class="st-val pos">${tfmt(dailyAvg, 2)}</div><div class="st-lbl">Avg / Day</div><div class="st-sub">22 trading days/mo</div></div>
-        <div class="stat-tile"><div class="st-val pos">${tfmt(weeklyAvg, 2)}</div><div class="st-lbl">Avg / Week</div></div>
-        <div class="stat-tile"><div class="st-val blue">${tfmt(projectedProfit/monthsTotal)}</div><div class="st-lbl">Avg / Month</div></div>
-        <div class="stat-tile"><div class="st-val gold">${rate}%</div><div class="st-lbl">Monthly Rate</div><div class="st-sub">After ${fee}% fee</div></div>`;
-
-    // ── MILESTONE CARDS ──
-    const milestones = [
-        { label: '1 Month',   mo: 1  },
-        { label: '2 Months',  mo: 2  },
-        { label: '3 Months',  mo: 3  },
-        { label: '6 Months',  mo: 6  },
-        { label: '9 Months',  mo: 9  },
-        { label: '1 Year',    mo: 12 },
-        { label: '18 Months', mo: 18 },
-        { label: '2 Years',   mo: 24 },
-    ];
-
-    let mHtml = '';
-    milestones.forEach(m => {
-        const mDate = addCalendarMonths(fromDate, m.mo);
-        let bal = invest;
-        for (let i = 0; i < m.mo; i++) {
-            const g = bal * monthlyDecimal;
-            const f = g > 0 ? g * (fee/100) : 0;
-            bal += (g - f);
-        }
-        const profit = bal - invest;
-        const isPast   = mDate < today;
-        const isToday  = mDate.toDateString() === today.toDateString();
-        const isWithin = mDate <= toDate;
-        const cls = isPast ? 'past' : (isToday ? 'today' : (m.mo <= monthsTotal ? 'soon' : 'future'));
-        const badge = isPast ? '<span class="ms-badge past">Past</span>' : isToday ? '<span class="ms-badge now">Today!</span>' : '<span class="ms-badge coming">Upcoming</span>';
-        const outNote = !isWithin ? '<div style="font-size:0.55rem;color:var(--warning);margin-top:0.2rem">⚠️ Beyond end date</div>' : '';
-        mHtml += `<div class="milestone-card ${cls}">
-            <div class="ms-period">${m.label}</div>
-            <div class="ms-date">${fmtDate2(mDate)}</div>
-            <div class="ms-rel">${relDate(mDate)}</div>
-            <div class="ms-val">${tfmt(bal)}</div>
-            <div class="ms-profit">+${tfmt(profit)} profit</div>
-            ${badge}${outNote}
+    // Milestones
+    const msList=[{label:'1 Month',mo:1},{label:'2 Months',mo:2},{label:'3 Months',mo:3},
+        {label:'6 Months',mo:6},{label:'9 Months',mo:9},{label:'1 Year',mo:12},
+        {label:'18 Months',mo:18},{label:'2 Years',mo:24}];
+    const today=new Date();today.setHours(0,0,0,0);
+    let mHtml='';
+    msList.forEach(ms=>{
+        const mDate=addMo(fromDate,ms.mo);
+        const bal=pammProject(invest,ms.mo,fee);
+        const profit=bal-invest;
+        const isPast=mDate<today,isNow=mDate.toDateString()===today.toDateString(),inRng=mDate<=toDate;
+        const cls=isPast?'past':isNow?'today':inRng?'soon':'future';
+        const badge=isPast?'<span class="ms-badge past">Past</span>':isNow?'<span class="ms-badge now">TODAY</span>':'<span class="ms-badge coming">Upcoming</span>';
+        const warn=!inRng?'<div style="font-size:0.55rem;color:var(--warning);margin-top:0.15rem">⚠ Beyond end date</div>':'';
+        mHtml+=`<div class="milestone-card ${cls}">
+            <div class="ms-period">${ms.label}</div>
+            <div class="ms-date">${fd(mDate)}</div>
+            <div class="ms-rel">${rel(mDate)}</div>
+            <div class="ms-val">${td(bal)}</div>
+            <div class="ms-profit">+${td(profit)} profit</div>
+            ${badge}${warn}
         </div>`;
     });
-    document.getElementById('trMilestones').innerHTML = mHtml;
+    document.getElementById('trMilestones').innerHTML=mHtml;
 
-    // ── PROJECTED vs ACTUAL ──
-    let compareHtml = `
-        <div class="compare-row projected">
-            <span class="cr-label">📊 Projected End Value (${monthsTotal} months)</span>
-            <span class="cr-val" style="color:var(--accent)">${tfmt(projectedValue)}</span>
-        </div>
-        <div class="compare-row projected">
-            <span class="cr-label">📈 Projected Total Profit</span>
-            <span class="cr-val" style="color:var(--accent)">+${tfmt(projectedProfit)}</span>
-        </div>
-        <div class="compare-row projected">
-            <span class="cr-label">📅 Period: ${fmtDate2(fromDate)} → ${fmtDate2(toDate)}</span>
-            <span class="cr-val" style="color:var(--text-secondary);font-size:0.875rem">${monthsTotal} months</span>
-        </div>`;
-    document.getElementById('trCompare').innerHTML = compareHtml;
+    const bdEl=document.getElementById('trActualBreakdown');
+    const vBadge=document.getElementById('trVerdictBadge');
 
-    if (!isNaN(actual)) {
-        const actualProfit = actual - invest;
-        const diff         = actual - projectedValue;
-        const diffPct      = projectedProfit !== 0 ? ((actualProfit - projectedProfit) / Math.abs(projectedProfit) * 100) : 0;
-        const beat         = diff >= 0;
-        document.getElementById('trActualPanel').style.display = 'block';
-        document.getElementById('trActualEmpty').style.display  = 'none';
-        document.getElementById('trActualRows').innerHTML = `
-            <div class="compare-row ${actualProfit >= 0 ? 'actual-pos' : 'actual-neg'}" style="margin-top:0.875rem">
-                <span class="cr-label">✅ Actual End Value (What You Got)</span>
-                <span class="cr-val" style="color:${actualProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">${tfmt(actual)}</span>
+    if(actual!==null&&!isNaN(actual)&&actual>0){
+        const profit=actual-invest;
+        const roi=(profit/invest)*100;
+        const mo=profit/months;
+        const day=profit/tradeDays;
+        const week=day*5;
+        const beat=actual>=projEnd;
+        const diff=actual-projEnd;
+        const pColor=profit>=0?'var(--success)':'var(--danger)';
+        const vColor=beat?'var(--success)':'var(--danger)';
+        const impliedMoRate=(Math.pow(actual/invest,1/months)-1)*100;
+        const rateVsRef=impliedMoRate-PAMM_REF_RATE;
+
+        vBadge.style.display='inline-block';
+        vBadge.textContent=beat?'🟢 BEAT PAMM':'🔴 BELOW PAMM';
+        vBadge.style.background=beat?'rgba(16,185,129,0.1)':'rgba(239,68,68,0.08)';
+        vBadge.style.color=vColor;
+        vBadge.style.borderColor=beat?'rgba(16,185,129,0.3)':'rgba(239,68,68,0.25)';
+
+        bdEl.innerHTML=`
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.625rem;padding:1.25rem 1.5rem 1rem;">
+            <div style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:12px;padding:0.875rem;text-align:center;">
+              <div style="font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-secondary);margin-bottom:0.3rem;">You Got Back</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:800;color:var(--text-primary);line-height:1;">${td(actual)}</div>
+              <div style="font-size:0.6rem;color:var(--text-tertiary);margin-top:0.2rem;">from ${td(invest)}</div>
             </div>
-            <div class="compare-row ${actualProfit >= 0 ? 'actual-pos' : 'actual-neg'}">
-                <span class="cr-label">💵 Your Actual Profit</span>
-                <span class="cr-val" style="color:${actualProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">${actualProfit >= 0 ? '+' : '-'}${tfmt(actualProfit)}</span>
+            <div style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:12px;padding:0.875rem;text-align:center;">
+              <div style="font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-secondary);margin-bottom:0.3rem;">Net Profit</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:800;color:${pColor};line-height:1;">${ts(profit)}</div>
+              <div style="font-size:0.6rem;color:var(--text-tertiary);margin-top:0.2rem;">${months} month${months!==1?'s':''}</div>
             </div>
-            <div class="compare-row ${beat ? 'beat' : 'missed'}">
-                <span class="cr-label">${beat ? '🟢 BEAT PROJECTION' : '🔴 MISSED PROJECTION'} — vs Forecast</span>
-                <span class="cr-val" style="color:${beat ? 'var(--success)' : 'var(--danger)'}">${beat ? '+' : ''}${tfmt(diff)} (${diffPct >= 0 ? '+' : ''}${diffPct.toFixed(1)}%)</span>
+            <div style="background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:12px;padding:0.875rem;text-align:center;">
+              <div style="font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-secondary);margin-bottom:0.3rem;">Total ROI</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:800;color:${pColor};line-height:1;">${tp(roi)}</div>
+              <div style="font-size:0.6rem;color:var(--text-tertiary);margin-top:0.2rem;">${calDays} days</div>
+            </div>
+          </div>
+          <div style="padding:0 1.5rem 1.5rem;display:flex;flex-direction:column;gap:0.5rem;">
+            ${cRow('📈','Your Monthly Return Rate',tp(impliedMoRate),pColor,`Calculated from results · PAMM ref: ${PAMM_REF_RATE}% · Your rate vs ref: ${tp(rateVsRef)}`)}
+            ${cRow('📅','Avg Monthly Profit',ts(mo),pColor,`Over ${months} months`)}
+            ${cRow('📅','Avg Daily Profit',ts(day),pColor,`~${tradeDays} trading days`)}
+            ${cRow('📅','Avg Weekly Profit',ts(week),pColor,`~${Math.round(tradeDays/5)} weeks`)}
+            <div style="height:1px;background:var(--border);margin:0.25rem 0;"></div>
+            ${cRow('🎯','PAMM Projection Same Period',td(projEnd),'var(--accent)',`${PAMM_REF_RATE}%/mo ref · ${tp(projROI)} ROI · avg ${ts(projMo)}/mo`)}
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.125rem;border-radius:12px;border:2px solid ${vColor}40;background:${vColor}08;flex-wrap:wrap;gap:0.75rem;margin-top:0.25rem;">
+              <div>
+                <div style="font-size:0.9375rem;font-weight:800;color:${vColor};">${beat?'🟢 You beat the PAMM projection':'🔴 You came in below the PAMM projection'}</div>
+                <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.25rem;">Your ROI: ${tp(roi)} &nbsp;|&nbsp; PAMM projected: ${tp(projROI)} &nbsp;|&nbsp; Gap: ${tp(roi-projROI)} pts</div>
+              </div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:1.625rem;font-weight:800;color:${vColor};">${ts(diff)}</div>
+            </div>
+          </div>`;
+
+        document.getElementById('trCompareBody').innerHTML=`
+            ${cRow('💰','You Invested',td(invest),'var(--text-secondary)')}
+            ${cRow('✅','You Got Back (Actual)',td(actual),pColor)}
+            ${cRow('📈','Your Net Profit',ts(profit),pColor)}
+            ${cRow('📊','Your Total ROI',tp(roi),pColor,`${months} months · ${calDays} days`)}
+            ${cRow('📈','Your Monthly Return Rate',tp(impliedMoRate),pColor,'Back-calculated from your actual result')}
+            ${cRow('📅','Avg / Month',ts(mo),pColor)}
+            ${cRow('📅','Avg / Day',ts(day),pColor,`~${tradeDays} trading days`)}
+            <div style="height:1px;background:var(--border);margin:0.75rem 0;"></div>
+            ${cRow('🎯','PAMM Projected End Value',td(projEnd),'var(--accent)',`At ${PAMM_REF_RATE}%/mo ref rate`)}
+            ${cRow('🎯','PAMM Projected Profit',ts(projProfit),'var(--accent)',tp(projROI)+' ROI')}
+            ${cRow('🎯','PAMM Avg / Month',ts(projMo),'var(--accent)')}
+            <div style="height:1px;background:var(--border);margin:0.75rem 0;"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border-radius:10px;border:2px solid ${vColor}40;background:${vColor}08;flex-wrap:wrap;gap:0.5rem;">
+              <span style="font-weight:700;color:${vColor};font-size:0.9375rem;">${beat?'🟢 Outperformed PAMM by':'🔴 Underperformed PAMM by'}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:1.25rem;color:${vColor};">${ts(diff)} &nbsp;(${tp(roi-projROI,1)} pts)</span>
             </div>`;
-    } else {
-        document.getElementById('trActualPanel').style.display = 'none';
-        document.getElementById('trActualEmpty').style.display = 'block';
-    }
 
+    } else {
+        vBadge.style.display='none';
+        bdEl.innerHTML=`
+          <div style="padding:1.25rem 1.5rem;">
+            <div style="background:rgba(217,119,6,0.07);border:1px solid rgba(217,119,6,0.2);border-radius:10px;padding:0.75rem 1rem;font-size:0.8rem;color:var(--gold);margin-bottom:1rem;">
+              📊 Showing PAMM projection for your period. Enter what you <strong>actually received</strong> to the left to get your real return breakdown.
+            </div>
+            ${cRow('💰','Investment',td(invest),'var(--text-secondary)')}
+            ${cRow('🎯','PAMM Projected End Value',td(projEnd),'var(--accent)',`${months} months at ${PAMM_REF_RATE}%/mo ref rate`,true)}
+            ${cRow('📈','PAMM Projected Profit',ts(projProfit),'var(--accent)',tp(projROI)+' total ROI')}
+            ${cRow('📅','PAMM Avg / Month',ts(projMo),'var(--accent)')}
+            ${cRow('📅','PAMM Avg / Day',ts(projDay),'var(--accent)',`~${tradeDays} trading days`)}
+          </div>`;
+        document.getElementById('trCompareBody').innerHTML=`<div style="font-size:0.8125rem;color:var(--text-secondary);font-style:italic;">Enter your actual received amount in the form to see the full comparison.</div>`;
+    }
     renderTradeLog();
 }
 
-function addTrade() {
-    const id = ++tradeCounter;
-    const today = new Date().toISOString().split('T')[0];
-    const noRow = document.getElementById('trNoTrades');
-    if (noRow) noRow.remove();
-    const tr = document.createElement('tr');
-    tr.id = 'tr-row-' + id;
-    tr.innerHTML = `
-        <td><input type="date" value="${today}" onchange="calcTradeFee(${id})"></td>
-        <td>
-          <select onchange="calcTradeFee(${id})" style="min-width:90px">
-            <option value="win">✅ Win</option>
-            <option value="loss">❌ Loss</option>
-            <option value="be">➡️ B/E</option>
-          </select>
-        </td>
-        <td><input type="number" id="tr-profit-${id}" placeholder="0.00" step="0.01" oninput="calcTradeFee(${id})" style="width:90px"></td>
-        <td id="tr-fee-${id}" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--danger)">—</td>
-        <td id="tr-net-${id}" style="font-family:'JetBrains Mono',monospace;font-weight:700">—</td>
-        <td><input type="text" placeholder="Notes..." style="min-width:100px"></td>
+function addTrade(){
+    const id=++tradeCounter;
+    const today=new Date().toISOString().split('T')[0];
+    document.getElementById('trNoTrades')?.remove();
+    const tr=document.createElement('tr');
+    tr.id='tr-row-'+id;
+    tr.innerHTML=`
+        <td><input type="date" value="${today}" style="min-width:120px"></td>
+        <td><select style="min-width:85px"><option value="win">✅ Win</option><option value="loss">❌ Loss</option><option value="be">➡️ B/E</option></select></td>
+        <td><input type="number" id="tr-gross-${id}" placeholder="0.00" step="0.01" oninput="calcRow(${id})" style="width:90px"></td>
+        <td id="tr-fee-${id}" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:700;color:var(--danger)">—</td>
+        <td id="tr-net-${id}" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:700;">—</td>
+        <td><input type="text" placeholder="Notes..." style="min-width:90px"></td>
         <td><button class="del-btn" onclick="deleteTrade(${id})">✕</button></td>`;
     document.getElementById('tradeBody').appendChild(tr);
-    tradeRows.push(id);
+}
+
+function calcRow(id){
+    const gross=parseFloat(document.getElementById('tr-gross-'+id)?.value)||0;
+    const fee=parseFloat(document.getElementById('trFee').value)||0;
+    const fa=gross>0?gross*(fee/100):0,net=gross-fa;
+    const fEl=document.getElementById('tr-fee-'+id),nEl=document.getElementById('tr-net-'+id);
+    if(fEl)fEl.textContent=fa>0?'-'+td(fa):'—';
+    if(nEl){nEl.textContent=gross!==0?ts(net):'—';nEl.style.color=net>=0?'var(--success)':'var(--danger)';}
     renderTradeLog();
 }
 
-function calcTradeFee(id) {
-    const profitEl = document.getElementById('tr-profit-' + id);
-    const feeEl    = document.getElementById('tr-fee-' + id);
-    const netEl    = document.getElementById('tr-net-' + id);
-    const profit   = parseFloat(profitEl?.value) || 0;
-    const fee      = parseFloat(document.getElementById('trFee').value) || 0;
-    const feeAmt   = profit > 0 ? profit * (fee / 100) : 0;
-    const net      = profit - feeAmt;
-    if (feeEl) { feeEl.textContent = feeAmt > 0 ? '-' + tfmt(feeAmt) : '—'; }
-    if (netEl) {
-        netEl.textContent = profit !== 0 ? (net >= 0 ? '+' : '') + tfmt(net) : '—';
-        netEl.style.color = net >= 0 ? 'var(--success)' : 'var(--danger)';
-    }
+function deleteTrade(id){
+    document.getElementById('tr-row-'+id)?.remove();
+    if(!document.querySelectorAll('#tradeBody tr:not(#trNoTrades)').length)
+        document.getElementById('tradeBody').innerHTML='<tr id="trNoTrades"><td colspan="7" style="text-align:center;color:var(--text-tertiary);font-size:0.75rem;padding:1.5rem 1rem">No trades logged yet.</td></tr>';
     renderTradeLog();
 }
 
-function deleteTrade(id) {
-    const row = document.getElementById('tr-row-' + id);
-    if (row) row.remove();
-    tradeRows = tradeRows.filter(r => r !== id);
-    if (!document.querySelectorAll('#tradeBody tr:not(#trNoTrades)').length) {
-        document.getElementById('tradeBody').innerHTML =
-            '<tr id="trNoTrades"><td colspan="7" style="text-align:center;color:var(--text-tertiary);font-size:0.75rem;padding:1.5rem 1rem">No trades logged. Click "+ Add Trade" to start.</td></tr>';
-    }
-    renderTradeLog();
-}
-
-function renderTradeLog() {
-    const fee   = parseFloat(document.getElementById('trFee').value) || 0;
-    const rows  = document.querySelectorAll('#tradeBody tr:not(#trNoTrades)');
-    let totalGross = 0, totalFee = 0, totalNet = 0, wins = 0, losses = 0;
-    rows.forEach(row => {
-        const profitInput = row.querySelector('input[type="number"]');
-        const typeSelect  = row.querySelector('select');
-        if (!profitInput || !typeSelect) return;
-        const gross = parseFloat(profitInput.value) || 0;
-        const feeAmt = gross > 0 ? gross * (fee/100) : 0;
-        const net = gross - feeAmt;
-        totalGross += gross; totalFee += feeAmt; totalNet += net;
-        if (typeSelect.value === 'win') wins++;
-        if (typeSelect.value === 'loss') losses++;
+function renderTradeLog(){
+    const fee=parseFloat(document.getElementById('trFee').value)||0;
+    const rows=document.querySelectorAll('#tradeBody tr:not(#trNoTrades)');
+    let g=0,f=0,n=0,w=0,l=0;
+    rows.forEach(r=>{
+        const gross=parseFloat(r.querySelector('input[type="number"]')?.value)||0;
+        const fa=gross>0?gross*(fee/100):0;
+        g+=gross;f+=fa;n+=(gross-fa);
+        const v=r.querySelector('select')?.value;
+        if(v==='win')w++;if(v==='loss')l++;
     });
-    const sumEl = document.getElementById('trLogSummary');
-    if (rows.length > 0) {
-        sumEl.style.display = 'flex';
-        sumEl.innerHTML = `
+    const s=document.getElementById('trLogSummary');
+    if(rows.length>0){
+        s.style.display='flex';
+        s.innerHTML=`
             <div class="log-sum-item"><div class="log-sum-val">${rows.length}</div><div class="log-sum-lbl">Trades</div></div>
-            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--success)">${wins}</div><div class="log-sum-lbl">Wins</div></div>
-            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--danger)">${losses}</div><div class="log-sum-lbl">Losses</div></div>
-            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--success)">${rows.length>0?Math.round(wins/rows.length*100):0}%</div><div class="log-sum-lbl">Win Rate</div></div>
-            <div class="log-sum-item"><div class="log-sum-val" style="color:${totalGross>=0?'var(--success)':'var(--danger)'}">${totalGross>=0?'+':''}${tfmt(totalGross)}</div><div class="log-sum-lbl">Gross P&L</div></div>
-            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--danger)">-${tfmt(totalFee)}</div><div class="log-sum-lbl">Fees</div></div>
-            <div class="log-sum-item"><div class="log-sum-val" style="color:${totalNet>=0?'var(--success)':'var(--danger)'}">${totalNet>=0?'+':''}${tfmt(totalNet)}</div><div class="log-sum-lbl">Net P&L</div></div>`;
-    } else {
-        sumEl.style.display = 'none';
-    }
+            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--success)">${w}</div><div class="log-sum-lbl">Wins</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--danger)">${l}</div><div class="log-sum-lbl">Losses</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--accent)">${rows.length?Math.round(w/rows.length*100):0}%</div><div class="log-sum-lbl">Win Rate</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:${g>=0?'var(--success)':'var(--danger)'}">${ts(g)}</div><div class="log-sum-lbl">Gross</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:var(--danger)">-${td(f)}</div><div class="log-sum-lbl">Fees</div></div>
+            <div class="log-sum-item"><div class="log-sum-val" style="color:${n>=0?'var(--success)':'var(--danger)'}">${ts(n)}</div><div class="log-sum-lbl">Net P&L</div></div>`;
+    } else s.style.display='none';
 }
 
-// Auto-run tracker on load
-runTracker();
+</script>
 </body>
 </html>
